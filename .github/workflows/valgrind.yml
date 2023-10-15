@@ -19,7 +19,7 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get update
-          sudo apt-get -y -qq install valgrind libxrandr-dev mesa-common-dev libgl-dev libxinerama-dev libxcursor-dev
+          sudo apt-get -y -qq install valgrind libxrandr-dev mesa-common-dev libgl-dev libxinerama-dev libxcursor-dev libxi-dev
 
       - name: Setup deps
         run: |
