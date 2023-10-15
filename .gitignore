@@ -1,3 +1,5 @@
 build/
 
 raytracer
+
+gmon.out
