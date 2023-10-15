@@ -49,5 +49,10 @@ jobs:
         env:
           MAKEFLAGS: -j3
 
+      - name: Debug
+        run: |
+          pwd
+          echo $(pwd)
+
       - name: Run valgrind
         run: ./raytracer
