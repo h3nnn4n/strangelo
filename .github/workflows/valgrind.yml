@@ -16,6 +16,11 @@ jobs:
         run: |
           git submodule update --init --recursive
 
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get -y -qq install valgrind libxrandr-dev mesa-common-dev libgl
+
       - name: Setup deps
         run: |
           cd deps/glfw/
@@ -32,11 +37,6 @@ jobs:
           make
         env:
           MAKEFLAGS: -j3
-
-      - name: Install deps
-        run: |
-          sudo apt-get update
-          sudo apt-get -y -qq install valgrind
 
       - name: Build
         run: make callgrind
