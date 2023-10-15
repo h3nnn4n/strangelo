@@ -12,9 +12,35 @@ jobs:
           fetch-depth: 1
           submodules: true
 
-      - name: Install deps
+      - name: Pull & update submodules recursively
+        run: |
+          git submodule update --init --recursive
+
+      - name: Install project deps
         run: |
           sudo apt-get update
+          sudo apt-get -y -qq install libxrandr-dev mesa-common-dev libgl-dev libxinerama-dev libxcursor-dev libxi-dev
+
+      - name: Build project deps deps
+        run: |
+          cd deps/glfw/
+          mkdir build
+          cd build
+          cmake .. -DBUILD_SHARED_LIBS=ON
+          make
+          cd ../../
+
+          cd cJSON
+          mkdir build
+          cd build
+          cmake ..
+          make
+          cd ../../
+        env:
+          MAKEFLAGS: -j3
+
+      - name: Install deps
+        run: |
           sudo apt-get -y -qq install curl
           sudo apt-get -y -qq install clang-tidy cmake jq clang cppcheck
           python -m pip install scan-build
