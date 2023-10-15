@@ -16,6 +16,22 @@ jobs:
         run: |
           git submodule update --init --recursive
 
+      - name: Setup deps
+        run: |
+          cd deps/glfw/
+          mkdir build
+          cmake .. -DBUILD_SHARED_LIBS=ON
+          make
+
+          cd ..
+          cd cJSON
+          mkdir build
+          cd build
+          cmake ..
+          make
+        env:
+          MAKEFLAGS=-j3
+
       - name: Install deps
         run: |
           sudo apt-get update
