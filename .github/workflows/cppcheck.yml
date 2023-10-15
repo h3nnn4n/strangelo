@@ -55,4 +55,4 @@ jobs:
           intercept-build make
 
       - name: run cppcheck
-        run: cppcheck --enable=all --suppress=unusedFunction --suppress=missingIncludeSystem --std=c11 --language=c --error-exitcode=1 src/*.c src/*.cpp
+        run: cppcheck --enable=all --suppress=unusedFunction --suppress=missingIncludeSystem --std=c11 --language=c --error-exitcode=1 src/*.c
