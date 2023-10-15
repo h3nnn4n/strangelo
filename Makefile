@@ -68,6 +68,21 @@ build: $(TARGET)
 
 rebuild: clean $(TARGET)
 
+debug: debug_prepare build
+
+debug_prepare:
+	$(eval OPTIMIZATION=-g -pg -O0)
+
+gperftools: gperftools_prepare build
+
+gperftools_prepare:
+	$(eval OPTIMIZATION=-DWITHGPERFTOOLS -lprofiler -ltcmalloc -g -pg -O2 -DNDEBUG -fno-inline-functions -fno-inline-functions-called-once -fno-optimize-sibling-calls)
+
+callgrind: callgrind_prepare build
+
+callgrind_prepare:
+	$(eval OPTIMIZATION=-g -O2 -DNDEBUG -fno-inline-functions -fno-inline-functions-called-once -fno-optimize-sibling-calls -fno-default-inline -fno-inline)
+
 run: $(TARGET)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) $(CURDIR)/$(TARGET)
 
