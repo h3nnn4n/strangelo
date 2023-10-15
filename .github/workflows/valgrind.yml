@@ -30,7 +30,7 @@ jobs:
           cmake ..
           make
         env:
-          MAKEFLAGS=-j3
+          MAKEFLAGS: -j3
 
       - name: Install deps
         run: |
