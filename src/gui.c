@@ -30,8 +30,9 @@
 #include "manager.h"
 #include "settings.h"
 
-struct ImGuiContext *ctx;
-struct ImGuiIO      *io;
+struct ImGuiContext  *ctx;
+struct ImGuiIO       *io;
+struct ImPlotContext *plot_ctx;
 
 char *buffer;
 
@@ -45,8 +46,9 @@ int   fps_pivot     = 0;
 int   fps_avg_pivot = 0;
 
 void gui_init() {
-    ctx = igCreateContext(NULL);
-    io  = igGetIO();
+    ctx      = igCreateContext(NULL);
+    io       = igGetIO();
+    plot_ctx = ImPlot_CreateContext();
 
     const char *glsl_version = "#version 460 core";
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -67,6 +69,7 @@ void gui_terminate() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     igDestroyContext(ctx);
+    ImPlot_DestroyContext(plot_ctx);
 
     free(buffer);
 }
@@ -126,24 +129,22 @@ void gui_update_fps() {
     sprintf(buffer, " ms: %6.4f", ms);
     igText(buffer);
 
-    /*ImVec2 size            = {200, 100};*/
-    /*ImVec4 plot_color_line = {1, 1, 0, 1};*/
-    /*ImVec4 plot_color_fill = {1, 1, 0, 0.25};*/
+    ImVec2 size            = {200, 100};
+    ImVec4 plot_color_line = {1, 1, 0, 1};
+    ImVec4 plot_color_fill = {1, 1, 0, 0.25};
 
-    /*ImPlot_SetNextAxesLimits(0, FPS_BUFFER_SIZE, 0, 80, ImGuiCond_Always);*/
+    if (ImPlot_BeginPlot("fps", size, 0)) {
+        ImPlot_SetupAxesLimits(0, FPS_BUFFER_SIZE, 0, 80, ImGuiCond_Always);
+        ImPlot_SetupAxes("time", "fps", 0, 0);
+        ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, plot_color_line);
+        ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, plot_color_fill);
+        ImPlotAxisFlags axis_flags = ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_Lock |
+                                     ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels;
+        ImPlot_PlotLine_FloatPtrFloatPtr("f(x)", fps_index, fps_buffer, FPS_BUFFER_SIZE, axis_flags, 0, 4);
+        ImPlot_PopStyleColor(2);
 
-    /*ImPlotAxisFlags axis_flags = ImPlotAxisFlags_GridLines | ImPlotAxisFlags_LockMin | ImPlotAxisFlags_LockMax;*/
-    /*int             plot =*/
-    /*ImPlot_BeginPlot("", NULL, NULL, size, ImPlotFlags_MousePos | ImPlotFlags_Crosshairs, 0, axis_flags, 0, 0);*/
-
-    /*if (plot) {*/
-    /*ImPlot_PushStyleColorVec4(ImPlotCol_Line, plot_color_line);*/
-    /*ImPlot_PushStyleColorVec4(ImPlotCol_Line, plot_color_fill);*/
-    /*ImPlot_PlotLineFloatPtrFloatPtr("", fps_index, fps_buffer, FPS_BUFFER_SIZE, 0, 4);*/
-    /*ImPlot_PopStyleColor(2);*/
-
-    /*ImPlot_EndPlot();*/
-    /*}*/
+        ImPlot_EndPlot();
+    }
 
     igEnd();
 }
