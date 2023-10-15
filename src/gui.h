@@ -27,10 +27,10 @@
 #include <cimgui.h>
 #include <cimplot.h>
 
-extern GLFWwindow          *window;
-extern struct ImGuiContext *ctx;
-extern struct ImGuiIO      *io;
-struct ImPlotContext       *plot_ctx;
+extern GLFWwindow           *window;
+extern struct ImGuiContext  *ctx;
+extern struct ImGuiIO       *io;
+extern struct ImPlotContext *plot_ctx;
 
 int  ImGui_ImplOpenGL3_Init(const char *glsl_version);
 int  ImGui_ImplGlfw_InitForOpenGL(GLFWwindow *window, bool install_callbacks);
