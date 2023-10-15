@@ -51,8 +51,8 @@ CPP_FILES := $(wildcard src/*.cpp)
 STB_FILES := $(wildcard deps/stb/*.c)
 IMGUI_FILES := $(wildcard ./deps/cimgui/*.cpp) \
 	       $(wildcard ./deps/cimgui/imgui/*.cpp) \
-	       $(wildcard ./deps/cimgui/imgui/examples/imgui_impl_glfw.cpp) \
-	       $(wildcard ./deps/cimgui/imgui/examples/imgui_impl_opengl3.cpp) \
+	       $(wildcard ./deps/cimgui/imgui/backends/imgui_impl_glfw.cpp) \
+	       $(wildcard ./deps/cimgui/imgui/backends/imgui_impl_opengl3.cpp) \
 	       $(wildcard ./deps/cimplot/*.cpp) \
 	       $(wildcard ./deps/cimplot/implot/*.cpp) \
 
