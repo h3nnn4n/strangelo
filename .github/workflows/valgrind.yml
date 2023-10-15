@@ -20,10 +20,11 @@ jobs:
         run: |
           cd deps/glfw/
           mkdir build
+          cd build
           cmake .. -DBUILD_SHARED_LIBS=ON
           make
-
           cd ..
+
           cd cJSON
           mkdir build
           cd build
