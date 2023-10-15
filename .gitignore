@@ -3,3 +3,5 @@ build/
 raytracer
 
 gmon.out
+
+.cache
