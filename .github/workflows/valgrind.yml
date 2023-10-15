@@ -55,4 +55,4 @@ jobs:
           echo $(pwd)
 
       - name: Run valgrind
-        run: ./raytracer
+        run: make run
