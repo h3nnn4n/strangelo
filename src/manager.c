@@ -27,9 +27,9 @@
 Manager *manager;
 
 Manager *init_manager() {
-    Manager *manager = malloc(sizeof(Manager));
+    Manager *_manager = malloc(sizeof(Manager));
 
-    return manager;
+    return _manager;
 }
 
 void Manager_tick_timer(Manager *manager) {
