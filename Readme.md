@@ -4,8 +4,6 @@
 [![clang-tidy](https://github.com/h3nnn4n/raytracer-adventures/actions/workflows/clang-tidy.yml/badge.svg)](https://github.com/h3nnn4n/raytracer-adventures/actions/workflows/clang-tidy.yml)
 [![cppcheck](https://github.com/h3nnn4n/raytracer-adventures/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/h3nnn4n/raytracer-adventures/actions/workflows/cppcheck.yml)
 [![cpplint](https://github.com/h3nnn4n/raytracer-adventures/actions/workflows/cpplint.yml/badge.svg)](https://github.com/h3nnn4n/raytracer-adventures/actions/workflows/cpplint.yml)
-[![gperftools](https://github.com/h3nnn4n/raytracer-adventures/actions/workflows/heap-check.yml/badge.svg)](https://github.com/h3nnn4n/raytracer-adventures/actions/workflows/heap-check.yml)
-[![valgrind](https://github.com/h3nnn4n/raytracer-adventures/actions/workflows/valgrind.yml/badge.svg)](https://github.com/h3nnn4n/raytracer-adventures/actions/workflows/valgrind.yml)
 
 Adventures on tracing rays for fun and... Yeah just fun. No profits here.
 
