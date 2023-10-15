@@ -123,10 +123,10 @@ void gui_update_fps() {
 
     update_rolling_fps_avg();
 
-    sprintf(buffer, "FPS: %6.2f", fps);
+    snprintf(buffer, sizeof(buffer), "FPS: %6.2f", fps);
     igText(buffer);
 
-    sprintf(buffer, " ms: %6.4f", ms);
+    snprintf(buffer, sizeof(buffer), " ms: %6.4f", ms);
     igText(buffer);
 
     ImVec2 size            = {200, 100};
