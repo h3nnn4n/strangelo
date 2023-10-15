@@ -48,6 +48,4 @@ void gui_new_frame();
 
 void gui_update_fps();
 
-void toggle(bool *value);
-
 #endif

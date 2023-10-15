@@ -148,9 +148,3 @@ void gui_update_fps() {
 
     igEnd();
 }
-
-void toggle(bool *value) {
-    assert(value);
-
-    *value = !(*value);
-}
