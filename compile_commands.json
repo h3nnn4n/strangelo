@@ -1,0 +1,97 @@
+[
+    {
+        "command": "cc -c -Wall -std=c99 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/deps/stb/stb.o deps/stb/stb.c",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/stb/stb.c"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimgui/cimgui.o deps/cimgui/cimgui.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimgui/cimgui.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimgui/imgui/imgui.o deps/cimgui/imgui/imgui.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimgui/imgui/imgui.cpp"
+    },
+    {
+        "command": "cc -c -Wall -std=c99 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/deps/stb/stb_image.o deps/stb/stb_image.c",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/stb/stb_image.c"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimgui/imgui/imgui_demo.o deps/cimgui/imgui/imgui_demo.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimgui/imgui/imgui_demo.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimgui/imgui/imgui_draw.o deps/cimgui/imgui/imgui_draw.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimgui/imgui/imgui_draw.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimgui/imgui/imgui_tables.o deps/cimgui/imgui/imgui_tables.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimgui/imgui/imgui_tables.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimgui/imgui/imgui_widgets.o deps/cimgui/imgui/imgui_widgets.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimgui/imgui/imgui_widgets.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimgui/imgui/backends/imgui_impl_glfw.o deps/cimgui/imgui/backends/imgui_impl_glfw.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimgui/imgui/backends/imgui_impl_glfw.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimgui/imgui/backends/imgui_impl_opengl3.o deps/cimgui/imgui/backends/imgui_impl_opengl3.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimgui/imgui/backends/imgui_impl_opengl3.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimplot/cimplot.o deps/cimplot/cimplot.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimplot/cimplot.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimplot/implot/implot.o deps/cimplot/implot/implot.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimplot/implot/implot.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimplot/implot/implot_demo.o deps/cimplot/implot/implot_demo.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimplot/implot/implot_demo.cpp"
+    },
+    {
+        "command": "c++ -c -Wall -std=c++11 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/./deps/cimplot/implot/implot_items.o deps/cimplot/implot/implot_items.cpp",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/cimplot/implot/implot_items.cpp"
+    },
+    {
+        "command": "cc -c -Wall -std=c99 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/src/gui.o src/gui.c",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/src/gui.c"
+    },
+    {
+        "command": "cc -c -Wall -std=c99 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/src/main.o src/main.c",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/src/main.c"
+    },
+    {
+        "command": "cc -c -Wall -std=c99 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/src/manager.o src/manager.c",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/src/manager.c"
+    },
+    {
+        "command": "cc -c -Wall -std=c99 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/src/settings.o src/settings.c",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/src/settings.c"
+    },
+    {
+        "command": "cc -c -Wall -std=c99 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/cJSON/ -Ideps/stb/ -o /home/h3nnn4n/progs/raytracer/build/deps/glad/src/glad.o deps/glad/src/glad.c",
+        "directory": "/home/h3nnn4n/progs/raytracer",
+        "file": "/home/h3nnn4n/progs/raytracer/deps/glad/src/glad.c"
+    }
+]
