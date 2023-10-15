@@ -1,9 +1,9 @@
-name: Memory Leak Check
+name: gperftools
 
 on: push
 
 jobs:
-  heapcheck-solve:
+  run:
     runs-on: ubuntu-22.04
 
     steps:
@@ -41,7 +41,7 @@ jobs:
 
       - name: Install gproftools
         run: |
-          sudo apt-get install -y google-perftools libgoogle-perftools-dev
+          sudo apt-get install -y libunwind-dev google-perftools libgoogle-perftools-dev
           sudo ln -s /usr/lib/x86_64-linux-gnu/libtcmalloc.so /usr/lib/libtcmalloc.so
 
       - name: Build
