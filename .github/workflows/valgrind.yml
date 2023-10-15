@@ -28,13 +28,14 @@ jobs:
           cd build
           cmake .. -DBUILD_SHARED_LIBS=ON
           make
-          cd ..
+          cd ../../
 
           cd cJSON
           mkdir build
           cd build
           cmake ..
           make
+          cd ../../
         env:
           MAKEFLAGS: -j3
 
