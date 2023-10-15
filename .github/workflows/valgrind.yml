@@ -16,12 +16,12 @@ jobs:
         run: |
           git submodule update --init --recursive
 
-      - name: Install deps
+      - name: Install project deps
         run: |
           sudo apt-get update
-          sudo apt-get -y -qq install valgrind libxrandr-dev mesa-common-dev libgl-dev libxinerama-dev libxcursor-dev libxi-dev
+          sudo apt-get -y -qq install libxrandr-dev mesa-common-dev libgl-dev libxinerama-dev libxcursor-dev libxi-dev
 
-      - name: Setup deps
+      - name: Build project deps deps
         run: |
           cd deps/glfw/
           mkdir build
@@ -39,8 +39,15 @@ jobs:
         env:
           MAKEFLAGS: -j3
 
+      - name: Install step deps
+        run: |
+          sudo apt-get update
+          sudo apt-get -y -qq install valgrind
+
       - name: Build
         run: make callgrind
+        env:
+          MAKEFLAGS: -j3
 
       - name: Run valgrind
         run: ./raytracer
