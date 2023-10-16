@@ -36,12 +36,13 @@ struct ImPlotContext *plot_ctx;
 
 char buffer[1024];
 
-#define FPS_BUFFER_SIZE     100
-#define FPS_AVG_BUFFER_SIZE 10
+#define FPS_BUFFER_SIZE     512
+#define FPS_AVG_BUFFER_SIZE 512
 
 float fps_buffer[FPS_BUFFER_SIZE];
 float fps_index[FPS_BUFFER_SIZE];
 float fps_avg_buffer[FPS_AVG_BUFFER_SIZE];
+float max_fps       = 0;
 int   fps_pivot     = 0;
 int   fps_avg_pivot = 0;
 
@@ -98,8 +99,10 @@ void update_rolling_fps_avg() {
 
     float avg_fps = 0;
 
+    max_fps = 0;
     for (int i = 0; i < FPS_AVG_BUFFER_SIZE; ++i) {
         avg_fps += fps_avg_buffer[i] / FPS_AVG_BUFFER_SIZE;
+        max_fps = fmax(max_fps, fps_avg_buffer[i]);
     }
 
     if (fps_pivot >= FPS_BUFFER_SIZE) {
@@ -122,7 +125,7 @@ void gui_update_fps() {
     snprintf(buffer, sizeof(buffer), "FPS: %6.2f", fps);
     igText(buffer);
 
-    snprintf(buffer, sizeof(buffer), " ms: %6.4f", ms);
+    snprintf(buffer, sizeof(buffer), " ms: %8.6f", ms);
     igText(buffer);
 
     ImVec2 size            = {200, 100};
@@ -130,7 +133,7 @@ void gui_update_fps() {
     ImVec4 plot_color_fill = {1, 1, 0, 0.25};
 
     if (ImPlot_BeginPlot("fps", size, 0)) {
-        ImPlot_SetupAxesLimits(0, FPS_BUFFER_SIZE, 0, 80, ImGuiCond_Always);
+        ImPlot_SetupAxesLimits(0, FPS_BUFFER_SIZE, 0, max_fps * 1.2, ImGuiCond_Always);
         ImPlot_SetupAxes("time", "fps", 0, 0);
         ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, plot_color_line);
         ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, plot_color_fill);

@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
     }
 
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(0);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         printf("Failed to initialize GLAD\n");
