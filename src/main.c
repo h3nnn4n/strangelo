@@ -126,8 +126,8 @@ int main(int argc, char *argv[]) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
 
     // Compute texture
-    const unsigned int TEXTURE_WIDTH  = 512;
-    const unsigned int TEXTURE_HEIGHT = 512;
+    const unsigned int TEXTURE_WIDTH  = WINDOW_WIDTH;
+    const unsigned int TEXTURE_HEIGHT = WINDOW_HEIGHT;
     unsigned int       texture;
 
     glGenTextures(1, &texture);
