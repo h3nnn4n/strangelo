@@ -126,8 +126,8 @@ int main(int argc, char *argv[]) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
 
     // Compute texture
-    const unsigned int TEXTURE_WIDTH  = 500;
-    const unsigned int TEXTURE_HEIGHT = 500;
+    const unsigned int TEXTURE_WIDTH  = 512;
+    const unsigned int TEXTURE_HEIGHT = 512;
     unsigned int       texture;
 
     glGenTextures(1, &texture);
@@ -152,7 +152,8 @@ int main(int argc, char *argv[]) {
 
         // Run compute shader
         compute_use(compute_shader);
-        glDispatchCompute(TEXTURE_WIDTH, TEXTURE_HEIGHT, 1);
+        compute_set_float(compute_shader, "time", manager->current_time);
+        glDispatchCompute(TEXTURE_WIDTH / 32, TEXTURE_HEIGHT / 32, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         // Main pass

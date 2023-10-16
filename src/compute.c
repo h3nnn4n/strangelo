@@ -54,6 +54,14 @@ compute_t *build_compute_shader(char *shader_path) {
 
 void compute_use(compute_t *compute) { glUseProgram(compute->id); }
 
+void compute_set_int(compute_t *compute, char *name, int value) {
+    glUniform1i(glGetUniformLocation(compute->id, name), value);
+}
+
+void compute_set_float(compute_t *compute, char *name, float value) {
+    glUniform1f(glGetUniformLocation(compute->id, name), value);
+}
+
 void check_compile_errors(GLuint shader, const char *type) {
     GLint  success;
     GLchar infoLog[2048];
