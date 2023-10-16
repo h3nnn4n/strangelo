@@ -150,6 +150,10 @@ int main(int argc, char *argv[]) {
         // Timer
         Manager_tick_timer(manager);
 
+        if (manager->frame_count % 1000 == 0) {
+            printf("fps: %f\n", 1.0f / manager->delta_time);
+        }
+
         // Run compute shader
         compute_use(compute_shader);
         compute_set_float(compute_shader, "time", manager->current_time);
