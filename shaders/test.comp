@@ -7,14 +7,38 @@ layout (location = 0) uniform float time;
 
 
 void main() {
-  vec4 value = vec4(0.0, 0.0, 0.0, 1.0);
+  vec4 value = vec4(0.0, 0.0, 0.0, 0.0);
   ivec2 texelCoord = ivec2(gl_GlobalInvocationID.xy);
 
-  float speed = 100.0;
-  float width = 500.0;
+  float xmin = -2.0;
+  float xmax = 1.0;
+  float ymin = -1.0;
+  float ymax = 1.0;
+  int n_iters = 128;
+  uint i;
 
-  value.x = mod(float(texelCoord.x) + time * speed, width) / (gl_NumWorkGroups.x * gl_WorkGroupSize.x);
-  value.y = float(texelCoord.y) / (gl_NumWorkGroups.y * gl_WorkGroupSize.y);
+  float x_new;
+  float y_new;
+  float x = 0;
+  float y = 0;
+
+  float x_real =(float(texelCoord.x) / float(gl_NumWorkGroups.x * gl_WorkGroupSize.x));
+  float x_imag = (float(texelCoord.y) / float(gl_NumWorkGroups.y * gl_WorkGroupSize.y));
+
+  for (i = 0; i < n_iters; i++) {
+    x_new = x * x - y * y + x_real * (xmax - xmin) + xmin;
+    y_new = 2.0 * x * y + x_imag * (ymax - ymin) + ymin;
+    x = x_new;
+    y = y_new;
+
+    if (x * x + y * y > 4.0) {
+      value.x = x;
+      value.y = y;
+      value.z = float(i);
+      value.w = float(i) / float(n_iters);
+      break;
+    }
+  }
 
   imageStore(imgOutput, texelCoord, value);
 }
