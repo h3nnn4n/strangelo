@@ -6,7 +6,7 @@ gmon.out
 
 .cache
 
-.plist
+*.plist
 
 shaders/*.final
 
