@@ -23,4 +23,7 @@ extern const int   WINDOW_WIDTH;
 extern const int   WINDOW_HEIGHT;
 extern const float aspect_ratio;
 
+extern const float near_plane;
+extern const float far_plane;
+
 #endif

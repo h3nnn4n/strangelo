@@ -16,37 +16,16 @@
  *
  */
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef _UTILS_H
+#define _UTILS_H
 
-#include <GLFW/glfw3.h>
+typedef enum Direction {
+    FRONT,
+    BACK,
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+} Direction;
 
-#include "manager.h"
-
-Manager *manager;
-
-Manager *init_manager() {
-    Manager *_manager = malloc(sizeof(Manager));
-
-    memset(_manager, 0, sizeof(Manager));
-
-    return _manager;
-}
-
-void Manager_tick_timer(Manager *manager) {
-    manager->current_time = glfwGetTime();
-
-    manager->last_frame_time    = manager->current_frame_time;
-    manager->current_frame_time = manager->current_time;
-    manager->delta_time         = manager->current_frame_time - manager->last_frame_time;
-
-    manager->frame_count++;
-}
-
-void Manager_set_camera(Manager *manager, Camera *camera) {
-    assert(manager);
-    assert(camera);
-
-    manager->camera = camera;
-}
+#endif

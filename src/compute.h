@@ -19,6 +19,8 @@
 #ifndef _COMPUTE_H
 #define _COMPUTE_H
 
+#include <cglm/call.h>
+#include <cglm/cglm.h>
 #include <glad/glad.h>
 
 typedef struct {
@@ -30,6 +32,8 @@ compute_t *build_compute_shader(char *shader_path);
 void       compute_use(compute_t *compute);
 void       compute_set_int(compute_t *compute, char *name, int value);
 void       compute_set_float(compute_t *compute, char *name, float value);
+void       compute_set_vec3f(compute_t *compute, char *name, float v1, float v2, float v3);
+void       compute_set_vec3(compute_t *compute, char *name, vec3 *v);
 void       check_compile_errors(GLuint shader, const char *type);
 
 #endif

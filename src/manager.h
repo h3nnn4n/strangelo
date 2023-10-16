@@ -21,6 +21,8 @@
 
 #include <stdint.h>
 
+#include "camera.h"
+
 typedef struct {
     /////////////////
     // Timer Stuff
@@ -30,6 +32,11 @@ typedef struct {
     float    current_frame_time;
     float    last_frame_time;
     uint64_t frame_count;
+
+    /////////////////
+    // Camera
+    //
+    Camera *camera;
 } Manager;
 
 extern Manager *manager;
@@ -37,5 +44,6 @@ extern Manager *manager;
 Manager *init_manager();
 
 void Manager_tick_timer(Manager *manager);
+void Manager_set_camera(Manager *manager, Camera *camera);
 
 #endif

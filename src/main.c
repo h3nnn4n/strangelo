@@ -28,8 +28,10 @@
 
 #include <stb_image.h>
 
+#include "camera.h"
 #include "compute.h"
 #include "gui.h"
+#include "input_handling.h"
 #include "manager.h"
 #include "settings.h"
 #include "shader_c.h"
@@ -58,11 +60,11 @@ int main(int argc, char *argv[]) {
     }
 
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-    /*glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);*/
-    /*glfwSetCursorPosCallback(window, mouse_callback);*/
-    /*glfwSetScrollCallback(window, scroll_callback);*/
-    /*glfwSetMouseButtonCallback(window, mouse_click_callback);*/
-    /*glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);*/
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetMouseButtonCallback(window, mouse_click_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     /*glEnable(GL_DEBUG_OUTPUT);*/
     /*glDebugMessageCallback(MessageCallback, 0);*/
@@ -95,14 +97,22 @@ int main(int argc, char *argv[]) {
     glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &work_grp_inv);
     printf("max local work group invocations %i\n", work_grp_inv);
 
-    gui_init();
-    manager = init_manager();
+    {
+        gui_init();
+        manager        = init_manager();
+        Camera *camera = make_camera();
+        Manager_set_camera(manager, camera);
+    }
 
     // Shaders
     compute_t *compute_shader = build_compute_shader("shaders/raytracer.comp");
     Shader    *shader         = newShader("shaders/main.vert", "shaders/main.frag", NULL);
     Shader_use(shader);
     Shader_set_int(shader, "tex", 0);
+
+    compute_use(compute_shader);
+    compute_set_float(compute_shader, "near_plane", near_plane);
+    compute_set_float(compute_shader, "far_plane", far_plane);
 
     // Quad
     unsigned int VAO;
@@ -146,6 +156,7 @@ int main(int argc, char *argv[]) {
     while (!glfwWindowShouldClose(window)) {
         // Process input
         glfwPollEvents();
+        processInput(window);
 
         // Timer
         Manager_tick_timer(manager);
@@ -157,6 +168,9 @@ int main(int argc, char *argv[]) {
         // Run compute shader
         compute_use(compute_shader);
         compute_set_float(compute_shader, "time", manager->current_time);
+        compute_set_vec3(compute_shader, "camera_position", &manager->camera->camera_pos);
+        compute_set_vec3f(compute_shader, "camera_orientation", manager->camera->pitch, manager->camera->yaw,
+                          manager->camera->zoom);
         glDispatchCompute(TEXTURE_WIDTH / 32, TEXTURE_HEIGHT / 32, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
@@ -181,6 +195,8 @@ int main(int argc, char *argv[]) {
 
     gui_terminate();
     glfwTerminate();
+
+    destroy_camera(manager->camera);
 
     return 0;
 }

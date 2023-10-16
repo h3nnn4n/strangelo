@@ -81,6 +81,7 @@ void gui_render() {
     gui_new_frame();
 
     gui_update_fps();
+    gui_update_camera();
 
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
@@ -144,6 +145,29 @@ void gui_update_fps() {
 
         ImPlot_EndPlot();
     }
+
+    igEnd();
+}
+
+void gui_update_camera() {
+    Camera *camera = manager->camera;
+
+    assert(camera);
+
+    igBegin("Camera", NULL, 0);
+
+    sprintf(buffer, "position: %4.2f %4.2f %4.2f", camera->camera_pos[0], camera->camera_pos[1], camera->camera_pos[2]);
+    igText(buffer);
+
+    sprintf(buffer, "target: %4.2f %4.2f %4.2f", camera->camera_target[0], camera->camera_target[1],
+            camera->camera_target[2]);
+    igText(buffer);
+
+    sprintf(buffer, "yaw, pitch: %4.2f %4.2f", camera->yaw, camera->pitch);
+    igText(buffer);
+
+    sprintf(buffer, "fov: %4.2f", camera->zoom);
+    igText(buffer);
 
     igEnd();
 }

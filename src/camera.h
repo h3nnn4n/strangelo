@@ -16,37 +16,39 @@
  *
  */
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef _CAMERA_H
+#define _CAMERA_H
 
-#include <GLFW/glfw3.h>
+#include <cglm/cglm.h>
 
-#include "manager.h"
+#include "shader_c.h"
+#include "utils.h"
 
-Manager *manager;
+typedef struct {
+    vec3 camera_pos;
+    vec3 camera_front;
+    vec3 camera_target;
+    vec3 camera_up;
+    vec3 camera_right;
 
-Manager *init_manager() {
-    Manager *_manager = malloc(sizeof(Manager));
+    mat4 projection;
+    mat4 view;
 
-    memset(_manager, 0, sizeof(Manager));
+    float pitch;
+    float yaw;
+    float zoom;
+} Camera;
 
-    return _manager;
-}
+Camera *make_camera();
+void    destroy_camera(Camera *camera);
+void    update_camera_target(Camera *camera, float xoffset, float yoffset);
+void    update_camera_fov(Camera *camera, float xoffset, float yoffset);
+void    update_camera_target(Camera *camera, float xoffset, float yoffset);
+void    update_camera_position(Camera *camera, Direction direction);
 
-void Manager_tick_timer(Manager *manager) {
-    manager->current_time = glfwGetTime();
+void update_camera_projection_matrix(Camera *camera, Shader *shader);
+void update_camera_view_matrix(Camera *camera, Shader *shader);
+void update_camera_position_matrix(Camera *camera);
 
-    manager->last_frame_time    = manager->current_frame_time;
-    manager->current_frame_time = manager->current_time;
-    manager->delta_time         = manager->current_frame_time - manager->last_frame_time;
+#endif
 
-    manager->frame_count++;
-}
-
-void Manager_set_camera(Manager *manager, Camera *camera) {
-    assert(manager);
-    assert(camera);
-
-    manager->camera = camera;
-}

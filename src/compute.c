@@ -21,9 +21,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <stb.h>
-
+#include <cglm/call.h>
+#include <cglm/cglm.h>
 #include <glad/glad.h>
+#include <stb.h>
 
 #include "compute.h"
 
@@ -60,6 +61,16 @@ void compute_set_int(compute_t *compute, char *name, int value) {
 
 void compute_set_float(compute_t *compute, char *name, float value) {
     glUniform1f(glGetUniformLocation(compute->id, name), value);
+}
+
+void compute_set_vec3f(compute_t *compute, char *name, float v1, float v2, float v3) {
+    unsigned int uniformLoc = glGetUniformLocation(compute->id, name);
+    glUniform3f(uniformLoc, v1, v2, v3);
+}
+
+void compute_set_vec3(compute_t *compute, char *name, vec3 *v) {
+    unsigned int uniformLoc = glGetUniformLocation(compute->id, name);
+    glUniform3f(uniformLoc, *v[0], *v[1], *v[2]);
 }
 
 void check_compile_errors(GLuint shader, const char *type) {

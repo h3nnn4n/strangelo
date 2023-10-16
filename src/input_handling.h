@@ -16,37 +16,31 @@
  *
  */
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef _INPUT_HANDLING_H
+#define _INPUT_HANDLING_H
 
 #include <GLFW/glfw3.h>
 
-#include "manager.h"
+#include "camera.h"
 
-Manager *manager;
+extern Camera *camera;
+extern int     firstMouse;
+extern float   lastX;
+extern float   lastY;
+extern int     locked_cursor;
+extern int     wireframe_mode;
 
-Manager *init_manager() {
-    Manager *_manager = malloc(sizeof(Manager));
+extern vec3 mouse_world_position;
 
-    memset(_manager, 0, sizeof(Manager));
+extern int left_mouse_pressed;
+extern int right_mouse_pressed;
 
-    return _manager;
-}
+void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+void mouse_click_callback(GLFWwindow *window, int button, int action, int mods);
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+void processInput(GLFWwindow *window);
+void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
-void Manager_tick_timer(Manager *manager) {
-    manager->current_time = glfwGetTime();
+void handle_camera_movements(GLFWwindow *window);
 
-    manager->last_frame_time    = manager->current_frame_time;
-    manager->current_frame_time = manager->current_time;
-    manager->delta_time         = manager->current_frame_time - manager->last_frame_time;
-
-    manager->frame_count++;
-}
-
-void Manager_set_camera(Manager *manager, Camera *camera) {
-    assert(manager);
-    assert(camera);
-
-    manager->camera = camera;
-}
+#endif
