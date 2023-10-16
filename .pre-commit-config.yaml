@@ -1,0 +1,53 @@
+repos:
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.3.0
+  hooks:
+  - id: check-added-large-files
+  - id: check-ast
+  - id: check-case-conflict
+  - id: check-docstring-first
+  - id: check-executables-have-shebangs
+  - id: check-json
+  - id: check-merge-conflict
+  - id: check-shebang-scripts-are-executable
+  - id: check-symlinks
+  - id: check-toml
+  - id: check-xml
+  - id: check-yaml
+  - id: debug-statements
+  - id: detect-private-key
+  - id: end-of-file-fixer
+  - id: fix-byte-order-marker
+  - id: mixed-line-ending
+  - id: pretty-format-json
+  - id: trailing-whitespace
+  - id: detect-aws-credentials
+    args: ["--allow-missing-credentials"]
+
+
+- repo: https://github.com/pocc/pre-commit-hooks
+  rev: v1.3.5
+  hooks:
+  - id: clang-format
+
+  - id: cppcheck
+    args: [--language=c, --enable=all, --suppress=missingIncludeSystem, --std=c99]
+
+  - id: cpplint
+    args: [--filter=-build/include_subdir,-readability/nolint,-whitespace/line_length,-whitespace/comments,-readability/casting,-build/header_guard,-runtime/arrays]
+
+  - id: clang-tidy
+    args: [--warnings-as-errors, --checks=bugprone-*,performance-*,readability-*,portability-*,modernize-*,clang-analyzer-cplusplus-*,clang-analyzer-*,cppcoreguidelines-*]
+
+
+- repo: https://github.com/zricethezav/gitleaks
+  rev: v8.15.0
+  hooks:
+    - id: gitleaks
+
+
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.2.2
+  hooks:
+    - id: codespell
