@@ -34,7 +34,7 @@ struct ImGuiContext  *ctx;
 struct ImGuiIO       *io;
 struct ImPlotContext *plot_ctx;
 
-char *buffer;
+char buffer[1024];
 
 #define FPS_BUFFER_SIZE     100
 #define FPS_AVG_BUFFER_SIZE 10
@@ -56,8 +56,6 @@ void gui_init() {
 
     igStyleColorsDark(NULL);
 
-    buffer = malloc(sizeof(char) * 1024);
-
     memset(fps_buffer, FPS_BUFFER_SIZE, sizeof(float));
 
     for (int i = 0; i < FPS_BUFFER_SIZE; ++i) {
@@ -70,8 +68,6 @@ void gui_terminate() {
     ImGui_ImplGlfw_Shutdown();
     igDestroyContext(ctx);
     ImPlot_DestroyContext(plot_ctx);
-
-    free(buffer);
 }
 
 void gui_new_frame() {
