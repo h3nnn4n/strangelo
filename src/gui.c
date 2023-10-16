@@ -128,6 +128,7 @@ void gui_update_fps() {
     snprintf(buffer, sizeof(buffer), " ms: %8.6f", ms);
     igText(buffer);
 
+#ifdef PLOT_FPS
     ImVec2 size            = {200, 100};
     ImVec4 plot_color_line = {1, 1, 0, 1};
     ImVec4 plot_color_fill = {1, 1, 0, 0.25};
@@ -144,6 +145,7 @@ void gui_update_fps() {
 
         ImPlot_EndPlot();
     }
+#endif
 
     igEnd();
 }
