@@ -57,7 +57,7 @@ void gui_init() {
 
     igStyleColorsDark(NULL);
 
-    memset(fps_buffer, FPS_BUFFER_SIZE, sizeof(float));
+    memset(fps_buffer, 0, sizeof(float));
 
     for (int i = 0; i < FPS_BUFFER_SIZE; ++i) {
         fps_index[i] = (float)i;
