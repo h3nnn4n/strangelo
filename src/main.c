@@ -32,6 +32,7 @@
 #include "gui.h"
 #include "manager.h"
 #include "settings.h"
+#include "shader_c.h"
 
 GLFWwindow *window;
 
@@ -67,8 +68,8 @@ int main(int argc, char *argv[]) {
 
     stbi_set_flip_vertically_on_load(1);
 
-    glCullFace(GL_BACK);
-    glEnable(GL_CULL_FACE);
+    /*glCullFace(GL_BACK);*/
+    /*glEnable(GL_CULL_FACE);*/
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FRAMEBUFFER_SRGB);
 
@@ -98,6 +99,44 @@ int main(int argc, char *argv[]) {
 
     compute_t *compute_shader = build_compute_shader("shaders/test.comp");
 
+    Shader *shader = newShader("shaders/main.vert", "shaders/main.frag", NULL);
+
+    unsigned int VBO, VAO;
+    float        quadVertices[] = {
+        // positions        // texture Coords
+        -1.0f, +1.0f, 0.0f, 0.0f, 1.0f, //
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, //
+        +1.0f, +1.0f, 0.0f, 1.0f, 1.0f, //
+        +1.0f, -1.0f, 0.0f, 1.0f, 0.0f, //
+
+    };
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+
+    const unsigned int TEXTURE_WIDTH  = 512;
+    const unsigned int TEXTURE_HEIGHT = 512;
+    unsigned int       texture;
+
+    glGenTextures(1, &texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+    glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_RED, GL_RGBA32F);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
     while (!glfwWindowShouldClose(window)) {
         // Process input
         glfwPollEvents();
@@ -105,9 +144,28 @@ int main(int argc, char *argv[]) {
         // Timer
         Manager_tick_timer(manager);
 
+        // Run compute shader
+        /*glActiveTexture(GL_TEXTURE0);*/
+        /*glBindTexture(GL_TEXTURE_2D, texture);*/
         compute_use(compute_shader);
-        glDispatchCompute((unsigned int)64, (unsigned int)64, 1);
+        glDispatchCompute(TEXTURE_WIDTH, TEXTURE_HEIGHT, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+        // Main pass
+        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // Clear screen
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        Shader_use(shader);
+        Shader_set_int(shader, "tex", 0);
+        /*glActiveTexture(GL_TEXTURE0);*/
+        /*glBindTexture(GL_TEXTURE_2D, texture);*/
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glBindVertexArray(0);
 
         // Render gui
         gui_render();

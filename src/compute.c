@@ -28,6 +28,7 @@
 #include "compute.h"
 
 compute_t *build_compute_shader(char *shader_path) {
+    printf("loading compute shader: %s\n", shader_path);
     compute_t *compute = malloc(sizeof(compute_t));
 
     memcpy(compute->shader_path, shader_path, strlen(shader_path));
