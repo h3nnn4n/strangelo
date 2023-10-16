@@ -29,6 +29,8 @@ Manager *manager;
 Manager *init_manager() {
     Manager *_manager = malloc(sizeof(Manager));
 
+    memset(_manager, 0, sizeof(Manager));
+
     return _manager;
 }
 
@@ -38,4 +40,6 @@ void Manager_tick_timer(Manager *manager) {
     manager->last_frame_time    = manager->current_frame_time;
     manager->current_frame_time = manager->current_time;
     manager->delta_time         = manager->current_frame_time - manager->last_frame_time;
+
+    manager->frame_count++;
 }

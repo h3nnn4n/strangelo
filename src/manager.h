@@ -19,14 +19,17 @@
 #ifndef _MANAGER_H
 #define _MANAGER_H
 
+#include <stdint.h>
+
 typedef struct {
     /////////////////
     // Timer Stuff
     //
-    float delta_time;
-    float current_time;
-    float current_frame_time;
-    float last_frame_time;
+    float    delta_time;
+    float    current_time;
+    float    current_frame_time;
+    float    last_frame_time;
+    uint64_t frame_count;
 } Manager;
 
 extern Manager *manager;
