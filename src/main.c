@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
     manager = init_manager();
 
     // Shaders
-    compute_t *compute_shader = build_compute_shader("shaders/mandelbrot.comp");
+    compute_t *compute_shader = build_compute_shader("shaders/raytracer.comp");
     Shader    *shader         = newShader("shaders/main.vert", "shaders/main.frag", NULL);
     Shader_use(shader);
     Shader_set_int(shader, "tex", 0);
