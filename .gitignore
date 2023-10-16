@@ -5,3 +5,5 @@ raytracer
 gmon.out
 
 .cache
+
+.plist

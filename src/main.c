@@ -28,6 +28,7 @@
 
 #include <stb_image.h>
 
+#include "compute.h"
 #include "gui.h"
 #include "manager.h"
 #include "settings.h"
@@ -74,12 +75,18 @@ int main(int argc, char *argv[]) {
     gui_init();
     manager = init_manager();
 
+    compute_t *compute_shader = build_compute_shader("shaders/test.comp");
+
     while (!glfwWindowShouldClose(window)) {
         // Process input
         glfwPollEvents();
 
         // Timer
         Manager_tick_timer(manager);
+
+        compute_use(compute_shader);
+        glDispatchCompute((unsigned int)64, (unsigned int)64, 1);
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         // Render gui
         gui_render();
