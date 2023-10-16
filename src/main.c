@@ -97,19 +97,23 @@ int main(int argc, char *argv[]) {
     gui_init();
     manager = init_manager();
 
+    // Shaders
     compute_t *compute_shader = build_compute_shader("shaders/test.comp");
+    Shader    *shader         = newShader("shaders/main.vert", "shaders/main.frag", NULL);
+    Shader_use(shader);
+    Shader_set_int(shader, "tex", 0);
 
-    Shader *shader = newShader("shaders/main.vert", "shaders/main.frag", NULL);
-
-    unsigned int VBO, VAO;
+    // Quad
+    unsigned int VAO;
+    unsigned int VBO;
     float        quadVertices[] = {
         // positions        // texture Coords
         -1.0f, +1.0f, 0.0f, 0.0f, 1.0f, //
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, //
         +1.0f, +1.0f, 0.0f, 1.0f, 1.0f, //
         +1.0f, -1.0f, 0.0f, 1.0f, 0.0f, //
-
     };
+
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
@@ -120,8 +124,9 @@ int main(int argc, char *argv[]) {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
 
-    const unsigned int TEXTURE_WIDTH  = 512;
-    const unsigned int TEXTURE_HEIGHT = 512;
+    // Compute texture
+    const unsigned int TEXTURE_WIDTH  = 500;
+    const unsigned int TEXTURE_HEIGHT = 500;
     unsigned int       texture;
 
     glGenTextures(1, &texture);
@@ -132,7 +137,7 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-    glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_RED, GL_RGBA32F);
+    glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -145,8 +150,6 @@ int main(int argc, char *argv[]) {
         Manager_tick_timer(manager);
 
         // Run compute shader
-        /*glActiveTexture(GL_TEXTURE0);*/
-        /*glBindTexture(GL_TEXTURE_2D, texture);*/
         compute_use(compute_shader);
         glDispatchCompute(TEXTURE_WIDTH, TEXTURE_HEIGHT, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -158,11 +161,7 @@ int main(int argc, char *argv[]) {
         // Clear screen
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         Shader_use(shader);
-        Shader_set_int(shader, "tex", 0);
-        /*glActiveTexture(GL_TEXTURE0);*/
-        /*glBindTexture(GL_TEXTURE_2D, texture);*/
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glBindVertexArray(0);
@@ -174,8 +173,9 @@ int main(int argc, char *argv[]) {
         glfwSwapBuffers(window);
     }
 
-    glfwTerminate();
     gui_terminate();
+    glfwTerminate();
 
     return 0;
 }
+

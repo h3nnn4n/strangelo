@@ -22,9 +22,8 @@
 #include <glad/glad.h>
 
 typedef struct {
-    char     shader_path[256];
-    uint32_t compute;
-    uint32_t id;
+    char              shader_path[256];
+    unsigned long int id;
 } compute_t;
 
 compute_t *build_compute_shader(char *shader_path);

@@ -29,25 +29,27 @@
 
 compute_t *build_compute_shader(char *shader_path) {
     printf("loading compute shader: %s\n", shader_path);
-    compute_t *compute = malloc(sizeof(compute_t));
+    compute_t *shader = malloc(sizeof(compute_t));
 
-    memcpy(compute->shader_path, shader_path, strlen(shader_path));
+    memcpy(shader->shader_path, shader_path, strlen(shader_path));
 
     const char *shader_code = stb_file(shader_path, NULL);
 
     // compute shader
-    compute->compute = glCreateShader(GL_COMPUTE_SHADER);
-    glShaderSource(compute->compute, 1, (char const *const *)&shader_code, NULL);
-    glCompileShader(compute->compute);
-    check_compile_errors(compute->compute, "COMPUTE");
+    uint64_t compute = glCreateShader(GL_COMPUTE_SHADER);
+    glShaderSource(compute, 1, (char const *const *)&shader_code, NULL);
+    glCompileShader(compute);
+    check_compile_errors(compute, "COMPUTE");
 
     // shader Program
-    compute->id = glCreateProgram();
-    glAttachShader(compute->id, compute->compute);
-    glLinkProgram(compute->id);
-    check_compile_errors(compute->id, "PROGRAM");
+    shader->id = glCreateProgram();
+    glAttachShader(shader->id, compute);
+    glLinkProgram(shader->id);
+    check_compile_errors(shader->id, "PROGRAM");
 
-    return compute;
+    glDeleteShader(compute);
+
+    return shader;
 }
 
 void compute_use(compute_t *compute) { glUseProgram(compute->id); }

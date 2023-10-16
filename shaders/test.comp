@@ -12,8 +12,4 @@ void main() {
   value.y = float(texelCoord.y)/(gl_NumWorkGroups.y);
 
   imageStore(imgOutput, texelCoord, vec4(1.0, 1.0, 1.0, 1.0));
-
-  for(int i = 0; i < 500; i++) {
-    imageStore(imgOutput, ivec2(i, i), vec4(1.0, 1.0, 1.0, 1.0));
-  }
 }
