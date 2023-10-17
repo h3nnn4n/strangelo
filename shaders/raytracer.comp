@@ -10,7 +10,11 @@ layout (location = 2) uniform bool orthographic;
 layout (location = 5) uniform float near_plane;
 layout (location = 6) uniform float far_plane;
 
+uint rng_state;
+
 #define N_SPHERES 10
+#define N_BOUNCES 10
+#define N_SAMPLES 10
 
 struct sphere_t {
   vec3 position;
@@ -18,13 +22,42 @@ struct sphere_t {
   vec3 color;
 };
 
+struct hit_t {
+  bool hit;
+  vec3 normal;
+  vec3 position;
+  vec3 color;
+};
 
-vec3 cast_ray(sphere_t spheres[N_SPHERES], vec3 ray_origin, vec3 ray_direction) {
+uint rand_xorshift() {
+  rng_state ^= (rng_state << 13);
+  rng_state ^= (rng_state >> 17);
+  rng_state ^= (rng_state << 5);
+  return rng_state;
+}
+
+float rand() {
+  return float(rand_xorshift()) * (1.0 / 4294967296.0);
+}
+
+// https://www.shadertoy.com/view/WttXWX
+uint hash_lowbias32(uint x) {
+  x ^= x >> 16;
+  x *= 0x7feb352dU;
+  x ^= x >> 15;
+  x *= 0x846ca68bU;
+  x ^= x >> 16;
+  return x;
+}
+
+
+hit_t cast_ray(sphere_t spheres[N_SPHERES], vec3 ray_origin, vec3 ray_direction) {
   vec3 pixel_color = vec3(0.0, 0.0, 0.0);
 
   float hit_distance = far_plane;
   int sphere_hit_id = -1;
   vec3 normal = vec3(0.0, 0.0, 0.0);
+  vec3 hit_position = vec3(0.0, 0.0, 0.0);
 
   for (int i = 0; i < N_SPHERES; i++) {
     vec4 position = camera_view * vec4(spheres[i].position, 1.0);
@@ -53,6 +86,7 @@ vec3 cast_ray(sphere_t spheres[N_SPHERES], vec3 ray_origin, vec3 ray_direction) 
 
         // Calculate the normal of the sphere at the hit point
         normal = normalize(ray_origin + ray_direction * t - position.xyz);
+        hit_position = ray_origin + ray_direction * t;
       }
     }
   }
@@ -61,11 +95,20 @@ vec3 cast_ray(sphere_t spheres[N_SPHERES], vec3 ray_origin, vec3 ray_direction) 
     pixel_color.xyz = spheres[sphere_hit_id].color * dot(normal, (ray_origin - ray_direction));
   }
 
-  return pixel_color;
+  hit_t hit = hit_t(
+      sphere_hit_id >= 0,
+      normal,
+      hit_position.xyz,
+      pixel_color
+      );
+
+  return hit;
 }
 
 
 void main() {
+  rng_state = hash_lowbias32(gl_GlobalInvocationID.x * gl_GlobalInvocationID.y + int(mod(time * 1000.0, 10000)));
+
   vec4 pixel_color = vec4(0.0, 0.0, 0.0, 1.0);
   ivec2 pixel_position = ivec2(gl_GlobalInvocationID.xy);
   ivec2 texture_size = imageSize(imgOutput);
@@ -81,7 +124,7 @@ void main() {
     //    position            radius  color
     {vec3(  0.0 ,-0.5 , -9.0) , 1.25 , vec3(1.0 , 0.0 , 0.0)} ,
     {vec3(  0.0 , 1.5 , -9.0) , 1.25 , vec3(0.0 , 0.0 , 1.0)} ,
-    {vec3(  2.0 , 0.5 ,-11.0) , 2.5  , vec3(0.0 , 1.0 , 0.0)} ,
+    {vec3(  2.0 , 0.5 ,-11.0) , 2.5  , vec3(1.0 , 1.0 , 1.0)} ,
     {vec3(  0.0 , 0.0 ,-11.0) , 2.5  , vec3(0.3 , 0.8 , 0.2)} ,
     {vec3(  0.0 , 0.0 , 10.0) , 2.5  , vec3(0.4 , 0.2 , 0.8)} ,
     {vec3(  0.0 , 10.0,  0.0) , 2.5  , vec3(0.8 , 0.7 , 0.2)} ,
@@ -91,26 +134,35 @@ void main() {
     {vec3(  0.0 , -r-f,  0.0) , r    , vec3(0.3 , 0.3 , 0.3)} ,
   };
 
-  // Build a x,y in clip space (ie -1 to 1)
-  float x = (float(pixel_position.x * 2 - texture_size.x) / texture_size.x);
-  float y = (float(pixel_position.y * 2 - texture_size.y) / texture_size.y);
+  for (int i_sample = 0; i_sample < N_SAMPLES; i_sample++) {
+    // Build a x,y in clip space (ie -1 to 1)
+    float x = (float(pixel_position.x * 2 - texture_size.x) / texture_size.x);
+    float y = (float(pixel_position.y * 2 - texture_size.y) / texture_size.y);
 
-  // Build a ray from the camera position pointing forward (negative z)
-  // Orthographic projection:
-  vec3 ray_origin = vec3(x * max_x, y * max_y, 0.0);
-  vec3 ray_direction = vec3(0.0, 0.0, -1.0);
+    // Build a ray from the camera position pointing forward (negative z)
+    // Orthographic projection:
+    vec3 ray_origin = vec3(x * max_x, y * max_y, 0.0);
+    vec3 ray_direction = vec3(0.0, 0.0, -1.0);
 
-  // Perspective projection:
-  if (!orthographic) {
-    ray_origin = vec3(0.0, 0.0, 0.0);
-    ray_direction = normalize(ray_origin - vec3(x * max_x, y * max_y, -10.0));
+    // Perspective projection:
+    if (!orthographic) {
+      ray_origin = vec3(0.0, 0.0, 0.0);
+      ray_direction = normalize(ray_origin - vec3(x * max_x, y * max_y, -10.0));
+    }
+
+    for (int i = 0; i < N_BOUNCES; i++) {
+      hit_t hit_info = cast_ray(spheres, ray_origin, ray_direction);
+
+      if (!hit_info.hit)
+        break;
+
+      pixel_color.xyz += hit_info.color / (N_SAMPLES * N_BOUNCES);
+      ray_origin = hit_info.position;
+      // cast a ray into a random direction around the normal
+      // FIXME: This is very bogus. We need a proper hemisphere sampler
+      ray_direction = normalize(hit_info.normal + vec3(rand(), rand(), rand()));
+    }
   }
-
-  float hit_distance = far_plane;
-  int sphere_hit_id = -1;
-  vec3 normal = vec3(0.0, 0.0, 0.0);
-
-  pixel_color.rgb += cast_ray(spheres, ray_origin, ray_direction);
 
   // Gamma correction
   pixel_color.rgb = pow(pixel_color.rgb, vec3(1.0 / 2.2));
