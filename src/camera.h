@@ -54,4 +54,3 @@ void update_camera_projection_matrix(Camera *camera);
 void update_camera_position_matrix(Camera *camera);
 
 #endif
-
