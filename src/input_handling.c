@@ -109,6 +109,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 
     update_camera_target(manager->camera, xoffset, yoffset);
 
+    update_camera_projection_matrix(manager->camera);
     update_mouse_world_position();
 }
 
@@ -116,7 +117,11 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
     update_camera_fov(manager->camera, xoffset, yoffset);
 }
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) { glViewport(0, 0, width, height); }
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+    // FIXME: Should update aspect_ratio and window size
+    glViewport(0, 0, width, height);
+    update_camera_projection_matrix(manager->camera);
+}
 
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {

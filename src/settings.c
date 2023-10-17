@@ -22,5 +22,5 @@ const int   WINDOW_WIDTH  = 1366;
 const int   WINDOW_HEIGHT = 768;
 const float aspect_ratio  = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 
-const float near_plane = 1.0f;
-const float far_plane  = 25.0f;
+const float near_plane = 0.1f;
+const float far_plane  = 100.0f;
