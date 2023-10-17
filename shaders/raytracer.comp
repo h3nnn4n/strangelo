@@ -95,5 +95,8 @@ void main() {
     pixel_color.xyz = spheres[sphere_hit_id].color * dot(normal, (ray_origin - ray_direction));
   }
 
+  // Gamma correction
+  pixel_color.rgb = pow(pixel_color.rgb, vec3(1.0 / 2.2));
+
   imageStore(imgOutput, pixel_position, pixel_color);
 }
