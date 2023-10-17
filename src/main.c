@@ -38,12 +38,6 @@
 
 GLFWwindow *window;
 
-typedef struct {
-    vec4  position;
-    float radius;
-    vec4  color;
-} sphere_t;
-
 const float r = 750;
 const float f = 11.5;
 
