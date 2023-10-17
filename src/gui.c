@@ -157,23 +157,24 @@ void gui_update_camera() {
     igBegin("Camera", NULL, 0);
 
     if (camera->orthographic) {
-        sprintf(buffer, "mode: ORTHOGRAPHIC");
+        snprintf(buffer, sizeof(buffer), "mode: ORTHOGRAPHIC");
     } else {
-        sprintf(buffer, "mode: PROJECTION");
+        snprintf(buffer, sizeof(buffer), "mode: PROJECTION");
     }
     igText(buffer);
 
-    sprintf(buffer, "position: %4.2f %4.2f %4.2f", camera->camera_pos[0], camera->camera_pos[1], camera->camera_pos[2]);
+    snprintf(buffer, sizeof(buffer), "position: %4.2f %4.2f %4.2f", camera->camera_pos[0], camera->camera_pos[1],
+             camera->camera_pos[2]);
     igText(buffer);
 
-    sprintf(buffer, "target: %4.2f %4.2f %4.2f", camera->camera_target[0], camera->camera_target[1],
-            camera->camera_target[2]);
+    snprintf(buffer, sizeof(buffer), "target: %4.2f %4.2f %4.2f", camera->camera_target[0], camera->camera_target[1],
+             camera->camera_target[2]);
     igText(buffer);
 
-    sprintf(buffer, "yaw, pitch: %4.2f %4.2f", camera->yaw, camera->pitch);
+    snprintf(buffer, sizeof(buffer), "yaw, pitch: %4.2f %4.2f", camera->yaw, camera->pitch);
     igText(buffer);
 
-    sprintf(buffer, "fov: %4.2f", camera->zoom);
+    snprintf(buffer, sizeof(buffer), "fov: %4.2f", camera->zoom);
     igText(buffer);
 
     igEnd();
