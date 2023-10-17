@@ -23,12 +23,11 @@
 
 #include "camera.h"
 
-extern Camera *camera;
-extern int     firstMouse;
-extern float   lastX;
-extern float   lastY;
-extern int     locked_cursor;
-extern int     wireframe_mode;
+extern int   firstMouse;
+extern float lastX;
+extern float lastY;
+extern int   locked_cursor;
+extern int   wireframe_mode;
 
 extern vec3 mouse_world_position;
 
