@@ -38,7 +38,7 @@ repos:
     args: [--filter=-build/include_subdir,-readability/nolint,-whitespace/line_length,-whitespace/comments,-readability/casting,-build/header_guard,-runtime/arrays]
 
   - id: clang-tidy
-    args: [--warnings-as-errors, --checks=bugprone-*,performance-*,readability-*,portability-*,modernize-*,clang-analyzer-cplusplus-*,clang-analyzer-*,cppcoreguidelines-*]
+    args: [--warnings-as-errors, --checks="bugprone-*,performance-*,readability-*,portability-*,modernize-*,clang-analyzer-cplusplus-*,clang-analyzer-*,cppcoreguidelines-*"]
 
 
 - repo: https://github.com/zricethezav/gitleaks
