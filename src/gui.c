@@ -156,6 +156,13 @@ void gui_update_camera() {
 
     igBegin("Camera", NULL, 0);
 
+    if (camera->orthographic) {
+        sprintf(buffer, "mode: ORTHOGRAPHIC");
+    } else {
+        sprintf(buffer, "mode: PROJECTION");
+    }
+    igText(buffer);
+
     sprintf(buffer, "position: %4.2f %4.2f %4.2f", camera->camera_pos[0], camera->camera_pos[1], camera->camera_pos[2]);
     igText(buffer);
 

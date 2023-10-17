@@ -19,6 +19,8 @@
 #ifndef _UTILS_H
 #define _UTILS_H
 
+#include <stdbool.h>
+
 typedef enum Direction {
     FRONT,
     BACK,
@@ -27,5 +29,7 @@ typedef enum Direction {
     UP,
     DOWN,
 } Direction;
+
+bool toggle(bool *value);
 
 #endif

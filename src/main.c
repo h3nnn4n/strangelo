@@ -105,11 +105,11 @@ int main(int argc, char *argv[]) {
     }
 
     // Shaders
-    compute_t *compute_shader = build_compute_shader("shaders/raytracer.comp");
-    Shader    *shader         = newShader("shaders/main.vert", "shaders/main.frag", NULL);
+    Shader *shader = newShader("shaders/main.vert", "shaders/main.frag", NULL);
     Shader_use(shader);
     Shader_set_int(shader, "tex", 0);
 
+    compute_t *compute_shader = build_compute_shader("shaders/raytracer.comp");
     compute_use(compute_shader);
     compute_set_float(compute_shader, "near_plane", near_plane);
     compute_set_float(compute_shader, "far_plane", far_plane);
@@ -169,11 +169,8 @@ int main(int argc, char *argv[]) {
         // Run compute shader
         compute_use(compute_shader);
         compute_set_float(compute_shader, "time", manager->current_time);
-        compute_set_vec3(compute_shader, "camera_position", &manager->camera->camera_pos);
-        compute_set_vec3f(compute_shader, "camera_orientation", manager->camera->pitch, manager->camera->yaw,
-                          manager->camera->zoom);
         compute_set_matrix4(compute_shader, "camera_view", &manager->camera->view);
-        compute_set_matrix4(compute_shader, "camera_projection", &manager->camera->projection);
+        compute_set_bool(compute_shader, "orthographic", manager->camera->orthographic);
 
         glDispatchCompute(TEXTURE_WIDTH / 32, TEXTURE_HEIGHT / 32, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);

@@ -33,6 +33,7 @@ int right_mouse_pressed;
 int ctrl_key_pressed;
 int alt_key_pressed;
 
+int f3_key_pressed;
 int f5_key_pressed;
 int f9_key_pressed;
 
@@ -134,6 +135,15 @@ void processInput(GLFWwindow *window) {
 
     if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
+        if (!f3_key_pressed)
+            toggle(&manager->camera->orthographic);
+
+        f3_key_pressed = 1;
+    } else if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
+        f3_key_pressed = 0;
     }
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {

@@ -5,10 +5,8 @@ layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 layout (rgba32f, binding = 0) uniform image2D imgOutput;
 layout (location = 0) uniform float time;
 
-layout (location = 1) uniform vec3 camera_position; // x, y, z
-layout (location = 2) uniform vec3 camera_orientation;  // pitch, yaw and fov
-layout (location = 3) uniform mat4 camera_view;
-layout (location = 4) uniform mat4 camera_projection;
+layout (location = 1) uniform mat4 camera_view;
+layout (location = 2) uniform bool orthographic;
 layout (location = 5) uniform float near_plane;
 layout (location = 6) uniform float far_plane;
 
@@ -36,27 +34,36 @@ void main() {
     {vec3(  0.0 , 1.5 , -9.0) , 1.25 , vec3(0.0 , 0.0 , 1.0)} ,
     {vec3(  2.0 , 0.5 ,-11.0) , 2.5  , vec3(0.0 , 1.0 , 0.0)} ,
     {vec3(  0.0 , 0.0 ,-11.0) , 2.5  , vec3(0.3 , 0.8 , 0.2)} ,
-    {vec3(  0.0 , 0.0 , 10.0) , 2.5  , vec3(0.0 , 0.1 , 0.8)} ,
-    {vec3(  0.0 , 10.0,  0.0) , 2.5  , vec3(0.0 , 0.1 , 0.8)} ,
-    {vec3(  0.0 ,-10.0,  0.0) , 2.5  , vec3(0.0 , 0.1 , 0.8)} ,
-    {vec3( 10.0,  0.0 ,  0.0) , 2.5  , vec3(0.0 , 0.1 , 0.8)} ,
-    {vec3(-10.0,  0.0 ,  0.0) , 2.5  , vec3(0.0 , 0.1 , 0.8)} ,
+    {vec3(  0.0 , 0.0 , 10.0) , 2.5  , vec3(0.4 , 0.2 , 0.8)} ,
+    {vec3(  0.0 , 10.0,  0.0) , 2.5  , vec3(0.8 , 0.7 , 0.2)} ,
+    {vec3(  0.0 ,-10.0,  0.0) , 2.5  , vec3(0.2 , 0.7 , 0.6)} ,
+    {vec3( 10.0,  0.0 ,  0.0) , 2.5  , vec3(0.1 , 0.4 , 0.3)} ,
+    {vec3(-10.0,  0.0 ,  0.0) , 2.5  , vec3(0.6 , 0.3 , 0.1)} ,
   };
 
   // Build a x,y in clip space (ie -1 to 1)
   float x = (float(pixel_position.x * 2 - texture_size.x) / texture_size.x);
   float y = (float(pixel_position.y * 2 - texture_size.y) / texture_size.y);
 
-  // Build a ray from the camera position pointing forward (negative z). Note
-  // that this makes all rays parallels, resulting in a orthographic projection
+  // Build a ray from the camera position pointing forward (negative z)
+  // Orthographic projection:
   vec3 ray_origin = vec3(x * max_x, y * max_y, 0.0);
   vec3 ray_direction = vec3(0.0, 0.0, -1.0);
+
+  // Perspective projection:
+  if (!orthographic) {
+    ray_origin = vec3(0.0, 0.0, 0.0);
+    ray_direction = normalize(ray_origin - vec3(x * max_x, y * max_y, -10.0));
+  }
 
   float hit_distance = far_plane;
   int sphere_hit_id = -1;
 
   for (int i = 0; i < N_SPHERES; i++) {
     vec4 position = camera_view * vec4(spheres[i].position, 1.0);
+    if (!orthographic) {
+      position *= -1;
+    }
 
     // Equation for ray hitting a sphere:
     // (ray_origin + ray_direction * t - position)^2 = radius^2

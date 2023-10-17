@@ -78,6 +78,10 @@ void compute_set_matrix4(compute_t *compute, char *name, mat4 *m) {
     glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, (float *)m);
 }
 
+void compute_set_bool(compute_t *compute, char *name, bool value) {
+    glUniform1i(glGetUniformLocation(compute->id, name), value);
+}
+
 void check_compile_errors(GLuint shader, const char *type) {
     GLint  success;
     GLchar infoLog[2048];

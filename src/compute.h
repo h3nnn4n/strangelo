@@ -35,6 +35,7 @@ void       compute_set_float(compute_t *compute, char *name, float value);
 void       compute_set_vec3f(compute_t *compute, char *name, float v1, float v2, float v3);
 void       compute_set_vec3(compute_t *compute, char *name, vec3 *v);
 void       compute_set_matrix4(compute_t *compute, char *name, mat4 *m);
+void       compute_set_bool(compute_t *compute, char *name, bool value);
 void       check_compile_errors(GLuint shader, const char *type);
 
 #endif
