@@ -158,9 +158,12 @@ void main() {
 
       pixel_color.xyz += hit_info.color / (N_SAMPLES * N_BOUNCES);
       ray_origin = hit_info.position;
-      // cast a ray into a random direction around the normal
-      // FIXME: This is very bogus. We need a proper hemisphere sampler
-      ray_direction = normalize(hit_info.normal + vec3(rand(), rand(), rand()));
+      if (rand() < 0.25)
+        ray_direction = reflect(ray_direction, hit_info.normal);
+      else
+        // cast a ray into a random direction around the normal
+        // FIXME: This is very bogus. We need a proper hemisphere sampler
+        ray_direction = normalize(hit_info.normal + vec3(rand(), rand(), rand()));
     }
   }
 
