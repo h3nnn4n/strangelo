@@ -11,6 +11,7 @@ layout (location = 5) uniform float near_plane;
 layout (location = 6) uniform float far_plane;
 
 uint rng_state;
+const float PI = 3.14159265f;
 
 #define N_SPHERES 10
 #define N_BOUNCES 10
@@ -48,6 +49,27 @@ uint hash_lowbias32(uint x) {
   x *= 0x846ca68bU;
   x ^= x >> 16;
   return x;
+}
+
+mat3 get_tangent_space(vec3 normal) {
+    vec3 helper = vec3(1, 0, 0);
+    if (abs(normal.x) > 0.99f)
+        helper = vec3(0, 0, 1);
+
+    vec3 tangent = normalize(cross(normal, helper));
+    vec3 binormal = normalize(cross(normal, tangent));
+    return mat3(tangent, binormal, normal);
+}
+
+// http://three-eyed-games.com/2018/05/12/gpu-path-tracing-in-unity-part-2/
+vec3 sample_hemisphere(vec3 normal) {
+    // Uniformly sample hemisphere direction
+    float cosTheta = rand();
+    float sinTheta = sqrt(max(0.0f, 1.0f - cosTheta * cosTheta));
+    float phi = 2 * PI * rand();
+    vec3 tangent_space_dir = vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+    // Transform direction to world space
+    return tangent_space_dir * get_tangent_space(normal);
 }
 
 
@@ -158,12 +180,10 @@ void main() {
 
       pixel_color.xyz += hit_info.color / (N_SAMPLES * N_BOUNCES);
       ray_origin = hit_info.position;
-      if (rand() < 0.25)
+      if (rand() < 0.05)
         ray_direction = reflect(ray_direction, hit_info.normal);
       else
-        // cast a ray into a random direction around the normal
-        // FIXME: This is very bogus. We need a proper hemisphere sampler
-        ray_direction = normalize(hit_info.normal + vec3(rand(), rand(), rand()));
+        ray_direction = normalize(sample_hemisphere(hit_info.normal));
     }
   }
 
