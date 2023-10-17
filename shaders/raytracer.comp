@@ -58,6 +58,7 @@ void main() {
 
   float hit_distance = far_plane;
   int sphere_hit_id = -1;
+  vec3 normal = vec3(0.0, 0.0, 0.0);
 
   for (int i = 0; i < N_SPHERES; i++) {
     vec4 position = camera_view * vec4(spheres[i].position, 1.0);
@@ -83,12 +84,15 @@ void main() {
       if (t > near_plane && t < hit_distance) {
         hit_distance = t;
         sphere_hit_id = i;
+
+        // Calculate the normal of the sphere at the hit point
+        normal = normalize(ray_origin + ray_direction * t - position.xyz);
       }
     }
   }
 
   if (sphere_hit_id >= 0) {
-    pixel_color.xyz = spheres[sphere_hit_id].color;
+    pixel_color.xyz = spheres[sphere_hit_id].color * dot(normal, (ray_origin - ray_direction));
   }
 
   imageStore(imgOutput, pixel_position, pixel_color);
