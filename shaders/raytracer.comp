@@ -10,7 +10,7 @@ layout (location = 2) uniform bool orthographic;
 layout (location = 5) uniform float near_plane;
 layout (location = 6) uniform float far_plane;
 
-#define N_SPHERES 9
+#define N_SPHERES 10
 
 struct sphere_t {
   vec3 position;
@@ -28,6 +28,9 @@ void main() {
   float max_y = 5.0;
   float max_x = max_y * aspect_ratio;
 
+  float r = 750;
+  float f = 11.5;
+
   sphere_t spheres[N_SPHERES] = {
     //    position            radius  color
     {vec3(  0.0 ,-0.5 , -9.0) , 1.25 , vec3(1.0 , 0.0 , 0.0)} ,
@@ -39,6 +42,7 @@ void main() {
     {vec3(  0.0 ,-10.0,  0.0) , 2.5  , vec3(0.2 , 0.7 , 0.6)} ,
     {vec3( 10.0,  0.0 ,  0.0) , 2.5  , vec3(0.1 , 0.4 , 0.3)} ,
     {vec3(-10.0,  0.0 ,  0.0) , 2.5  , vec3(0.6 , 0.3 , 0.1)} ,
+    {vec3(  0.0 , -r-f,  0.0) , r    , vec3(0.3 , 0.3 , 0.3)} ,
   };
 
   // Build a x,y in clip space (ie -1 to 1)
