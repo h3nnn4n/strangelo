@@ -16,6 +16,7 @@
  *
  */
 
+#include <assert.h>
 #include <stdlib.h>
 
 #include <cglm/call.h>
@@ -54,6 +55,8 @@ Camera *make_camera() {
 }
 
 void destroy_camera(Camera *camera) {
+    assert(camera);
+
     free(camera);
     camera = NULL;
 }
@@ -87,6 +90,8 @@ void update_camera_fov(Camera *camera, float xoffset, float yoffset) {
 
     if (camera->zoom > 90.0f)
         camera->zoom = 90.0f;
+
+    update_camera_projection_matrix(camera);
 }
 
 void update_camera_position(Camera *camera, Direction direction) {
@@ -129,15 +134,8 @@ void update_camera_position(Camera *camera, Direction direction) {
     }
 }
 
-void update_camera_projection_matrix(Camera *camera, Shader *shader) {
+void update_camera_projection_matrix(Camera *camera) {
     glm_perspective(deg2rad(camera->zoom), aspect_ratio, near_plane, far_plane, camera->projection);
-
-    Shader_set_matrix4(shader, "projection", (float *)camera->projection);
-}
-
-void update_camera_view_matrix(Camera *camera, Shader *shader) {
-    Shader_set_matrix4(shader, "view", (float *)camera->view);
-    Shader_set_vec3(shader, "viewPos", (float *)camera->camera_pos);
 }
 
 void update_camera_position_matrix(Camera *camera) {

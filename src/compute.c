@@ -73,6 +73,11 @@ void compute_set_vec3(compute_t *compute, char *name, vec3 *v) {
     glUniform3f(uniformLoc, *v[0], *v[1], *v[2]);
 }
 
+void compute_set_matrix4(compute_t *compute, char *name, mat4 *m) {
+    unsigned int uniformLoc = glGetUniformLocation(compute->id, name);
+    glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, (float *)m);
+}
+
 void check_compile_errors(GLuint shader, const char *type) {
     GLint  success;
     GLchar infoLog[2048];

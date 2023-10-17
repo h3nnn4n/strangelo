@@ -157,6 +157,7 @@ int main(int argc, char *argv[]) {
         // Process input
         glfwPollEvents();
         processInput(window);
+        update_camera_position_matrix(manager->camera);
 
         // Timer
         Manager_tick_timer(manager);
@@ -171,6 +172,9 @@ int main(int argc, char *argv[]) {
         compute_set_vec3(compute_shader, "camera_position", &manager->camera->camera_pos);
         compute_set_vec3f(compute_shader, "camera_orientation", manager->camera->pitch, manager->camera->yaw,
                           manager->camera->zoom);
+        compute_set_matrix4(compute_shader, "camera_view", &manager->camera->view);
+        compute_set_matrix4(compute_shader, "camera_projection", &manager->camera->projection);
+
         glDispatchCompute(TEXTURE_WIDTH / 32, TEXTURE_HEIGHT / 32, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
