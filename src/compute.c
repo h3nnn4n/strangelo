@@ -92,6 +92,8 @@ void check_compile_errors(GLuint shader, const char *type) {
         if (!success) {
             glGetShaderInfoLog(shader, 2048, NULL, infoLog);
             printf("ERROR::SHADER_COMPILATION_ERROR of type: %s\n%s\n", type, infoLog);
+            // FIXME: Should be removed once we get some hot reloading
+            exit(EXIT_FAILURE);
         }
     } else {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
@@ -99,6 +101,8 @@ void check_compile_errors(GLuint shader, const char *type) {
         if (!success) {
             glGetProgramInfoLog(shader, 2048, NULL, infoLog);
             printf("ERROR::PROGRAM_LINKING_ERROR of type: %s\n%s\n", type, infoLog);
+            // FIXME: Should be removed once we get some hot reloading
+            exit(EXIT_FAILURE);
         }
     }
 }
