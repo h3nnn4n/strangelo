@@ -32,7 +32,7 @@ repos:
   - id: clang-format
 
   - id: cppcheck
-    args: [--language=c, --enable=all, --suppress=missingIncludeSystem, --std=c99]
+    args: [--language=c, --enable=all, --suppress=missingIncludeSystem, --suppress=unusedfunction, --std=c99]
 
   - id: cpplint
     args: [--filter=-build/include_subdir,-readability/nolint,-whitespace/line_length,-whitespace/comments,-readability/casting,-build/header_guard,-runtime/arrays]
