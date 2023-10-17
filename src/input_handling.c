@@ -34,6 +34,7 @@ int ctrl_key_pressed;
 int alt_key_pressed;
 
 int f3_key_pressed;
+int f4_key_pressed;
 int f5_key_pressed;
 int f9_key_pressed;
 
@@ -144,6 +145,15 @@ void processInput(GLFWwindow *window) {
         f3_key_pressed = 1;
     } else if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
         f3_key_pressed = 0;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_F4) == GLFW_PRESS) {
+        if (!f4_key_pressed)
+            toggle(&manager->incremental_rendering);
+
+        f4_key_pressed = 1;
+    } else if (glfwGetKey(window, GLFW_KEY_F4) == GLFW_RELEASE) {
+        f4_key_pressed = 0;
     }
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {

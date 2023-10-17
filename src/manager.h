@@ -34,6 +34,11 @@ typedef struct {
     uint64_t frame_count;
 
     /////////////////
+    // Rendering
+    //
+    bool incremental_rendering;
+
+    /////////////////
     // Camera
     //
     Camera *camera;

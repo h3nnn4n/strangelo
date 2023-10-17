@@ -245,6 +245,7 @@ int main(int argc, char *argv[]) {
         compute_set_float(compute_shader, "time", manager->current_time);
         compute_set_matrix4(compute_shader, "camera_view", &manager->camera->view);
         compute_set_bool(compute_shader, "orthographic", manager->camera->orthographic);
+        compute_set_bool(compute_shader, "incremental_rendering", manager->incremental_rendering);
 
         glDispatchCompute(TEXTURE_WIDTH / 32, TEXTURE_HEIGHT / 32, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);

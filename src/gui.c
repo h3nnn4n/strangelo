@@ -156,11 +156,16 @@ void gui_update_camera() {
 
     igBegin("Camera", NULL, 0);
 
-    if (camera->orthographic) {
+    if (camera->orthographic)
         snprintf(buffer, sizeof(buffer), "mode: ORTHOGRAPHIC");
-    } else {
+    else
         snprintf(buffer, sizeof(buffer), "mode: PROJECTION");
-    }
+    igText(buffer);
+
+    if (manager->incremental_rendering)
+        snprintf(buffer, sizeof(buffer), "incremental_rendering: true");
+    else
+        snprintf(buffer, sizeof(buffer), "incremental_rendering: false");
     igText(buffer);
 
     snprintf(buffer, sizeof(buffer), "position: %4.2f %4.2f %4.2f", camera->camera_pos[0], camera->camera_pos[1],
