@@ -38,6 +38,54 @@
 
 GLFWwindow *window;
 
+typedef struct {
+    vec4  position;
+    float radius;
+    vec4  color;
+} sphere_t;
+
+const float r = 750;
+const float f = 11.5;
+
+vec4 positions[] = {
+    {0.0, -0.5, -9.0, 0.0},  //
+    {0.0, 1.5, -9.0, 0.0},   //
+    {2.0, 0.5, -11.0, 0.0},  //
+    {0.0, 0.0, -11.0, 0.0},  //
+    {0.0, 0.0, 10.0, 0.0},   //
+    {0.0, 10.0, 0.0, 0.0},   //
+    {0.0, -10.0, 0.0, 0.0},  //
+    {10.0, 0.0, 0.0, 0.0},   //
+    {-10.0, 0.0, 0.0, 0.0},  //
+    {0.0, -r - f, 0.0, 0.0}, //
+};
+
+vec4 colors[] = {
+    {1.0, 0.0, 0.0, 0.0}, //
+    {0.0, 0.0, 1.0, 0.0}, //
+    {1.0, 1.0, 1.0, 0.0}, //
+    {0.3, 0.8, 0.2, 0.0}, //
+    {0.4, 0.2, 0.8, 0.0}, //
+    {0.8, 0.7, 0.2, 0.0}, //
+    {0.2, 0.7, 0.6, 0.0}, //
+    {0.1, 0.4, 0.3, 0.0}, //
+    {0.6, 0.3, 0.1, 0.0}, //
+    {0.3, 0.3, 0.3, 0.0}, //
+};
+
+float radius[] = {
+    1.25, //
+    1.25, //
+    2.5,  //
+    2.5,  //
+    2.5,  //
+    2.5,  //
+    2.5,  //
+    2.5,  //
+    2.5,  //
+    r,    //
+};
+
 int main(int argc, char *argv[]) {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -134,6 +182,28 @@ int main(int argc, char *argv[]) {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+
+    // SSBOs
+    GLuint ssbo_positions;
+    glGenBuffers(1, &ssbo_positions);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_positions);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(positions), positions, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 10, ssbo_positions);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+    GLuint ssbo_colors;
+    glGenBuffers(1, &ssbo_colors);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_colors);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(colors), colors, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, ssbo_colors);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+    GLuint ssbo_radius;
+    glGenBuffers(1, &ssbo_radius);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_radius);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(radius), radius, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 12, ssbo_radius);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     // Compute texture
     const unsigned int TEXTURE_WIDTH  = WINDOW_WIDTH;

@@ -3,6 +3,7 @@
 layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
 layout (rgba32f, binding = 0) uniform image2D imgOutput;
+
 layout (location = 0) uniform float time;
 
 layout (location = 1) uniform mat4 camera_view;
@@ -10,18 +11,15 @@ layout (location = 2) uniform bool orthographic;
 layout (location = 5) uniform float near_plane;
 layout (location = 6) uniform float far_plane;
 
+layout (std430, binding = 10) buffer Pos { vec4 positions[]; };
+layout (std430, binding = 11) buffer Col { vec4 colors[]; };
+layout (std430, binding = 12) buffer Rad { float radius[]; };
+
 uint rng_state;
 const float PI = 3.14159265f;
 
-#define N_SPHERES 10
 #define N_BOUNCES 10
 #define N_SAMPLES 10
-
-struct sphere_t {
-  vec3 position;
-  float radius;
-  vec3 color;
-};
 
 struct hit_t {
   bool hit;
@@ -73,7 +71,8 @@ vec3 sample_hemisphere(vec3 normal) {
 }
 
 
-hit_t cast_ray(sphere_t spheres[N_SPHERES], vec3 ray_origin, vec3 ray_direction) {
+hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
+  uint n_spheres = 10;
   vec3 pixel_color = vec3(0.0, 0.0, 0.0);
 
   float hit_distance = far_plane;
@@ -81,8 +80,8 @@ hit_t cast_ray(sphere_t spheres[N_SPHERES], vec3 ray_origin, vec3 ray_direction)
   vec3 normal = vec3(0.0, 0.0, 0.0);
   vec3 hit_position = vec3(0.0, 0.0, 0.0);
 
-  for (int i = 0; i < N_SPHERES; i++) {
-    vec4 position = camera_view * vec4(spheres[i].position, 1.0);
+  for (int i = 0; i < n_spheres; i++) {
+    vec4 position = camera_view * positions[i];
     if (!orthographic) {
       position *= -1;
     }
@@ -97,7 +96,7 @@ hit_t cast_ray(sphere_t spheres[N_SPHERES], vec3 ray_origin, vec3 ray_direction)
     // iff bsqmc >= 0 then there is a hit
     vec3 omc = ray_origin - position.xyz;
     float b = dot(ray_direction, omc);
-    float c = dot(omc, omc) - spheres[i].radius * spheres[i].radius;
+    float c = dot(omc, omc) - radius[i]* radius[i];
     float bsqmc = b * b - c;
 
     if (bsqmc >= 0.0) {
@@ -114,7 +113,7 @@ hit_t cast_ray(sphere_t spheres[N_SPHERES], vec3 ray_origin, vec3 ray_direction)
   }
 
   if (sphere_hit_id >= 0) {
-    pixel_color.xyz = spheres[sphere_hit_id].color * dot(normal, (ray_origin - ray_direction));
+    pixel_color.rgb = colors[sphere_hit_id].rgb * dot(normal, (ray_origin - ray_direction));
   }
 
   hit_t hit = hit_t(
@@ -140,23 +139,6 @@ void main() {
   float max_y = 5.0;
   float max_x = max_y * aspect_ratio;
 
-  float r = 750;
-  float f = 11.5;
-
-  sphere_t spheres[N_SPHERES] = {
-    //    position            radius  color
-    {vec3(  0.0 ,-0.5 , -9.0) , 1.25 , vec3(1.0 , 0.0 , 0.0)} ,
-    {vec3(  0.0 , 1.5 , -9.0) , 1.25 , vec3(0.0 , 0.0 , 1.0)} ,
-    {vec3(  2.0 , 0.5 ,-11.0) , 2.5  , vec3(1.0 , 1.0 , 1.0)} ,
-    {vec3(  0.0 , 0.0 ,-11.0) , 2.5  , vec3(0.3 , 0.8 , 0.2)} ,
-    {vec3(  0.0 , 0.0 , 10.0) , 2.5  , vec3(0.4 , 0.2 , 0.8)} ,
-    {vec3(  0.0 , 10.0,  0.0) , 2.5  , vec3(0.8 , 0.7 , 0.2)} ,
-    {vec3(  0.0 ,-10.0,  0.0) , 2.5  , vec3(0.2 , 0.7 , 0.6)} ,
-    {vec3( 10.0,  0.0 ,  0.0) , 2.5  , vec3(0.1 , 0.4 , 0.3)} ,
-    {vec3(-10.0,  0.0 ,  0.0) , 2.5  , vec3(0.6 , 0.3 , 0.1)} ,
-    {vec3(  0.0 , -r-f,  0.0) , r    , vec3(0.3 , 0.3 , 0.3)} ,
-  };
-
   for (int i_sample = 0; i_sample < N_SAMPLES; i_sample++) {
     // Build a x,y in clip space (ie -1 to 1)
     float x = (float(pixel_position.x * 2 - texture_size.x) / texture_size.x);
@@ -177,7 +159,7 @@ void main() {
     vec4 result = vec4(1.0, 1.0, 1.0, 1.0);
 
     for (int i = 0; i < N_BOUNCES; i++) {
-      hit_t hit_info = cast_ray(spheres, ray_origin, ray_direction);
+      hit_t hit_info = cast_ray(ray_origin, ray_direction);
 
       if (!hit_info.hit)
         break;
