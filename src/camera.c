@@ -48,8 +48,12 @@ Camera *make_camera() {
     glm_mat4_copy(projection, camera->projection);
 
     camera->pitch = 0;
-    camera->yaw   = 0;
+    camera->yaw   = 270;
     camera->zoom  = 45;
+
+    update_camera_target(camera, 0, 0);
+    update_camera_projection_matrix(camera);
+    update_camera_position_matrix(camera);
 
     return camera;
 }
