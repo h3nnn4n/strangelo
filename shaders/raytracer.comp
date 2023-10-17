@@ -52,24 +52,24 @@ uint hash_lowbias32(uint x) {
 }
 
 mat3 get_tangent_space(vec3 normal) {
-    vec3 helper = vec3(1, 0, 0);
-    if (abs(normal.x) > 0.99f)
-        helper = vec3(0, 0, 1);
+  vec3 helper = vec3(1, 0, 0);
+  if (abs(normal.x) > 0.99f)
+    helper = vec3(0, 0, 1);
 
-    vec3 tangent = normalize(cross(normal, helper));
-    vec3 binormal = normalize(cross(normal, tangent));
-    return mat3(tangent, binormal, normal);
+  vec3 tangent = normalize(cross(normal, helper));
+  vec3 binormal = normalize(cross(normal, tangent));
+  return mat3(tangent, binormal, normal);
 }
 
 // http://three-eyed-games.com/2018/05/12/gpu-path-tracing-in-unity-part-2/
 vec3 sample_hemisphere(vec3 normal) {
-    // Uniformly sample hemisphere direction
-    float cosTheta = rand();
-    float sinTheta = sqrt(max(0.0f, 1.0f - cosTheta * cosTheta));
-    float phi = 2 * PI * rand();
-    vec3 tangent_space_dir = vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
-    // Transform direction to world space
-    return tangent_space_dir * get_tangent_space(normal);
+  // Uniformly sample hemisphere direction
+  float cosTheta = rand();
+  float sinTheta = sqrt(max(0.0f, 1.0f - cosTheta * cosTheta));
+  float phi = 2 * PI * rand();
+  vec3 tangent_space_dir = vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+  // Transform direction to world space
+  return tangent_space_dir * get_tangent_space(normal);
 }
 
 
@@ -118,22 +118,23 @@ hit_t cast_ray(sphere_t spheres[N_SPHERES], vec3 ray_origin, vec3 ray_direction)
   }
 
   hit_t hit = hit_t(
-      sphere_hit_id >= 0,
-      normal,
-      hit_position.xyz,
-      pixel_color
-      );
+    sphere_hit_id >= 0,
+    normal,
+    hit_position.xyz,
+    pixel_color
+  );
 
   return hit;
 }
 
 
 void main() {
-  rng_state = hash_lowbias32(gl_GlobalInvocationID.x * gl_GlobalInvocationID.y + int(mod(time * 1000.0, 10000)));
+  rng_state = hash_lowbias32(gl_GlobalInvocationID.x * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x + int(mod(time * 100000.0, 100000000)));
 
   vec4 pixel_color = vec4(0.0, 0.0, 0.0, 1.0);
   ivec2 pixel_position = ivec2(gl_GlobalInvocationID.xy);
   ivec2 texture_size = imageSize(imgOutput);
+  vec4 old_color = imageLoad(imgOutput, pixel_position);
 
   float aspect_ratio = float(texture_size.x) / float(texture_size.y);
   float max_y = 5.0;
@@ -172,23 +173,32 @@ void main() {
       ray_direction = normalize(ray_origin - vec3(x * max_x, y * max_y, -10.0));
     }
 
+    //vec4 result = vec4(0.0, 0.0, 0.0, 0.0);
+    vec4 result = vec4(1.0, 1.0, 1.0, 1.0);
+
     for (int i = 0; i < N_BOUNCES; i++) {
       hit_t hit_info = cast_ray(spheres, ray_origin, ray_direction);
 
       if (!hit_info.hit)
         break;
 
-      pixel_color.xyz += hit_info.color / (N_SAMPLES * N_BOUNCES);
+      // FIXME; This is not how light works. Need to account for energy loss
+      result.rgb *= hit_info.color;
+      //ray_origin = hit_info.position + hit_info.normal * 0.001;
       ray_origin = hit_info.position;
-      if (rand() < 0.05)
+
+      if (rand() < 0.5)
         ray_direction = reflect(ray_direction, hit_info.normal);
       else
         ray_direction = normalize(sample_hemisphere(hit_info.normal));
     }
+
+    pixel_color.rgb += result.rgb / float(N_SAMPLES);
   }
 
-  // Gamma correction
-  pixel_color.rgb = pow(pixel_color.rgb, vec3(1.0 / 2.2));
-
-  imageStore(imgOutput, pixel_position, pixel_color);
+  vec4 final_color = vec4((old_color + pixel_color).rgb, old_color.a + 1);
+  if (time < 0.1) {
+    final_color = pixel_color;
+  }
+  imageStore(imgOutput, pixel_position, final_color);
 }

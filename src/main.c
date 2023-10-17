@@ -154,6 +154,10 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, texture);
 
     while (!glfwWindowShouldClose(window)) {
+        // Clear the working texture
+        // FIXME: Needs to be cleaned whenever we move the camera
+        /*glClearTexImage(texture, 0, GL_RGBA32F, GL_FLOAT, NULL);*/
+
         // Process input
         glfwPollEvents();
         processInput(window);

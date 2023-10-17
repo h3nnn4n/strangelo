@@ -9,5 +9,13 @@ uniform sampler2D tex;
 void main()
 {
   vec4 texCol = texture(tex, TexCoords);
-  FragColor = vec4(texCol.r, texCol.g, texCol.b, 1.0);
+
+  // Alpha channel contains the number of samples we took, so we divide by that
+  // to get into LDR range
+  texCol.rgb /= texCol.a;
+
+  // Gamma correction
+  texCol.rgb = pow(texCol.rgb, vec3(1.0 / 2.2));
+
+  FragColor = vec4(texCol.rgb, 1.0);
 }
