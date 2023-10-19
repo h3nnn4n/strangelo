@@ -182,5 +182,27 @@ void gui_update_camera() {
     snprintf(buffer, sizeof(buffer), "fov: %4.2f", camera->zoom);
     igText(buffer);
 
+#ifdef __SHOW_MVP
+    {
+        igSeparator();
+        mat4 *m = &camera->view;
+        igText("view matrix:");
+        for (int i = 0; i < 4; i++) {
+            snprintf(buffer, sizeof(buffer), "%4.2f %4.2f %4.2f %4.2f", *m[i][0], *m[i][1], *m[i][2], *m[i][3]);
+            igText(buffer);
+        }
+    }
+
+    {
+        igSeparator();
+        mat4 *m = &camera->projection;
+        igText("projection matrix:");
+        for (int i = 0; i < 4; i++) {
+            snprintf(buffer, sizeof(buffer), "%4.2f %4.2f %4.2f %4.2f", *m[i][0], *m[i][1], *m[i][2], *m[i][3]);
+            igText(buffer);
+        }
+    }
+#endif
+
     igEnd();
 }
