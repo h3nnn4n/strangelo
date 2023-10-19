@@ -48,7 +48,7 @@ Camera *make_camera() {
     glm_mat4_copy(projection, camera->projection);
 
     camera->pitch = 0;
-    camera->yaw   = 270;
+    camera->yaw   = 90;
     camera->zoom  = 45;
 
     update_camera_target(camera, 0, 0);
@@ -100,7 +100,7 @@ void update_camera_fov(Camera *camera, float xoffset, float yoffset) {
 }
 
 void update_camera_position(Camera *camera, Direction direction) {
-    const float camera_speed = 6.0f * manager->delta_time;
+    const float camera_speed = 50.0f * manager->delta_time;
 
     vec3 tmp;
 

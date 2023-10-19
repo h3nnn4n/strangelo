@@ -24,7 +24,7 @@ uint rng_state;
 const float PI = 3.14159265f;
 
 #define N_BOUNCES 10
-#define N_SAMPLES 10
+#define N_SAMPLES 5
 
 struct hit_t {
   bool hit;
@@ -182,8 +182,8 @@ void main() {
 
     // FIXME: No idea what the initial value should be here
     //vec4 result = vec4(0.0, 0.0, 0.0, 0.0);
-    vec4 result = vec4(0.1, 0.1, 0.1, 0.0);
-    //vec4 result = vec4(1.0, 1.0, 1.0, 0.0);
+    //vec4 result = vec4(0.1, 0.1, 0.1, 0.0);
+    vec4 result = vec4(1.0, 1.0, 1.0, 0.0);
 
     for (int i = 0; i < N_BOUNCES; i++) {
       hit_t hit_info = cast_ray(ray_origin, ray_direction);

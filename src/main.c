@@ -103,6 +103,16 @@ int main(int argc, char *argv[]) {
         manager        = init_manager();
         Camera *camera = make_camera();
         Manager_set_camera(manager, camera);
+
+        camera->camera_pos[0] = camera_pos[0];
+        camera->camera_pos[1] = camera_pos[1];
+        camera->camera_pos[2] = camera_pos[2];
+
+        camera->camera_target[0] = camera_pos[0];
+        camera->camera_target[1] = camera_pos[1];
+        camera->camera_target[2] = camera_pos[2] - 1;
+
+        update_camera_position_matrix(camera);
     }
 
     // Shaders

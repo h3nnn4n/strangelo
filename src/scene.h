@@ -23,8 +23,87 @@
 
 #include <cglm/cglm.h>
 
-const float r = 750;
-const float f = 11.5;
+// #define _WHATEVER_SCENE
+#define _CORNELL_BOX_SCENE
+
+#ifdef _CORNELL_BOX_SCENE
+
+vec3 camera_pos = {47, 51, -80};
+
+const float f = 100;
+
+const vec4 positions[] = {
+    {1e5 + f, 40.8, 81.6, 1.0},       // Left
+    {-1e5 - f + 80, 40.8, 81.6, 1.0}, // Right
+    {50, 40.8, 1e5 + f, 1.0},         // Back
+    {50, 40.8, -1e5 - f, 1.0},        // Front
+    {50, 1e5 + f, 81.6, 1.0},         // Top
+    {50, -1e5, 81.6, 1.0},            // Bottom
+    {27, 16.5, 47, 1.0},              // Mirror
+    {73, 16.5, 78, 1.0},              // Glass
+    {50, 600 + 95, 81.6, 1.0},        // Light
+};
+
+const vec4 albedo[] = {
+    {1.00, 0.25, 0.25}, //
+    {0.25, 0.25, 1.00}, //
+    {0.75, 0.75, 0.75}, //
+    {1.00, 1.00, 1.00}, //
+    {0.75, 0.75, 0.75}, //
+    {0.75, 0.75, 0.75}, //
+    {1.00, 1.00, 1.00}, //
+    {1.00, 1.00, 1.00}, //
+    {1.00, 1.00, 1.00}, //
+};
+
+const float radius[] = {
+    1e5,  //
+    1e5,  //
+    1e5,  //
+    1e5,  //
+    1e5,  //
+    1e5,  //
+    16.5, //
+    16.5, //
+    600,  //
+};
+
+const float roughness[] = {
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+};
+
+// 1 = diffuse
+// 2 = metal
+// 3 = dielectric
+// 4 = reflective
+// 5 = light
+const int material_type[] = {
+    1, //
+    1, //
+    1, //
+    1, //
+    1, //
+    1, //
+    1, //
+    1, //
+    5, //
+};
+
+#endif // _CORNELL_BOX_SCENE
+
+#ifdef _WHATEVER_SCENE
+
+vec3        camera_pos = {0.0, 0.0, 0.0};
+const float r          = 750;
+const float f          = 11.5;
 
 const vec4 positions[] = {
     {0.0, -0.5, -9.0, 1.0},  // 1
@@ -106,6 +185,8 @@ const float roughness[] = {
     0.2, // 12
 };
 
+#endif // _WHATEVER_SCENE
+
 const int n_spheres = sizeof(radius) / sizeof(float);
 
-#endif
+#endif // SRC_SCENE_H_
