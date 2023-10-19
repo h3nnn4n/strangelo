@@ -216,10 +216,12 @@ void main() {
         // changing the color
         result.rgb *= vec3(1.0, 1.0, 1.0);
 
-        // TODO: We need to handle refraction when entering the object and when
-        // exiting. Fix is to detect it and invert the refraction ratio
         // TODO: Make the refraction ratio a property of the material
         float refraction_ratio = 1.5;
+
+        // This might be backwards
+        if (dot(ray_direction, hit_info.normal) > 0.0)
+          refraction_ratio = 1.0 / refraction_ratio;
 
         // TODO: Implement reflections
         // TODO: Implement total internal reflection
