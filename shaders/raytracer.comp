@@ -162,6 +162,7 @@ void main() {
   vec4 pixel_color = vec4(0.0, 0.0, 0.0, 1.0);
   ivec2 pixel_position = ivec2(gl_GlobalInvocationID.xy);
   ivec2 texture_size = imageSize(imgOutput);
+  vec2 pixel_size = vec2(1.0 / float(texture_size.x), 1.0 / float(texture_size.y));
   vec4 old_color = imageLoad(imgOutput, pixel_position);
 
   float aspect_ratio = float(texture_size.x) / float(texture_size.y);
@@ -172,6 +173,10 @@ void main() {
     // Build a x,y in clip space (ie -1 to 1)
     float x = (float(pixel_position.x * 2 - texture_size.x) / texture_size.x);
     float y = (float(pixel_position.y * 2 - texture_size.y) / texture_size.y);
+
+    // Apply antialiasing noise
+    x += rand() * pixel_size.x;
+    y += rand() * pixel_size.y;
 
     // Build a ray from the camera position pointing forward (negative z)
     // Orthographic projection:
