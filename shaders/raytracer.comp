@@ -114,18 +114,16 @@ hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
         hit_distance = t;
         sphere_hit_id = i;
 
-        // Calculate the normal of the sphere at the hit point
-        normal = normalize(ray_origin + ray_direction * t - position.xyz);
         hit_position = ray_origin + ray_direction * t;
+        normal = normalize(hit_position - position.xyz);
       } else {
         t = -b + sqrt(bsqmc);
         if (t > near_plane && t < hit_distance) {
           hit_distance = t;
           sphere_hit_id = i;
 
-          // Calculate the normal of the sphere at the hit point
-          normal = normalize(ray_origin + ray_direction * t - position.xyz);
           hit_position = ray_origin + ray_direction * t;
+          normal = normalize(hit_position - position.xyz);
         }
       }
     }
