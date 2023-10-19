@@ -83,6 +83,8 @@ void update_camera_target(Camera *camera, float xoffset, float yoffset) {
     camera->camera_front[2] = sin(deg2rad(camera->yaw)) * cos(deg2rad(camera->pitch));
 
     glm_vec3_normalize(camera->camera_front);
+
+    update_camera_position_matrix(camera);
 }
 
 void update_camera_fov(Camera *camera, float xoffset, float yoffset) {
@@ -135,6 +137,9 @@ void update_camera_position(Camera *camera, Direction direction) {
             glm_vec3_add(camera->camera_pos, tmp, camera->camera_pos);
             break;
     }
+
+    update_camera_target(camera, 0, 0);
+    update_camera_position_matrix(manager->camera);
 }
 
 void update_camera_projection_matrix(Camera *camera) {

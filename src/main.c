@@ -225,7 +225,6 @@ int main(int argc, char *argv[]) {
         // Process input
         glfwPollEvents();
         processInput(window);
-        update_camera_position_matrix(manager->camera);
 
         // Timer
         Manager_tick_timer(manager);
