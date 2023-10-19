@@ -108,12 +108,15 @@ int main(int argc, char *argv[]) {
         camera->camera_pos[1] = camera_pos[1];
         camera->camera_pos[2] = camera_pos[2];
 
-        camera->camera_target[0] = camera_pos[0];
-        camera->camera_target[1] = camera_pos[1];
-        camera->camera_target[2] = camera_pos[2] - 1;
+        camera->pitch = camera_orientation[0];
+        camera->yaw   = camera_orientation[1];
+        camera->zoom  = camera_orientation[2];
 
+        update_camera_target(camera, 0, 0);
         update_camera_position_matrix(camera);
     }
+
+    init_scene();
 
     // Shaders
     Shader *shader = newShader("shaders/main.vert", "shaders/main.frag", NULL);
@@ -151,35 +154,35 @@ int main(int argc, char *argv[]) {
     GLuint ssbo_positions;
     glGenBuffers(1, &ssbo_positions);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_positions);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(positions), positions, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, n_spheres * sizeof(float) * 4, positions, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 10, ssbo_positions);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     GLuint ssbo_radius;
     glGenBuffers(1, &ssbo_radius);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_radius);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(radius), radius, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, n_spheres * sizeof(float), radius, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, ssbo_radius);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     GLuint ssbo_material_type;
     glGenBuffers(1, &ssbo_material_type);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_material_type);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(material_type), material_type, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, n_spheres * sizeof(int), material_type, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 12, ssbo_material_type);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     GLuint ssbo_albedo;
     glGenBuffers(1, &ssbo_albedo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_albedo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(albedo), albedo, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, n_spheres * sizeof(float) * 4, albedo, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 13, ssbo_albedo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     GLuint ssbo_roughness;
     glGenBuffers(1, &ssbo_roughness);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_roughness);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(roughness), roughness, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, n_spheres * sizeof(float), roughness, GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 14, ssbo_roughness);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 

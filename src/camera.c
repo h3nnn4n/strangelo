@@ -100,7 +100,7 @@ void update_camera_fov(Camera *camera, float xoffset, float yoffset) {
 }
 
 void update_camera_position(Camera *camera, Direction direction) {
-    const float camera_speed = 50.0f * manager->delta_time;
+    const float camera_speed = 6.0f * manager->delta_time;
 
     vec3 tmp;
 

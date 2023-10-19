@@ -23,8 +23,41 @@
 
 #include <cglm/cglm.h>
 
+typedef enum {
+    DIFFUSE    = 1,
+    METAL      = 2,
+    DIELECTRIC = 3,
+    WHATEVER   = 4,
+    LIGHT      = 5,
+} material_type_t;
+
+typedef struct {
+    vec4            position;
+    float           radius;
+    vec4            albedo;
+    float           roughness;
+    material_type_t material_type;
+} object_t;
+
+void init_scene();
+
+extern vec3 camera_pos;
+extern vec3 camera_orientation;
+
+#define _OVEN_SCENE
 // #define _WHATEVER_SCENE
-#define _CORNELL_BOX_SCENE
+// #define _CORNELL_BOX_SCENE
+
+#ifdef _OVEN_SCENE
+
+#define n_spheres 8
+
+extern vec4  positions[n_spheres];
+extern float radius[n_spheres];
+extern vec4  albedo[n_spheres];
+extern float roughness[n_spheres];
+extern int   material_type[n_spheres];
+#endif // _OVEN_SCENE
 
 #ifdef _CORNELL_BOX_SCENE
 
@@ -215,7 +248,5 @@ const float roughness[] = {
 };
 
 #endif // _WHATEVER_SCENE
-
-const int n_spheres = sizeof(radius) / sizeof(float);
 
 #endif // SRC_SCENE_H_
