@@ -227,13 +227,15 @@ void main() {
         float refraction_ratio = 1.5;
 
         // This might be backwards
-        if (dot(ray_direction, hit_info.normal) > 0.0)
+        if (dot(ray_direction, hit_info.normal) < 0.0)
           refraction_ratio = 1.0 / refraction_ratio;
 
         // TODO: Implement reflections
         // TODO: Implement total internal reflection
-        vec3 refracted = refract(normalize(ray_direction - ray_origin), hit_info.normal, refraction_ratio);
+        vec3 refracted = refract(normalize(ray_origin - ray_direction), hit_info.normal, refraction_ratio);
         ray_direction = refracted;
+        //result.rgb = refracted * 0.5 + 0.5;
+        //break;
       } else if (material_type < 4) {
         // Whatever
         result.rgb *= albedo[hit_info.id].rgb;
