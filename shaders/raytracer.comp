@@ -13,8 +13,10 @@ layout (location = 5) uniform float near_plane;
 layout (location = 6) uniform float far_plane;
 
 layout (std430, binding = 10) buffer Pos { vec4 positions[]; };
-layout (std430, binding = 11) buffer Col { vec4 colors[]; };
-layout (std430, binding = 12) buffer Rad { float radius[]; };
+layout (std430, binding = 11) buffer Rad { float radius[]; };
+layout (std430, binding = 12) buffer MatType { int material_type[]; };
+layout (std430, binding = 13) buffer Col { vec4 albedo[]; };
+layout (std430, binding = 14) buffer Rou { float roughness[]; };
 
 uint rng_state;
 const float PI = 3.14159265f;
@@ -26,7 +28,7 @@ struct hit_t {
   bool hit;
   vec3 normal;
   vec3 position;
-  vec3 color;
+  int id;
 };
 
 uint rand_xorshift() {
@@ -79,10 +81,19 @@ vec3 sample_hemisphere(vec3 normal) {
   return tangent_space_dir * get_tangent_space(normal);
 }
 
+vec3 sample_lambert(vec3 normal) {
+  vec3 lambert = normal + random_vec3();
+
+  // Handle degenerate rays
+  if (dot(lambert, lambert) < 0.001)
+    lambert = normal;
+
+  return normalize(lambert);
+}
 
 hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
+  // FIXME: Should be a uniform int
   uint n_spheres = 10;
-  vec3 pixel_color = vec3(0.0, 0.0, 0.0);
 
   float hit_distance = far_plane;
   int sphere_hit_id = -1;
@@ -116,28 +127,15 @@ hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
 
         hit_position = ray_origin + ray_direction * t;
         normal = normalize(hit_position - position.xyz);
-      } else {
-        t = -b + sqrt(bsqmc);
-        if (t > near_plane && t < hit_distance) {
-          hit_distance = t;
-          sphere_hit_id = i;
-
-          hit_position = ray_origin + ray_direction * t;
-          normal = normalize(hit_position - position.xyz);
-        }
       }
     }
-  }
-
-  if (sphere_hit_id >= 0) {
-    pixel_color.rgb = colors[sphere_hit_id].rgb * dot(normal, (ray_origin - ray_direction));
   }
 
   hit_t hit = hit_t(
     sphere_hit_id >= 0,
     normal,
     hit_position.xyz,
-    pixel_color
+    sphere_hit_id
   );
 
   return hit;
@@ -181,17 +179,36 @@ void main() {
       if (!hit_info.hit)
         break;
 
-      // FIXME; This is not how light works. Need to account for energy loss
-      result.rgb *= hit_info.color;
       ray_origin = hit_info.position + hit_info.normal * 0.001;
 
-      if (rand() < 0.5)
+      int material_type = material_type[hit_info.id];
+      if (material_type == 1) {
+        // Diffuse
+        result.rgb *= albedo[hit_info.id].rgb * dot(hit_info.normal, ray_direction);
+        ray_direction = sample_lambert(hit_info.normal);
+      } else if (material_type == 2) {
+        // Metal
+        result.rgb *= albedo[hit_info.id].rgb;
         ray_direction = reflect(ray_direction, hit_info.normal);
-      } else {
-        vec3 lambert = hit_info.normal + random_vec3();
-        if (dot(lambert, lambert) < 0.001)
-          lambert = hit_info.normal;
-        ray_direction = normalize(lambert);
+        vec3 fuzz = random_vec3() * roughness[hit_info.id];
+
+        // Make sure that the fuzz doesnt push the ray inside the object at glancing angles
+        if (dot(fuzz, hit_info.normal) < 0.0)
+          fuzz = -fuzz;
+
+        ray_direction = normalize(ray_direction + fuzz);
+      } else if (material_type < 4) {
+        // Whatever
+        result.rgb *= albedo[hit_info.id].rgb;
+        ray_direction = sample_lambert(hit_info.normal);
+      } else if (material_type == 5) {
+        // Light
+        result.rgb += albedo[hit_info.id].rgb;
+
+        // After a ray hits a light, it stops there (since the ray is actually
+        // going backwards, it means that the ray started at the light and
+        // ended at the camera)
+        break;
       }
     }
 

@@ -54,8 +54,8 @@ vec4 positions[] = {
     {0.0, -r - f, 0.0, 1.0}, //
 };
 
-vec4 colors[] = {
-    {1.0, 0.0, 0.0, 0.0}, //
+vec4 albedo[] = {
+    {1.0, 1.0, 1.0, 0.0}, //
     {0.0, 0.0, 1.0, 0.0}, //
     {1.0, 1.0, 1.0, 0.0}, //
     {0.3, 0.8, 0.2, 0.0}, //
@@ -64,7 +64,7 @@ vec4 colors[] = {
     {0.2, 0.7, 0.6, 0.0}, //
     {0.1, 0.4, 0.3, 0.0}, //
     {0.6, 0.3, 0.1, 0.0}, //
-    {0.3, 0.3, 0.3, 0.0}, //
+    {1.0, 1.0, 1.0, 0.0}, //
 };
 
 float radius[] = {
@@ -78,6 +78,37 @@ float radius[] = {
     2.5,  //
     2.5,  //
     r,    //
+};
+
+// 1 = diffuse
+// 2 = metal
+// 3 = refractive
+// 4 = reflective
+// 5 = light
+int material_type[] = {
+    5, //
+    1, //
+    1, //
+    1, //
+    1, //
+    1, //
+    1, //
+    1, //
+    1, //
+    2, //
+};
+
+float roughness[] = {
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+    0.0, //
+    0.2, //
 };
 
 int main(int argc, char *argv[]) {
@@ -185,18 +216,32 @@ int main(int argc, char *argv[]) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 10, ssbo_positions);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-    GLuint ssbo_colors;
-    glGenBuffers(1, &ssbo_colors);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_colors);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(colors), colors, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, ssbo_colors);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
     GLuint ssbo_radius;
     glGenBuffers(1, &ssbo_radius);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_radius);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(radius), radius, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 12, ssbo_radius);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, ssbo_radius);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+    GLuint ssbo_material_type;
+    glGenBuffers(1, &ssbo_material_type);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_material_type);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(material_type), material_type, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 12, ssbo_material_type);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+    GLuint ssbo_albedo;
+    glGenBuffers(1, &ssbo_albedo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_albedo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(albedo), albedo, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 13, ssbo_albedo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+    GLuint ssbo_roughness;
+    glGenBuffers(1, &ssbo_roughness);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_roughness);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(roughness), roughness, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 14, ssbo_roughness);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
     // Compute texture
