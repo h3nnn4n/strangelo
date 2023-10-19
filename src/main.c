@@ -111,6 +111,8 @@ float roughness[] = {
     0.2, //
 };
 
+const int n_spheres = sizeof(radius) / sizeof(float);
+
 int main(int argc, char *argv[]) {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -186,6 +188,7 @@ int main(int argc, char *argv[]) {
     compute_use(compute_shader);
     compute_set_float(compute_shader, "near_plane", near_plane);
     compute_set_float(compute_shader, "far_plane", far_plane);
+    compute_set_int(compute_shader, "n_spheres", n_spheres);
 
     // Quad
     unsigned int VAO;
