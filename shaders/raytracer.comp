@@ -212,7 +212,7 @@ void main() {
       }
     }
 
-    pixel_color.rgb += result.rgb / float(N_SAMPLES);
+    pixel_color.rgb += clamp(result.rgb, 0.0, 1.0) / float(N_SAMPLES);
   }
 
   vec4 final_color = vec4((old_color + pixel_color).rgb, old_color.a + 1);
