@@ -214,7 +214,7 @@ void main() {
 
         // When the ray gets refracted, we just pass it through the object with
         // changing the color
-        result.rgb *= vec3(1.0, 0.0, 0.0);
+        result.rgb *= vec3(1.0, 1.0, 1.0);
 
         // TODO: We need to handle refraction when entering the object and when
         // exiting. Fix is to detect it and invert the refraction ratio
