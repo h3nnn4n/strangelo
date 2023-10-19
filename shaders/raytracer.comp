@@ -24,7 +24,7 @@ uint rng_state;
 const float PI = 3.14159265f;
 
 #define N_BOUNCES 10
-#define N_SAMPLES 5
+#define N_SAMPLES 10
 
 struct hit_t {
   bool hit;
@@ -136,7 +136,11 @@ hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
         sphere_hit_id = i;
 
         hit_position = ray_origin + ray_direction * t;
-        normal = normalize(hit_position - position.xyz);
+
+        if (int(time * 1.0) % 2 == 0 && false)
+          normal = normalize(hit_position - position.xyz);
+        else
+          normal = normalize(position.xyz - hit_position);
       }
     }
   }
@@ -197,6 +201,9 @@ void main() {
       if (material_type == 1) {
         // Diffuse
         result.rgb *= albedo[hit_info.id].rgb * dot(hit_info.normal, ray_direction);
+        //result.rgb = albedo[hit_info.id].rgb;
+        //result.rgb = hit_info.normal.xyz * 0.5 + 0.5;
+        //result.rg = vec2(0, 0);
         ray_direction = sample_lambert(hit_info.normal);
       } else if (material_type == 2) {
         // Metal
