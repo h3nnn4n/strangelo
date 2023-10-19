@@ -36,7 +36,8 @@ typedef struct {
     /////////////////
     // Rendering
     //
-    bool incremental_rendering;
+    bool     incremental_rendering;
+    uint64_t debug_texture;
 
     /////////////////
     // Camera

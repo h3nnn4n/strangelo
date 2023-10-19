@@ -190,6 +190,7 @@ int main(int argc, char *argv[]) {
     const unsigned int TEXTURE_WIDTH  = WINDOW_WIDTH;
     const unsigned int TEXTURE_HEIGHT = WINDOW_HEIGHT;
     unsigned int       texture;
+    unsigned int       texture_debug;
 
     glGenTextures(1, &texture);
     glActiveTexture(GL_TEXTURE0);
@@ -204,11 +205,19 @@ int main(int argc, char *argv[]) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
 
-    while (!glfwWindowShouldClose(window)) {
-        // Clear the working texture
-        // FIXME: Needs to be cleaned whenever we move the camera
-        /*glClearTexImage(texture, 0, GL_RGBA32F, GL_FLOAT, NULL);*/
+    glGenTextures(1, &texture_debug);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture_debug);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+    glBindImageTexture(1, texture_debug, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
+    manager->debug_texture = texture_debug;
+
+    while (!glfwWindowShouldClose(window)) {
         // Process input
         glfwPollEvents();
         processInput(window);

@@ -82,6 +82,7 @@ void gui_render() {
 
     gui_update_fps();
     gui_update_camera();
+    gui_debug();
 
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
@@ -203,6 +204,15 @@ void gui_update_camera() {
         }
     }
 #endif
+
+    igEnd();
+}
+
+void gui_debug() {
+    igBegin("Debug", NULL, 0);
+
+    igImage((ImTextureID)(intptr_t)manager->debug_texture, (ImVec2){200 * aspect_ratio, 200}, (ImVec2){0, 1},
+            (ImVec2){1, 0}, (ImVec4){1, 1, 1, 1}, (ImVec4){1, 1, 1, 0});
 
     igEnd();
 }

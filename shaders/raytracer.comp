@@ -2,7 +2,9 @@
 
 layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
-layout (rgba32f, binding = 0) uniform image2D imgOutput;
+layout (rgba32f, binding = 0) uniform image2D render_texture;
+layout (rgba32f, binding = 1) uniform image2D debug_texture;
+
 
 layout (location = 0) uniform float time;
 
@@ -161,9 +163,10 @@ void main() {
 
   vec4 pixel_color = vec4(0.0, 0.0, 0.0, 1.0);
   ivec2 pixel_position = ivec2(gl_GlobalInvocationID.xy);
-  ivec2 texture_size = imageSize(imgOutput);
+  ivec2 texture_size = imageSize(render_texture);
   vec2 pixel_size = vec2(1.0 / float(texture_size.x), 1.0 / float(texture_size.y));
-  vec4 old_color = imageLoad(imgOutput, pixel_position);
+  vec4 old_color = imageLoad(render_texture, pixel_position);
+  imageStore(debug_texture, pixel_position, vec4(0.0, 0.0, 0.0, 1.0));
 
   float aspect_ratio = float(texture_size.x) / float(texture_size.y);
   float max_y = 5.0;
@@ -209,15 +212,12 @@ void main() {
       int material_type = material_type[hit_info.id];
       if (material_type == 1) {
         // Diffuse
-        // FIXME: Doesn't make sense that the normal is inverted only for DIFFUSE materials
-        vec3 normal = -hit_info.normal;
-        //vec3 normal = hit_info.normal;
         result.rgb *= albedo[hit_info.id].rgb * dot(hit_info.normal, ray_direction);
-        //result.rgb = albedo[hit_info.id].rgb;
-        //result.rgb = hit_info.normal.xyz * 0.5 + 0.5;
-        //result.rg = vec2(0, 0);
-        ray_direction = sample_hemisphere(normal);
-        ray_direction = sample_lambert(normal);
+        result.rgb = albedo[hit_info.id].rgb;
+        ray_direction = sample_hemisphere(hit_info.normal);
+        ray_direction = sample_lambert(hit_info.normal);
+
+        imageStore(debug_texture, pixel_position, vec4(hit_info.normal * 0.5 + 0.5, 1.0));
       } else if (material_type == 2) {
         // Metal
         result.rgb *= albedo[hit_info.id].rgb;
@@ -257,6 +257,7 @@ void main() {
         // Light
         result.rgb += albedo[hit_info.id].rgb;
 
+        imageStore(debug_texture, pixel_position, vec4(hit_info.normal * 0.5 + 0.5, 1.0));
         // After a ray hits a light, it stops there (since the ray is actually
         // going backwards, it means that the ray started at the light and
         // ended at the camera)
@@ -271,5 +272,5 @@ void main() {
   if (time < 0.1 || !incremental_rendering)
     final_color = pixel_color;
 
-  imageStore(imgOutput, pixel_position, final_color);
+  imageStore(render_texture, pixel_position, final_color);
 }

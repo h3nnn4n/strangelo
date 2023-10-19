@@ -48,5 +48,6 @@ void gui_new_frame();
 
 void gui_update_fps();
 void gui_update_camera();
+void gui_debug();
 
 #endif
