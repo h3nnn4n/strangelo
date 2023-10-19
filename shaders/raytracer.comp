@@ -187,8 +187,12 @@ void main() {
 
       if (rand() < 0.5)
         ray_direction = reflect(ray_direction, hit_info.normal);
-      else
-        ray_direction = normalize(hit_info.normal + random_vec3());
+      } else {
+        vec3 lambert = hit_info.normal + random_vec3();
+        if (dot(lambert, lambert) < 0.001)
+          lambert = hit_info.normal;
+        ray_direction = normalize(lambert);
+      }
     }
 
     pixel_color.rgb += result.rgb / float(N_SAMPLES);
