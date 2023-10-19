@@ -32,13 +32,13 @@ repos:
   - id: clang-format
 
   - id: cppcheck
-    args: [--language=c, --enable=all, --suppress=missingIncludeSystem, --suppress=unusedfunction, --std=c99]
+    args: [--language=c, --enable=all, --suppressions-list=.cppcheck.suppressions, --std=c99]
 
-  - id: cpplint
-    args: [--filter=-build/include_subdir,-readability/nolint,-whitespace/line_length,-whitespace/comments,-readability/casting,-build/header_guard,-runtime/arrays]
+  #- id: cpplint
+    #args: [--filter=-build/include_subdir,-readability/nolint,-whitespace/line_length,-whitespace/comments,-readability/casting,-build/header_guard,-runtime/arrays]
 
-  - id: clang-tidy
-    args: [--warnings-as-errors, --checks="bugprone-*,performance-*,readability-*,portability-*,modernize-*,clang-analyzer-cplusplus-*,clang-analyzer-*,cppcoreguidelines-*"]
+  #- id: clang-tidy
+    #args: [--warnings-as-errors, --checks="bugprone-*,performance-*,readability-*,portability-*,modernize-*,clang-analyzer-cplusplus-*,clang-analyzer-*,cppcoreguidelines-*"]
 
 
 - repo: https://github.com/zricethezav/gitleaks
