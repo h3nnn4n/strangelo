@@ -82,12 +82,12 @@ float radius[] = {
 
 // 1 = diffuse
 // 2 = metal
-// 3 = refractive
+// 3 = dielectric
 // 4 = reflective
 // 5 = light
 int material_type[] = {
     5, //
-    1, //
+    3, //
     1, //
     1, //
     1, //
