@@ -183,8 +183,7 @@ void main() {
 
       // FIXME; This is not how light works. Need to account for energy loss
       result.rgb *= hit_info.color;
-      //ray_origin = hit_info.position + hit_info.normal * 0.001;
-      ray_origin = hit_info.position;
+      ray_origin = hit_info.position + hit_info.normal * 0.001;
 
       if (rand() < 0.5)
         ray_direction = reflect(ray_direction, hit_info.normal);
