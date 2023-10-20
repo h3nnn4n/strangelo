@@ -189,8 +189,7 @@ int main(int argc, char *argv[]) {
     // Compute texture
     const unsigned int TEXTURE_WIDTH  = WINDOW_WIDTH;
     const unsigned int TEXTURE_HEIGHT = WINDOW_HEIGHT;
-    unsigned int       texture;
-    unsigned int       texture_debug;
+    unsigned int       texture, texture_debug, texture_skybox;
 
     glGenTextures(1, &texture);
     glActiveTexture(GL_TEXTURE0);
@@ -214,8 +213,27 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(1, texture_debug, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-
     manager->debug_texture = texture_debug;
+
+    {
+        printf("loading skybox image\n");
+        int32_t        image_width, image_height, n_components;
+        unsigned char *image_data =
+            stbi_load("assets/cape_hill_half.png", &image_width, &image_height, &n_components, 0);
+        printf("  loaded: resolution %dx%d with %d components\n", image_width, image_height, n_components);
+        glGenTextures(1, &texture_skybox);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture_skybox);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+        glBindImageTexture(2, texture_skybox, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        stbi_image_free(image_data);
+    }
+
+    printf("starting render loop\n");
 
     while (!glfwWindowShouldClose(window)) {
         // Process input

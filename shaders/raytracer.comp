@@ -4,7 +4,7 @@ layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
 layout (rgba32f, binding = 0) uniform image2D render_texture;
 layout (rgba32f, binding = 1) uniform image2D debug_texture;
-
+layout (rgba32f, binding = 2) uniform image2D skybox_texture;
 
 layout (location = 0) uniform float time;
 
@@ -25,8 +25,8 @@ layout (std430, binding = 14) buffer Rou { float roughness[]; };
 uint rng_state;
 const float PI = 3.14159265f;
 
-#define N_BOUNCES 10
-#define N_SAMPLES 10
+#define N_BOUNCES 5
+#define N_SAMPLES 4
 
 struct hit_t {
   bool hit;
@@ -40,6 +40,40 @@ uint rand_xorshift() {
   rng_state ^= (rng_state >> 17);
   rng_state ^= (rng_state << 5);
   return rng_state;
+}
+
+/***************/
+float sinCosRestrain(in float v)
+{
+    return max(-1.0, min(1.0, v));
+}
+
+/*************/
+vec2 toSphere(in vec3 v)
+{
+    float val;
+    vec2 o = vec2(1.0);
+
+    float r = sqrt(pow(v.x, 2.0) + pow(v.y, 2.0) + pow(v.z, 2.0));
+    val = max(-1.0, min(1.0, v.z / r));
+    float theta = acos(val);
+
+    float phi;
+    val = v.x / (r * sin(theta));
+    float first = acos(sinCosRestrain(val));
+    val = v.y / (r * sin(theta));
+    float second = asin(sinCosRestrain(val));
+    if (second >= 0.0)
+        phi = first;
+    else
+        phi = 2.0 * PI - first;
+
+    o.x = theta * cos(phi);
+    o.y = theta * sin(phi);
+    o.y /= PI;
+    o.x /= PI;
+
+    return o;
 }
 
 float rand() {
@@ -213,7 +247,7 @@ void main() {
       if (material_type == 1) {
         // Diffuse
         result.rgb *= albedo[hit_info.id].rgb * dot(hit_info.normal, ray_direction);
-        result.rgb = albedo[hit_info.id].rgb;
+        //result.rgb = albedo[hit_info.id].rgb;
         ray_direction = sample_hemisphere(hit_info.normal);
         ray_direction = sample_lambert(hit_info.normal);
 
@@ -266,11 +300,31 @@ void main() {
     }
 
     pixel_color.rgb += clamp(result.rgb, 0.0, 1.0) / float(N_SAMPLES);
+    //imageStore(debug_texture, pixel_position, vec4(ray_direction * 0.5 + 0.5, 1.0));
+    //imageStore(debug_texture, pixel_position, vec4(x, y, 0, 1));
+
+    //vec3 ray = normalize(ray_origin - ray_direction);
+    //vec3 ray = normalize(ray_direction - ray_origin);
+    vec3 ray = normalize(camera_view * vec4(ray_direction, 1.0)).xyz;
+    //vec3 ray = normalize(ray_origin);
+
+    //float theta = acos(ray.y) / PI;
+    //float phi = (atan(ray.x, -ray.z) * 2.0) / PI * 0.5f;
+    //pixel_color = vec4(theta, phi, 0, 1);
+    //pixel_color.r = 0;
+    //pixel_color = imageLoad(skybox_texture, ivec2((vec2(theta, phi)) * vec2(texture_size)));
+    //pixel_color = imageLoad(skybox_texture, ivec2((vec2(x, y) + 1.0) * vec2(texture_size)));
+    //vec2 sky_pos = (vec2(x, y) + 1.0) * vec2(texture_size);
+    vec2 sky_pos = (toSphere(ray) + 1.0) * vec2(4096, 2048);
+    imageStore(debug_texture, pixel_position, imageLoad(skybox_texture, ivec2(sky_pos)));
+    //pixel_color = imageLoad(skybox_texture, ivec2(sky_pos));
   }
 
   vec4 final_color = vec4((old_color + pixel_color).rgb, old_color.a + 1);
   if (time < 0.1 || !incremental_rendering)
     final_color = pixel_color;
 
+  //imageStore(debug_texture, pixel_position, imageLoad(skybox_texture, pixel_position));
+  //imageStore(render_texture, pixel_position, imageLoad(skybox_texture, pixel_position));
   imageStore(render_texture, pixel_position, final_color);
 }
