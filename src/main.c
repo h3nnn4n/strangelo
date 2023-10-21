@@ -189,7 +189,7 @@ int main(int argc, char *argv[]) {
     // Compute texture
     const unsigned int TEXTURE_WIDTH  = WINDOW_WIDTH;
     const unsigned int TEXTURE_HEIGHT = WINDOW_HEIGHT;
-    unsigned int       texture, texture_debug, texture_skybox;
+    unsigned int       texture, texture_debug;
 
     glGenTextures(1, &texture);
     glActiveTexture(GL_TEXTURE0);
@@ -215,7 +215,9 @@ int main(int argc, char *argv[]) {
     glBindImageTexture(1, texture_debug, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     manager->debug_texture = texture_debug;
 
+#if 0
     {
+        unsigned int texture_skybox;
         printf("loading skybox image\n");
         int32_t        image_width, image_height, n_components;
         unsigned char *image_data =
@@ -232,6 +234,7 @@ int main(int argc, char *argv[]) {
         glBindImageTexture(2, texture_skybox, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
         stbi_image_free(image_data);
     }
+#endif
 
     printf("starting render loop\n");
 
