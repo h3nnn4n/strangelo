@@ -215,7 +215,7 @@ int main(int argc, char *argv[]) {
     glBindImageTexture(1, texture_debug, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     manager->debug_texture = texture_debug;
 
-#if 0
+#if 1
     {
         unsigned int texture_skybox;
         printf("loading skybox image\n");
