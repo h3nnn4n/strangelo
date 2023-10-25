@@ -207,7 +207,7 @@ void main() {
       ray_origin = hit_info.position + hit_info.normal * 0.001;
     }
 
-    pixel_color.rgb += clamp(result.rgb, 0.0, 1.0) / float(N_SAMPLES);
+    pixel_color.rgb += (result.rgb) / float(N_SAMPLES);
   }
 
   vec4 final_color = vec4((old_color + pixel_color).rgb, old_color.a + 1);
