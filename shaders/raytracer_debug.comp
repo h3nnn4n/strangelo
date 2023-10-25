@@ -65,27 +65,6 @@ uint hash_lowbias32(uint x) {
   return x;
 }
 
-mat3 get_tangent_space(vec3 normal) {
-  vec3 helper = vec3(1, 0, 0);
-  if (abs(normal.x) > 0.99f)
-    helper = vec3(0, 0, 1);
-
-  vec3 tangent = normalize(cross(normal, helper));
-  vec3 binormal = normalize(cross(normal, tangent));
-  return mat3(tangent, binormal, normal);
-}
-
-// http://three-eyed-games.com/2018/05/12/gpu-path-tracing-in-unity-part-2/
-vec3 sample_hemisphere(vec3 normal) {
-  // Uniformly sample hemisphere direction
-  float cosTheta = rand();
-  float sinTheta = sqrt(max(0.0f, 1.0f - cosTheta * cosTheta));
-  float phi = 2 * PI * rand();
-  vec3 tangent_space_dir = vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
-  // Transform direction to world space
-  return tangent_space_dir * get_tangent_space(normal);
-}
-
 vec3 sample_lambert(vec3 normal) {
   vec3 lambert = normal + random_vec3();
 
@@ -196,13 +175,22 @@ void main() {
       ray_origin = hit_info.position + hit_info.normal * 0.001;
 
       int material_type = material_type[hit_info.id];
+      if (material_type <= 4) {
+        result.rgb *= albedo[hit_info.id].rgb * dot(hit_info.normal, ray_direction);
+        ray_direction = sample_lambert(hit_info.normal);
 
-      result.rgb *= albedo[hit_info.id].rgb * dot(hit_info.normal, ray_direction);
-      ray_direction = sample_hemisphere(hit_info.normal);
-      //ray_direction = sample_lambert(hit_info.normal);
+        vec4 normal_color = vec4(hit_info.normal * 0.5 + 0.5, 1.0);
+        imageStore(debug_texture, pixel_position, normal_color);
+      } else if (material_type == 5) {
+        // Light
+        result.rgb += albedo[hit_info.id].rgb;
 
-      vec4 normal_color = vec4(hit_info.normal * 0.5 + 0.5, 1.0);
-      imageStore(debug_texture, pixel_position, normal_color);
+        imageStore(debug_texture, pixel_position, vec4(hit_info.normal * 0.5 + 0.5, 1.0));
+        // After a ray hits a light, it stops there (since the ray is actually
+        // going backwards, it means that the ray started at the light and
+        // ended at the camera)
+        break;
+      }
     }
 
     pixel_color.rgb += clamp(result.rgb, 0.0, 1.0) / float(N_SAMPLES);
