@@ -50,7 +50,7 @@ extern vec3 camera_orientation;
 
 #ifdef _OVEN_SCENE
 
-#define n_spheres 8
+#define n_spheres 9
 
 extern vec4  positions[n_spheres];
 extern float radius[n_spheres];

@@ -180,6 +180,8 @@ void main() {
       }
       int material_type = material_type[hit_info.id];
       if (material_type == 1) {
+        // Diffuse Material
+        //
         // FIXME: No idea what is going on with the cossine rule here. Maybe
         // missing the camera view matrix? Feels super weird to need to invert
         // the normal around.
@@ -201,6 +203,31 @@ void main() {
           fuzz = -fuzz;
 
         ray_direction = normalize(ray_direction + fuzz);
+      } else if (material_type == 3) {
+        // Dieletric Material
+
+        // When the ray gets refracted, we just pass it through the object with
+        // changing the color
+        result.rgb *= vec3(1.0, 1.0, 1.0);
+        vec3 normal = hit_info.normal;
+
+        // TODO: Make the refraction ratio a property of the material
+        float refraction_ratio = 1.5;
+
+        if (dot(ray_direction, hit_info.normal) > 0.0) {
+          normal = -normal;
+        } else {
+          refraction_ratio = 1.0 / refraction_ratio;
+        }
+
+        // TODO: Implement reflections
+        // TODO: Implement total internal reflection
+        vec3 refracted = refract(normalize(ray_direction), normal, refraction_ratio);
+        ray_direction = refracted;
+      } else if (material_type < 4) {
+        // Whatever
+        result.rgb *= albedo[hit_info.id].rgb;
+        ray_direction = sample_lambert(hit_info.normal);
       } else if (material_type == 5) {
         // Light
         result.rgb += albedo[hit_info.id].rgb;
