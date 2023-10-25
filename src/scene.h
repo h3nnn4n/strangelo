@@ -27,7 +27,6 @@ typedef enum {
     DIFFUSE    = 1,
     METAL      = 2,
     DIELECTRIC = 3,
-    WHATEVER   = 4,
     LIGHT      = 5,
 } material_type_t;
 
