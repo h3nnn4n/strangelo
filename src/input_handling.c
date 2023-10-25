@@ -16,6 +16,8 @@
  *
  */
 
+#include <glad/glad.h>
+
 #include <GLFW/glfw3.h>
 
 #include <cglm/cglm.h>
@@ -112,6 +114,9 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     update_camera_target(manager->camera, xoffset, yoffset);
     update_camera_projection_matrix(manager->camera);
     update_mouse_world_position();
+
+    if (xpos != 0 && ypos != 0)
+        glClearTexImage(manager->render_texture, 0, GL_RGBA, GL_FLOAT, NULL);
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {

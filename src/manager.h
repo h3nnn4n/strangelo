@@ -37,7 +37,9 @@ typedef struct {
     // Rendering
     //
     bool     incremental_rendering;
-    uint64_t debug_texture;
+    uint32_t render_texture;
+    uint32_t skybox_texture;
+    uint32_t debug_texture;
 
     /////////////////
     // Camera

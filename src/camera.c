@@ -19,6 +19,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include <glad/glad.h>
+
 #include <cglm/call.h>
 #include <cglm/cglm.h>
 
@@ -160,4 +162,7 @@ void update_camera_position_matrix(Camera *camera) {
 
     glm_vec3_add(camera->camera_pos, camera->camera_front, camera->camera_target);
     glm_lookat(camera->camera_pos, camera->camera_target, camera->camera_up, camera->view);
+
+    // FIXME: Having this here isn't the clearest thing ever
+    glClearTexImage(manager->render_texture, 0, GL_RGBA, GL_FLOAT, NULL);
 }

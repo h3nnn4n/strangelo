@@ -200,49 +200,46 @@ int main(int argc, char *argv[]) {
     // Compute texture
     const unsigned int TEXTURE_WIDTH  = WINDOW_WIDTH;
     const unsigned int TEXTURE_HEIGHT = WINDOW_HEIGHT;
-    unsigned int       texture, texture_debug;
 
-    glGenTextures(1, &texture);
+    glGenTextures(1, &manager->render_texture);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, manager->render_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-    glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(0, manager->render_texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, manager->render_texture);
 
-    glGenTextures(1, &texture_debug);
+    glGenTextures(1, &manager->debug_texture);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, texture_debug);
+    glBindTexture(GL_TEXTURE_2D, manager->debug_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-    glBindImageTexture(1, texture_debug, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-    manager->debug_texture = texture_debug;
+    glBindImageTexture(1, manager->debug_texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
 #if 0
     {
-        unsigned int texture_skybox;
         printf("loading skybox image\n");
         int32_t        image_width, image_height, n_components;
         unsigned char *image_data =
             stbi_load("assets/cape_hill_half.png", &image_width, &image_height, &n_components, 0);
         printf("  loaded: resolution %dx%d with %d components\n", image_width, image_height, n_components);
-        glGenTextures(1, &texture_skybox);
+        glGenTextures(1, &manager->skybox_texture);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture_skybox);
+        glBindTexture(GL_TEXTURE_2D, manager->skybox_texture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-        glBindImageTexture(2, texture_skybox, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        glBindImageTexture(2, manager->skybox_texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
         stbi_image_free(image_data);
     }
 #endif
