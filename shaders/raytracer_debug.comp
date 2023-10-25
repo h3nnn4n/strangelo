@@ -205,7 +205,7 @@ void main() {
         }
       } else if (material_type == MATERIAL_METAL) {
         // Metal
-        result.rgb *= albedo[hit_info.id].rgb;
+        result.rgb *= albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
         ray_direction = reflect(ray_direction, hit_info.normal);
         vec3 fuzz = random_vec3() * roughness[hit_info.id];
 
