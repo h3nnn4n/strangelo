@@ -35,10 +35,11 @@ const float PI = 3.14159265f;
 #define N_SAMPLES 10
 
 struct hit_t {
-  bool hit;
-  vec3 normal;
-  vec3 position;
-  int id;
+  bool  hit;
+  vec3  normal;
+  vec3  position;
+  float distance;
+  int   id;
 };
 
 uint rand_xorshift() {
@@ -98,71 +99,71 @@ float schlick(float cosine, float refraction_ratio) {
     return r0 + (1.0 - r0) * pow((1.0 - cosine), 5.0);
 }
 
-hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
-  float hit_distance = far_plane;
-  int sphere_hit_id = -1;
-  vec3 normal = vec3(0.0, 0.0, 0.0);
-  vec3 hit_position = vec3(0.0, 0.0, 0.0);
+bool test_sphere_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, int sphere_id, out hit_t hit_info) {
+  // FIXME: This likely should be applied to the initial ray origin /
+  // directions instead of here
+  vec4 position = camera_view * positions[sphere_id];
+  vec3 omc = ray_origin - position.xyz;
+  float a = dot(ray_direction, ray_direction);
+  float b = dot(omc, ray_direction);
+  float c = dot(omc, omc) - radius[sphere_id] * radius[sphere_id];
+  float discriminant = b * b - a * c;
 
-  for (int i = 0; i < n_spheres; i++) {
-    // FIXME: This likely should be applied to the initial ray origin /
-    // directions instead of here
-    vec4 position = camera_view * positions[i];
+  if (discriminant < 0.0)
+    return false;
 
-    // Equation for ray hitting a sphere:
-    // (ray_origin + t * ray_direction - position)^2 = radius^2
-    vec3 omc = ray_origin - position.xyz;
-    float a = dot(ray_direction, ray_direction);
-    float b = dot(omc, ray_direction);
-    float c = dot(omc, omc) - radius[i] * radius[i];
-    float discriminant = b * b - a * c;
+  float t = (-b - sqrt(discriminant)) / a;
+  if (t >= near_plane && t <= max_distance) {
+    hit_info.hit = true;
+    hit_info.position = ray_origin + ray_direction * t;
+    hit_info.normal = normalize(hit_info.position - position.xyz);
+    hit_info.distance = t;
+    hit_info.id = sphere_id;
 
-    if (discriminant >= 0.0) {
-      float t = (-b - sqrt(discriminant)) / a;
-      if (t >= near_plane && t <= hit_distance) {
-        hit_distance = t;
-        sphere_hit_id = i;
+    return true;
+  } else {
+    t = (-b + sqrt(discriminant)) / a;
+    if (t >= near_plane && t <= max_distance) {
+      hit_info.hit = true;
+      hit_info.position = ray_origin + ray_direction * t;
+      hit_info.normal = normalize(hit_info.position - position.xyz);
+      hit_info.distance = t;
+      hit_info.id = sphere_id;
 
-        hit_position = ray_origin + ray_direction * t;
-
-        normal = normalize(hit_position - position.xyz);
-      } else {
-        t = (-b + sqrt(discriminant)) / a;
-        if (t >= near_plane && t <= hit_distance) {
-          hit_distance = t;
-          sphere_hit_id = i;
-
-          hit_position = ray_origin + ray_direction * t;
-
-          normal = normalize(hit_position - position.xyz);
-        }
-      }
+      return true;
     }
   }
 
-  hit_t hit = hit_t(
-    sphere_hit_id >= 0,
-    normal,
-    hit_position.xyz,
-    sphere_hit_id
-  );
+  return false;
+}
 
-  return hit;
+bool cast_ray(vec3 ray_origin, vec3 ray_direction, out hit_t hit_info) {
+  float hit_distance  = far_plane;
+  bool  hit_something = false;
+
+  for (int sphere_id = 0; sphere_id < n_spheres; sphere_id++) {
+    if (test_sphere_hit(hit_distance, ray_origin, ray_direction, sphere_id, hit_info)) {
+      hit_distance  = hit_info.distance;
+      hit_something = true;
+    }
+  }
+
+  return hit_something;
 }
 
 void main() {
   rng_state = hash_lowbias32(gl_GlobalInvocationID.x * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x) + rng_seed;
 
-  vec4 pixel_color = vec4(0.0, 0.0, 0.0, 1.0);
+  vec4  pixel_color    = vec4(0.0, 0.0, 0.0, 1.0);
   ivec2 pixel_position = ivec2(gl_GlobalInvocationID.xy);
-  ivec2 texture_size = imageSize(render_texture);
-  vec2 pixel_size = vec2(1.0 / float(texture_size.x), 1.0 / float(texture_size.y));
-  vec4 old_color = imageLoad(render_texture, pixel_position);
-  imageStore(debug_texture, pixel_position, vec4(0.0, 0.0, 0.0, 1.0));
+  ivec2 texture_size   = imageSize(render_texture);
+  vec2  pixel_size     = vec2(1.0 / float(texture_size.x), 1.0 / float(texture_size.y));
+  vec4  old_color      = imageLoad(render_texture, pixel_position);
+  float aspect_ratio   = float(texture_size.x) / float(texture_size.y);
+  float max_y          = 5.0;
+  float max_x          = max_y * aspect_ratio;
 
-  float aspect_ratio = float(texture_size.x) / float(texture_size.y);
-  float max_y = 5.0;
-  float max_x = max_y * aspect_ratio;
+  imageStore(debug_texture, pixel_position, vec4(0.0, 0.0, 0.0, 1.0));
 
   for (int i_sample = 0; i_sample < N_SAMPLES; i_sample++) {
     // Build a x,y in clip space (ie -1 to 1)
@@ -178,18 +179,19 @@ void main() {
     vec4 result        = vec4(1.0, 1.0, 1.0, 0.0);
 
     for (int i = 0; i < N_BOUNCES; i++) {
-      hit_t hit_info = cast_ray(ray_origin, ray_direction);
+      hit_t hit_info = hit_t(false, vec3(0.0), vec3(0.0), 0.0, 0);
 
-      if (!hit_info.hit) {
+      if (!cast_ray(ray_origin, ray_direction, hit_info)) {
         float t = 0.5 * (ray_direction.y + 1.0);
         vec3 sky_color = (1.0 - t) * vec3(1.0) + t * vec3(0.5, 0.7, 1.0);
         result.rgb *= sky_color;
         break;
       }
+
       int material_type = material_type[hit_info.id];
       if (material_type == MATERIAL_DIFFUSE) {
         // Diffuse Material
-        //
+
         // FIXME: No idea what is going on with the cossine rule here. Maybe
         // missing the camera view matrix? Feels super weird to need to invert
         // the normal around.
