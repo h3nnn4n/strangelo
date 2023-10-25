@@ -30,7 +30,7 @@ int   material_type[n_spheres];
 void init_scene() {
     // clang-format off
     object_t data[] = {
-      //  position            ,   radius , albedo            , roughness , type
+      //  position            ,   radius , albedo             , roughness , type
       { { 2.0 ,  0.0 , -10.0} ,   1.0    , {2.0 , 3.0 , 4.0 } , 0.0       , LIGHT      } ,
       { { 0.0 , -1.0 , -10.0} ,   1.0    , {1.0 , 0.2 , 0.3 } , 0.0       , DIFFUSE    } ,
       { { 4.0 , -1.0 ,  -9.0} ,   1.0    , {0.3 , 0.9 , 0.1 } , 0.0       , DIFFUSE    } ,
@@ -39,8 +39,8 @@ void init_scene() {
       { { 4.0 ,  1.0 , -10.0} ,   1.0    , {0.3 , 0.8 , 0.2 } , 0.3       , METAL      } ,
       { {-4.0 ,  1.0 , -10.0} ,   1.0    , {0.3 , 0.1 , 0.8 } , 0.5       , METAL      } ,
       { {-2.0 ,  0.0 , -15.0} ,   3.0    , {0.7 , 0.6 , 0.3 } , 0.25      , METAL      } ,
-      { {-2.0 ,  0.0 , -10.0} ,   1.0    , {1.0 , 1.0 , 1.0 } , 0.0       , DIELECTRIC } ,
       { { 0.5 ,  0.0 ,  -7.0} ,   1.0    , {1.0 , 1.0 , 1.0 } , 0.0       , DIELECTRIC } ,
+      { { 2.5 ,  0.0 ,  -7.0} ,   1.0    , {1.0 , 1.0 , 1.0 } , 0.0       , DIELECTRIC } ,
     };
     // clang-format on
 
