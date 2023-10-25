@@ -13,8 +13,9 @@ layout (location = 2) uniform bool orthographic;
 layout (location = 3) uniform bool incremental_rendering;
 layout (location = 5) uniform float near_plane;
 layout (location = 6) uniform float far_plane;
+layout (location = 7) uniform int rng_seed;
 
-layout (location = 7) uniform int n_spheres;
+layout (location = 9) uniform int n_spheres;
 
 layout (std430, binding = 10) buffer Pos { vec4 positions[]; };
 layout (std430, binding = 11) buffer Rad { float radius[]; };
@@ -132,8 +133,7 @@ hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
 }
 
 void main() {
-  // FIXME: Seed could come from CPU and have some better randomness
-  rng_state = hash_lowbias32(gl_GlobalInvocationID.x * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x + int(mod(time * 100000.0, 100000000)));
+  rng_state = hash_lowbias32(gl_GlobalInvocationID.x * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x + rng_seed);
 
   vec4 pixel_color = vec4(0.0, 0.0, 0.0, 1.0);
   ivec2 pixel_position = ivec2(gl_GlobalInvocationID.xy);

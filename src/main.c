@@ -18,6 +18,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <glad/glad.h>
 
@@ -27,6 +28,10 @@
 #include <cglm/cglm.h>
 
 #include <stb_image.h>
+
+#include <pcg_variants.h>
+
+#include <entropy.h>
 
 #include "camera.h"
 #include "compute.h"
@@ -97,6 +102,12 @@ int main(int argc, char *argv[]) {
     int work_grp_inv;
     glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &work_grp_inv);
     printf("max local work group invocations %i\n", work_grp_inv);
+
+    {
+        uint64_t seeds[2];
+        entropy_getbytes((void *)seeds, sizeof(seeds));
+        pcg32_srandom(seeds[0], seeds[1]);
+    }
 
     {
         gui_init();
@@ -256,6 +267,7 @@ int main(int argc, char *argv[]) {
         compute_set_matrix4(compute_shader, "camera_view", &manager->camera->view);
         compute_set_bool(compute_shader, "orthographic", manager->camera->orthographic);
         compute_set_bool(compute_shader, "incremental_rendering", manager->incremental_rendering);
+        compute_set_int(compute_shader, "rng_seed", pcg32_random());
 
         glDispatchCompute(TEXTURE_WIDTH / 32, TEXTURE_HEIGHT / 32, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);

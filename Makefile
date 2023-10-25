@@ -5,20 +5,22 @@ OPTIONS = -DIMGUI_IMPL_API="extern \"C\"" \
 	  -DIMGUI_IMPL_OPENGL_LOADER_GLAD \
 	  -DIMGUI_IMPL_OPENGL_LOADER_GLFW
 
-INCLUDES = -Isrc \
-	   -Ideps/glad/include/ \
-	   -Ideps/glfw/include/ \
-	   -Ideps/cglm/include/ \
-	   -Ideps/glm/ \
-	   -Ideps/cimgui/ \
-	   -Ideps/cimgui/imgui \
+INCLUDES = -Isrc                         \
+	   -Ideps/glad/include/          \
+	   -Ideps/glfw/include/          \
+	   -Ideps/cglm/include/          \
+	   -Ideps/glm/                   \
+	   -Ideps/cimgui/                \
+	   -Ideps/cimgui/imgui           \
 	   -Ideps/cimgui/imgui/examples/ \
-	   -Ideps/cimplot/ \
-	   -Ideps/cJSON/ \
-	   -Ideps/stb/
+	   -Ideps/cimplot/               \
+	   -Ideps/cJSON/                 \
+	   -Ideps/stb/                   \
+	   -Ideps/pcg-c/include          \
+           -Ideps/pcg-c/extras
 
 LINKS = -Ldeps/glfw/build/src/ \
-	-Ldeps/glad/src/ \
+	-Ldeps/glad/src/       \
 	-Ldeps/cJSON/build/
 
 CPPFLAGS = -Wall -std=c++11 $(OPTIMIZATION) $(OPTIONS) $(LINKS) $(INCLUDES)
@@ -26,9 +28,9 @@ CFLAGS = -Wall -std=c99 $(OPTIMIZATION) $(OPTIONS) $(LINKS) $(INCLUDES)
 
 OPTIMIZATION=-O0 -g
 
-LDFLAGS = $(OPTIMIZATION) -Wl,-Ldeps/glfw/build/src/ -Ldeps/cJSON/build/
+LDFLAGS = $(OPTIMIZATION) -Wl,-Ldeps/glfw/build/src/ -Ldeps/cJSON/build/ -Ldeps/pcg-c/src/
 
-LIBS = -lm -lglfw -lpthread -ldl -lstdc++ -lcjson
+LIBS = -lm -lglfw -lpthread -ldl -lstdc++ -lcjson -lpcg_random
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
@@ -46,7 +48,9 @@ LD_LIBRARY_PATH = deps/glfw/build/src/:deps/cJSON/build/
 CC = gcc
 CXX = g++
 
-C_FILES := $(wildcard src/*.c) deps/glad/src/glad.c
+C_FILES := $(wildcard src/*.c) \
+	   $(wildcard deps/pcg-c/extras/*.c) \
+	   deps/glad/src/glad.c
 CPP_FILES := $(wildcard src/*.cpp)
 STB_FILES := $(wildcard deps/stb/*.c)
 IMGUI_FILES := $(wildcard ./deps/cimgui/*.cpp) \
@@ -64,7 +68,7 @@ OBJS := $(foreach src,$(SOURCES), $(BUILDDIR)/$(src))
 
 all: build
 
-build: $(TARGET)
+build: pcg pcg_full $(TARGET)
 
 rebuild: clean $(TARGET)
 
@@ -88,6 +92,17 @@ run: $(TARGET)
 
 gdb: $(TARGET)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH) gdb $(CURDIR)/$(TARGET)
+
+pcg:
+	@echo $(ECHOFLAGS) "[CC]\tpcg core"
+	@$(MAKE) -s -C deps/pcg-c/src/
+
+pcg_full:
+	@echo $(ECHOFLAGS) "[CC]\tpcg full"
+	@$(MAKE) -s -C deps/pcg-c/
+
+pcg_clean:
+	@$(MAKE) clean -C deps/pcg-c/src/ > /dev/null
 
 $(BUILDDIR)/%.o: %.c
 	@echo $(ECHOFLAGS) "[CC]\t$<"
