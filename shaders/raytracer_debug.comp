@@ -160,8 +160,8 @@ void main() {
 
     vec4 result        = vec4(0.0, 0.0, 0.0, 0.0);
     vec3 ambient_light = vec3(0.0, 0.0, 0.0);
-    ambient_light      = vec3(0.1, 0.1, 0.1);
-    //result.rgb       = ambient_light;
+    ambient_light    = vec3(0.1, 0.1, 0.1);
+    result.rgb       = ambient_light;
 
     for (int i = 0; i < N_BOUNCES; i++) {
       hit_t hit_info = cast_ray(ray_origin, ray_direction);
@@ -171,16 +171,28 @@ void main() {
         break;
       }
 
-      // I am not convinced by this
-      ray_origin = hit_info.position + hit_info.normal * 0.001;
-
       int material_type = material_type[hit_info.id];
-      if (material_type <= 4) {
-        result.rgb *= albedo[hit_info.id].rgb * dot(hit_info.normal, ray_direction);
+      if (material_type == 1) {
+        // FIXME: No idea what is going on with the cossine rule here. Maybe missing the camera view matrix?
+        //result.rgb *= albedo[hit_info.id].rgb * dot(-hit_info.normal, normalize(ray_origin - ray_direction));
+        result.rgb *= albedo[hit_info.id].rgb;
         ray_direction = sample_lambert(hit_info.normal);
 
-        vec4 normal_color = vec4(hit_info.normal * 0.5 + 0.5, 1.0);
-        imageStore(debug_texture, pixel_position, normal_color);
+        if (i == 0) {
+          vec4 normal_color = vec4(hit_info.normal * 0.5 + 0.5, 1.0);
+          imageStore(debug_texture, pixel_position, normal_color);
+        }
+      } else if (material_type == 2) {
+        // Metal
+        result.rgb *= albedo[hit_info.id].rgb;
+        ray_direction = reflect(ray_direction, hit_info.normal);
+        vec3 fuzz = random_vec3() * roughness[hit_info.id];
+
+        // Make sure that the fuzz doesn't push the ray inside the object at glancing angles
+        if (dot(fuzz, hit_info.normal) < 0.0)
+          fuzz = -fuzz;
+
+        ray_direction = normalize(ray_direction + fuzz);
       } else if (material_type == 5) {
         // Light
         result.rgb += albedo[hit_info.id].rgb;
@@ -191,6 +203,8 @@ void main() {
         // ended at the camera)
         break;
       }
+
+      ray_origin = hit_info.position + hit_info.normal * 0.001;
     }
 
     pixel_color.rgb += clamp(result.rgb, 0.0, 1.0) / float(N_SAMPLES);
