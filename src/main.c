@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
     Shader_use(shader);
     Shader_set_int(shader, "tex", 0);
 
-    compute_t *compute_shader = build_compute_shader("shaders/raytracer.comp");
+    compute_t *compute_shader = build_compute_shader("shaders/raytracer_debug.comp");
     compute_use(compute_shader);
     compute_set_float(compute_shader, "near_plane", near_plane);
     compute_set_float(compute_shader, "far_plane", far_plane);
@@ -215,7 +215,7 @@ int main(int argc, char *argv[]) {
     glBindImageTexture(1, texture_debug, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     manager->debug_texture = texture_debug;
 
-#if 1
+#if 0
     {
         unsigned int texture_skybox;
         printf("loading skybox image\n");
