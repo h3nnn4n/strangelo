@@ -206,9 +206,9 @@ void main() {
       } else if (material_type == 3) {
         // Dieletric Material
 
-        // When the ray gets refracted, we just pass it through the object with
-        // changing the color
-        result.rgb *= vec3(1.0, 1.0, 1.0);
+        // NOTE: Not sure if it makes sense for a glass material to have an
+        // albedo. There are colored glasses in real life, so maybe?
+        result.rgb *= albedo[hit_info.id].rgb;
         vec3 normal = hit_info.normal;
 
         // TODO: Make the refraction ratio a property of the material
