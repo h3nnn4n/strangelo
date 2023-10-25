@@ -87,6 +87,12 @@ vec3 refract(vec3 ray_direction, vec3 normal, float refraction_ratio) {
   return r_out_perp + r_out_parallel;
 }
 
+float schlick(float cosine, float refraction_ratio) {
+    float r0 = (1.0 - refraction_ratio) / (1.0 + refraction_ratio);
+    r0 = r0 * r0;
+    return r0 + (1.0 - r0) * pow((1.0 - cosine), 5.0);
+}
+
 hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
   float hit_distance = far_plane;
   int sphere_hit_id = -1;
@@ -210,20 +216,28 @@ void main() {
         // albedo. There are colored glasses in real life, so maybe?
         result.rgb *= albedo[hit_info.id].rgb;
         vec3 normal = hit_info.normal;
+        float cosine = 0.0;
 
         // TODO: Make the refraction ratio a property of the material
         float refraction_ratio = 1.5;
 
-        if (dot(ray_direction, hit_info.normal) > 0.0) {
+        if (dot(ray_direction, normal) > 0.0) {
           normal = -normal;
+          cosine = refraction_ratio * dot(ray_direction, normal);
         } else {
           refraction_ratio = 1.0 / refraction_ratio;
+          cosine = -dot(ray_direction, normal);
         }
 
-        // TODO: Implement reflections
-        // TODO: Implement total internal reflection
-        vec3 refracted = refract(normalize(ray_direction), normal, refraction_ratio);
-        ray_direction = refracted;
+        float cos_theta = min(dot(-ray_direction, normal), 1.0);
+        float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+        bool cannot_refract = refraction_ratio * sin_theta > 1.0;
+
+        if (cannot_refract || schlick(cos_theta, refraction_ratio) > rand()) {
+          ray_direction = reflect(ray_direction, normal);
+        } else {
+          ray_direction = refract(ray_direction, normal, refraction_ratio);
+        }
       } else if (material_type < 4) {
         // Whatever
         result.rgb *= albedo[hit_info.id].rgb;
