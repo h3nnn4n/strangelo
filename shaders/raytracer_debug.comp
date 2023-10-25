@@ -180,9 +180,10 @@ void main() {
       }
       int material_type = material_type[hit_info.id];
       if (material_type == 1) {
-        // FIXME: No idea what is going on with the cossine rule here. Maybe missing the camera view matrix?
-        //result.rgb *= albedo[hit_info.id].rgb * dot(-hit_info.normal, normalize(ray_origin - ray_direction));
-        result.rgb *= albedo[hit_info.id].rgb;
+        // FIXME: No idea what is going on with the cossine rule here. Maybe
+        // missing the camera view matrix? Feels super weird to need to invert
+        // the normal around.
+        result.rgb *= albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
         ray_direction = sample_lambert(hit_info.normal);
 
         if (i == 0) {
