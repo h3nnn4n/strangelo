@@ -105,6 +105,8 @@ hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
   vec3 hit_position = vec3(0.0, 0.0, 0.0);
 
   for (int i = 0; i < n_spheres; i++) {
+    // FIXME: This likely should be applied to the initial ray origin /
+    // directions instead of here
     vec4 position = camera_view * positions[i];
 
     // Equation for ray hitting a sphere:
