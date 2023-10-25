@@ -221,17 +221,14 @@ void main() {
         // albedo. There are colored glasses in real life, so maybe?
         result.rgb *= albedo[hit_info.id].rgb;
         vec3 normal = hit_info.normal;
-        float cosine = 0.0;
 
-        // TODO: Make the refraction ratio a property of the material
-        float refraction_ratio = 1.5;
+        // We reuse the roughness parameter to store the refraction index
+        float refraction_ratio = roughness[hit_info.id];
 
         if (dot(ray_direction, normal) > 0.0) {
           normal = -normal;
-          cosine = refraction_ratio * dot(ray_direction, normal);
         } else {
           refraction_ratio = 1.0 / refraction_ratio;
-          cosine = -dot(ray_direction, normal);
         }
 
         float cos_theta = min(dot(-ray_direction, normal), 1.0);
