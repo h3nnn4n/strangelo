@@ -110,20 +110,15 @@ hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
     vec4 position = camera_view * positions[i];
 
     // Equation for ray hitting a sphere:
-    // (ray_origin + ray_direction * t - position)^2 = radius^2
-    // O = ray_origin
-    // D = ray_direction
-    // C = sphere center
-    // omc = O - C
-    // bsqmc = B^2 - C
-    // iff bsqmc >= 0 then there is a hit
+    // (ray_origin + t * ray_direction - position)^2 = radius^2
     vec3 omc = ray_origin - position.xyz;
-    float b = dot(ray_direction, omc);
-    float c = dot(omc, omc) - radius[i]* radius[i];
-    float bsqmc = b * b - c;
+    float a = dot(ray_direction, ray_direction);
+    float b = dot(omc, ray_direction);
+    float c = dot(omc, omc) - radius[i] * radius[i];
+    float discriminant = b * b - a * c;
 
-    if (bsqmc >= 0.0) {
-      float t = -b - sqrt(bsqmc);
+    if (discriminant >= 0.0) {
+      float t = (-b - sqrt(discriminant)) / a;
       if (t >= near_plane && t <= hit_distance) {
         hit_distance = t;
         sphere_hit_id = i;
@@ -132,7 +127,7 @@ hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
 
         normal = normalize(hit_position - position.xyz);
       } else {
-        t = -b + sqrt(bsqmc);
+        t = (-b + sqrt(discriminant)) / a;
         if (t >= near_plane && t <= hit_distance) {
           hit_distance = t;
           sphere_hit_id = i;
