@@ -154,7 +154,7 @@ hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
 }
 
 void main() {
-  rng_state = hash_lowbias32(gl_GlobalInvocationID.x * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x + rng_seed);
+  rng_state = hash_lowbias32(gl_GlobalInvocationID.x * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x) + rng_seed;
 
   vec4 pixel_color = vec4(0.0, 0.0, 0.0, 1.0);
   ivec2 pixel_position = ivec2(gl_GlobalInvocationID.xy);
