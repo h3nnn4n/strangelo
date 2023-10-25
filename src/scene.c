@@ -59,5 +59,29 @@ void init_scene() {
     }
 }
 
+#ifdef _RANDOM_SCENE
+void init_scene() {
+    for (int i = 0; i < n_spheres; i++) {
+        for (int j = 0; j < 3; j++) {
+            albedo[i][j] = fabs(ldexp(pcg32_random(), -32));
+        }
+
+        positions[i][0] = ldexp(pcg32_random(), -32) * 15.0;
+        positions[i][1] = ldexp(pcg32_random(), -32) - 1.0;
+        positions[i][2] = ldexp(pcg32_random(), -32) * 10.0 - 15.0;
+        printf("%f %f %f\n", positions[i][0], positions[i][1], positions[i][2]);
+
+        positions[i][3] = 1.0;
+        albedo[i][3]    = 1.0;
+
+        radius[i]        = fabs(ldexp(pcg32_random(), -32)) + 1.0;
+        roughness[i]     = fabs(ldexp(pcg32_random(), -32)) + 1.0;
+        material_type[i] = pcg32_boundedrand(5);
+        if (material_type[i] == 4)
+            material_type[i]++;
+    }
+}
+#endif // _RANDOM_SCENE
+
 // clang-format off
 // clang-format on
