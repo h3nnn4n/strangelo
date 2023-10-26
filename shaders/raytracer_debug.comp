@@ -105,7 +105,7 @@ float schlick(float cosine, float refraction_ratio) {
     return r0 + (1.0 - r0) * pow((1.0 - cosine), 5.0);
 }
 
-bool test_sphere_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, int sphere_id, out hit_t hit_info) {
+bool test_sphere_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, int sphere_id, inout hit_t hit_info) {
   vec4 position = positions[sphere_id];
   vec3 omc = ray_origin - position.xyz;
   float a = dot(ray_direction, ray_direction);
@@ -141,15 +141,15 @@ bool test_sphere_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, in
   return false;
 }
 
-bool test_ground_plane_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, out hit_t hit_info) {
+bool test_ground_plane_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, inout hit_t hit_info) {
   float t = -ray_origin.y / ray_direction.y;
 
   if (t >= near_plane && t <= max_distance) {
     hit_info.hit      = true;
     hit_info.distance = t;
-    hit_info.position = ray_origin + t * ray_direction;
-    hit_info.normal   = vec3(0.0f, 1.0f, 0.0f);
-    hit_info.id       = -1;
+    hit_info.position = ray_origin + ray_direction * t;
+    hit_info.normal   = vec3(0.0, 1.0, 0.0);
+    hit_info.id       = 1; // FIXME: Ground plane should have its own material
 
     return true;
   }
@@ -157,14 +157,14 @@ bool test_ground_plane_hit(float max_distance, vec3 ray_origin, vec3 ray_directi
   return false;
 }
 
-bool cast_ray(vec3 ray_origin, vec3 ray_direction, out hit_t hit_info) {
+bool cast_ray(vec3 ray_origin, vec3 ray_direction, inout hit_t hit_info) {
   float hit_distance  = far_plane;
   bool  hit_something = false;
 
-  // if (test_ground_plane_hit(hit_distance, ray_origin, ray_direction, hit_info)) {
-  //   hit_distance  = hit_info.distance;
-  //   hit_something = true;
-  // }
+  if (test_ground_plane_hit(hit_distance, ray_origin, ray_direction, hit_info)) {
+    hit_distance  = hit_info.distance;
+    hit_something = true;
+  }
 
   for (int sphere_id = 0; sphere_id < n_spheres; sphere_id++) {
     if (test_sphere_hit(hit_distance, ray_origin, ray_direction, sphere_id, hit_info)) {
