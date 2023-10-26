@@ -18,8 +18,10 @@
 
 #include "scene.h"
 
-vec3 camera_pos         = {0.0, 0.0, 0.0};
-vec3 camera_orientation = {0.0, 270.0, 45};
+// clang-format off
+vec3 camera_pos         = {  0.0 ,   4.0 ,  0.0 };
+vec3 camera_orientation = {-25.0 , 270.0 , 45.0 };
+// clang-format on
 
 vec4  positions[n_spheres];
 float radius[n_spheres];

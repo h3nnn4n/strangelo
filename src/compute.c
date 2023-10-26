@@ -70,7 +70,7 @@ void compute_set_vec3f(compute_t *compute, char *name, float v1, float v2, float
 
 void compute_set_vec3(compute_t *compute, char *name, vec3 *v) {
     unsigned int uniformLoc = glGetUniformLocation(compute->id, name);
-    glUniform3f(uniformLoc, *v[0], *v[1], *v[2]);
+    glUniform3fv(uniformLoc, 1, *v);
 }
 
 void compute_set_matrix4(compute_t *compute, char *name, mat4 *m) {

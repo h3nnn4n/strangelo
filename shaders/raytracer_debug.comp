@@ -23,6 +23,12 @@ layout (std430, binding = 12) buffer MatType { int material_type[]; };
 layout (std430, binding = 13) buffer Col { vec4 albedo[]; };
 layout (std430, binding = 14) buffer Rou { float roughness[]; };
 
+layout (location = 20) uniform vec3  look_from;
+layout (location = 21) uniform vec3  look_at;
+layout (location = 22) uniform float vfov;
+layout (location = 23) uniform float pitch;
+layout (location = 24) uniform float yaw;
+
 #define MATERIAL_DIFFUSE    1
 #define MATERIAL_METAL      2
 #define MATERIAL_DIELECTRIC 3
@@ -100,9 +106,7 @@ float schlick(float cosine, float refraction_ratio) {
 }
 
 bool test_sphere_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, int sphere_id, out hit_t hit_info) {
-  // FIXME: This likely should be applied to the initial ray origin /
-  // directions instead of here
-  vec4 position = camera_view * positions[sphere_id];
+  vec4 position = positions[sphere_id];
   vec3 omc = ray_origin - position.xyz;
   float a = dot(ray_direction, ray_direction);
   float b = dot(omc, ray_direction);
@@ -172,6 +176,26 @@ bool cast_ray(vec3 ray_origin, vec3 ray_direction, out hit_t hit_info) {
   return hit_something;
 }
 
+// https://gist.github.com/yiwenl/3f804e80d0930e34a0b33359259b556c
+mat4 rotation_matrix(vec3 axis, float angle) {
+  axis     = normalize(axis);
+  float s  = sin(angle);
+  float c  = cos(angle);
+  float oc = 1.0 - c;
+
+  return mat4(
+    oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+    oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+    oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+    0.0,                                0.0,                                0.0,                                1.0
+  );
+}
+
+vec3 rotate(vec3 v, vec3 axis, float angle) {
+  mat4 m = rotation_matrix(axis, angle);
+  return (m * vec4(v, 1.0)).xyz;
+}
+
 void main() {
   rng_state = hash_lowbias32(gl_GlobalInvocationID.x * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x) + rng_seed;
 
@@ -187,6 +211,10 @@ void main() {
   imageStore(debug_texture, pixel_position, vec4(0.0, 0.0, 0.0, 1.0));
 
   for (int i_sample = 0; i_sample < N_SAMPLES; i_sample++) {
+    // Ray sample output color
+    // Alpha channel is used for progressive rendering
+    vec4 result        = vec4(1.0, 1.0, 1.0, 0.0);
+
     // Build a x,y in clip space (ie -1 to 1)
     float x = (float(pixel_position.x * 2 - texture_size.x) / texture_size.x);
     float y = (float(pixel_position.y * 2 - texture_size.y) / texture_size.y);
@@ -195,9 +223,12 @@ void main() {
     x += rand() * pixel_size.x;
     y += rand() * pixel_size.y;
 
+    // Poor man's camera math
     vec3 ray_origin    = vec3(0.0, 0.0, 0.0);
-    vec3 ray_direction = normalize(ray_origin + vec3(x * max_x, y * max_y, -10.0));
-    vec4 result        = vec4(1.0, 1.0, 1.0, 0.0);
+    vec3 ray_direction = normalize(vec3(x * max_x, y * max_y, -10.0));
+    ray_direction      = rotate(ray_direction, vec3(-1, 0, 0), radians(pitch));
+    ray_direction      = rotate(ray_direction, vec3(0, 1, 0), radians(yaw + 90));
+    ray_origin        += look_from;
 
     for (int i = 0; i < N_BOUNCES; i++) {
       hit_t hit_info = hit_t(false, vec3(0.0), vec3(0.0), 0.0, 0);

@@ -266,6 +266,12 @@ int main(int argc, char *argv[]) {
         compute_set_bool(compute_shader, "incremental_rendering", manager->incremental_rendering);
         compute_set_int(compute_shader, "rng_seed", pcg32_random());
 
+        compute_set_vec3(compute_shader, "look_from", &manager->camera->camera_pos);
+        compute_set_vec3(compute_shader, "look_at", &manager->camera->camera_target);
+        compute_set_float(compute_shader, "vfov", manager->camera->zoom);
+        compute_set_float(compute_shader, "yaw", manager->camera->yaw);
+        compute_set_float(compute_shader, "pitch", manager->camera->pitch);
+
         glDispatchCompute(TEXTURE_WIDTH / 32, TEXTURE_HEIGHT / 32, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
