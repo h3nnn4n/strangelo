@@ -32,8 +32,8 @@ int   material_type[n_spheres];
 void init_scene() {
     // clang-format off
     object_t data[] = {
-      //  position            ,   radius , albedo             , roughness , type
-      { { 2.0 , 2.0 , -10.0} ,   1.0    , {2.0 , 3.0 , 4.0 } , 0.0       , LIGHT      } ,
+      //  position           ,   radius , albedo             , roughness , type
+      { { 2.0 , 1.3 , -10.0} ,   1.5    , {1.0 , 2.0 , 7.5 } , 0.0       , LIGHT      } ,
       { { 0.0 , 1.0 , -10.0} ,   1.0    , {1.0 , 0.2 , 0.3 } , 0.0       , DIFFUSE    } ,
       { { 4.0 , 1.0 ,  -9.0} ,   1.0    , {0.3 , 0.9 , 0.1 } , 0.0       , DIFFUSE    } ,
       { {-4.0 , 1.0 , -10.0} ,   1.0    , {0.0 , 0.2 , 0.9 } , 0.0       , DIFFUSE    } ,
