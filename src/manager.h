@@ -40,6 +40,7 @@ typedef struct {
     uint32_t render_texture;
     uint32_t skybox_texture;
     uint32_t debug_texture;
+    bool     ambient_light;
 
     /////////////////
     // Movement

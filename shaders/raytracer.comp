@@ -20,6 +20,7 @@ layout (location = 11) uniform vec3  look_at;
 layout (location = 12) uniform float vfov;
 layout (location = 13) uniform float pitch;
 layout (location = 14) uniform float yaw;
+layout (location = 15) uniform vec3  ambient_light;
 
 layout (location = 20) uniform int n_spheres;
 layout (location = 21) uniform int n_triangles;
@@ -380,7 +381,7 @@ void main() {
   for (int i_sample = 0; i_sample < N_SAMPLES; i_sample++) {
     // Ray sample output color
     // Alpha channel is used for progressive rendering
-    vec4 result        = vec4(1.0, 1.0, 1.0, 0.0);
+    vec4 result = vec4(ambient_light, 0.0);
 
     // Build a x,y in clip space (ie -1 to 1)
     float x = (float(pixel_position.x * 2 - texture_size.x) / texture_size.x);

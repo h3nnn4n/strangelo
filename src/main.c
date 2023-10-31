@@ -254,6 +254,13 @@ int main(int argc, char *argv[]) {
         compute_set_float(compute_shader, "yaw", manager->camera->yaw);
         compute_set_float(compute_shader, "pitch", manager->camera->pitch);
 
+        vec3 black = {0.0f, 0.0f, 0.0f};
+        vec3 white = {1.0f, 1.0f, 1.0f};
+        if (manager->ambient_light)
+            compute_set_vec3(compute_shader, "ambient_light", &white);
+        else
+            compute_set_vec3(compute_shader, "ambient_light", &black);
+
         glDispatchCompute(TEXTURE_WIDTH / 32, TEXTURE_HEIGHT / 32, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
