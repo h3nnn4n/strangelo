@@ -42,6 +42,11 @@ typedef struct {
     uint32_t debug_texture;
 
     /////////////////
+    // Movement
+    //
+    bool freeze_movement;
+
+    /////////////////
     // Camera
     //
     Camera *camera;

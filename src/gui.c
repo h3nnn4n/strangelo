@@ -169,6 +169,12 @@ void gui_update_camera() {
         snprintf(buffer, sizeof(buffer), "incremental_rendering: false");
     igText(buffer);
 
+    if (manager->freeze_movement)
+        snprintf(buffer, sizeof(buffer), "freeze_movement: true");
+    else
+        snprintf(buffer, sizeof(buffer), "freeze_movement: false");
+    igText(buffer);
+
     snprintf(buffer, sizeof(buffer), "position: %4.2f %4.2f %4.2f", camera->camera_pos[0], camera->camera_pos[1],
              camera->camera_pos[2]);
     igText(buffer);

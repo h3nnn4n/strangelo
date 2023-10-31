@@ -40,8 +40,6 @@ int f4_key_pressed;
 int f5_key_pressed;
 int f9_key_pressed;
 
-bool freeze_movement = false;
-
 vec3 mouse_world_position;
 
 float lastX;
@@ -83,7 +81,7 @@ void update_mouse_world_position() {
 }
 
 void mouse_click_callback(GLFWwindow *window, int button, int action, int mods) {
-    if (freeze_movement)
+    if (manager->freeze_movement)
         return;
 
     if (button == GLFW_MOUSE_BUTTON_RIGHT) {
@@ -104,7 +102,7 @@ void mouse_click_callback(GLFWwindow *window, int button, int action, int mods) 
 }
 
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
-    if (freeze_movement)
+    if (manager->freeze_movement)
         return;
 
     if (firstMouse) {
@@ -128,7 +126,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-    if (freeze_movement)
+    if (manager->freeze_movement)
         return;
 
     update_camera_fov(manager->camera, xoffset, yoffset);
@@ -174,7 +172,7 @@ void processInput(GLFWwindow *window) {
 
     if (glfwGetKey(window, GLFW_KEY_F5) == GLFW_PRESS) {
         if (!f5_key_pressed)
-            toggle(&freeze_movement);
+            toggle(&manager->freeze_movement);
 
         f5_key_pressed = 1;
     } else if (glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE) {
@@ -197,7 +195,7 @@ void processInput(GLFWwindow *window) {
 }
 
 void handle_camera_movements(GLFWwindow *window) {
-    if (freeze_movement)
+    if (manager->freeze_movement)
         return;
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
