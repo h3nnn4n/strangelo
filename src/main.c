@@ -205,6 +205,9 @@ int main(int argc, char *argv[]) {
 
 #if 0
     {
+        // TODO(@h3nnn4n): Would be nice for this to be async to make it start rendering faster.
+        // Although it would probably invalidate whatever has been rendered so far.
+        // Alternatively we could have a skybox toggle and we lazily load the texture.
         printf("loading skybox image\n");
         int32_t        image_width, image_height, n_components;
         unsigned char *image_data =
