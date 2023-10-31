@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-void toggle_buttom(const char *str_id, const char *label, bool *value);
+void toggle_button(const char *str_id, const char *label, bool *value);
 
 #ifdef __cplusplus
 }

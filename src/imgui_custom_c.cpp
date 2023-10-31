@@ -25,7 +25,7 @@
 #include "imgui_custom_c.h"
 
 extern "C" {
-void toggle_buttom(const char *str_id, const char *label, bool *value) { ToggleButton(str_id, label, value); }
+void toggle_button(const char *str_id, const char *label, bool *value) { ToggleButton(str_id, label, value); }
 }
 
 #endif // SRC_IMGUI_CUSTOM_C_H_

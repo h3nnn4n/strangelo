@@ -128,7 +128,7 @@ void gui_update_scene() {
     else
         snprintf(buffer, sizeof(buffer), "ambient_light: OFF");
 
-    toggle_buttom("ambient_light", buffer, &manager->ambient_light);
+    toggle_button("ambient_light", buffer, &manager->ambient_light);
 
     igEnd();
 }
