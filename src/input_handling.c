@@ -108,14 +108,6 @@ void process_input(GLFWwindow *window) {
         glfwSetWindowShouldClose(window, 1);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-
     if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
         if (!f3_key_pressed)
             toggle(&manager->camera->orthographic);
@@ -135,8 +127,14 @@ void process_input(GLFWwindow *window) {
     }
 
     if (glfwGetKey(window, GLFW_KEY_F5) == GLFW_PRESS) {
-        if (!f5_key_pressed)
+        if (!f5_key_pressed) {
             toggle(&manager->freeze_movement);
+
+            if (manager->freeze_movement)
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            else
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
 
         f5_key_pressed = 1;
     } else if (glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE) {
