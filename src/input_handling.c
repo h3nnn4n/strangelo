@@ -45,41 +45,6 @@ vec3 mouse_world_position;
 float lastX;
 float lastY;
 
-// Code from https://antongerdelan.net/opengl/raycasting.html
-void update_mouse_world_position() {
-    float x = (2.0f * lastX) / WINDOW_WIDTH - 1.0f;
-    float y = 1.0f - (2.0f * lastY) / WINDOW_HEIGHT;
-    float z = 1.0f;
-
-    vec3 ray_nds  = {x, y, z};
-    vec4 ray_clip = {ray_nds[0], ray_nds[1], -1.0, 1.0};
-
-    /*printf("\n");*/
-    /*printf("rayclip: %5.2f %5.2f %5.2f %5.2f \n",*/
-    /*ray_clip[0], ray_clip[1], ray_clip[2], ray_clip[3]);*/
-
-    mat4 inverse_projection;
-    glm_mat4_inv(manager->camera->projection, inverse_projection);
-
-    vec4 ray_eye = GLM_VEC4_ZERO_INIT;
-    glm_mat4_mulv(inverse_projection, ray_clip, ray_eye);
-    ray_eye[2] = -1;
-    ray_eye[3] = 0;
-    /*printf(" rayeye: %5.2f %5.2f %5.2f %5.2f \n",*/
-    /*ray_eye[0], ray_eye[1], ray_eye[2], ray_eye[3]);*/
-
-    mat4 inverse_view = GLM_MAT4_ZERO_INIT;
-    glm_mat4_inv(manager->camera->view, inverse_view);
-
-    vec4 ray_world = GLM_VEC4_ZERO_INIT;
-    glm_mat4_mulv(inverse_view, ray_eye, ray_world);
-    glm_vec4_normalize(ray_world);
-
-    for (int i = 0; i < 3; i++) {
-        mouse_world_position[i] = ray_world[i];
-    }
-}
-
 void mouse_click_callback(GLFWwindow *window, int button, int action, int mods) {
     if (manager->freeze_movement)
         return;
@@ -119,7 +84,6 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 
     update_camera_target(manager->camera, xoffset, yoffset);
     update_camera_projection_matrix(manager->camera);
-    update_mouse_world_position();
 
     if (xpos != 0 && ypos != 0)
         glClearTexImage(manager->render_texture, 0, GL_RGBA, GL_FLOAT, NULL);
@@ -139,7 +103,7 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     update_camera_projection_matrix(manager->camera);
 }
 
-void processInput(GLFWwindow *window) {
+void process_input(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, 1);
     }

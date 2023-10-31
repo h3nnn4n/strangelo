@@ -37,7 +37,7 @@ extern int right_mouse_pressed;
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void mouse_click_callback(GLFWwindow *window, int button, int action, int mods);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-void processInput(GLFWwindow *window);
+void process_input(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 void handle_camera_movements(GLFWwindow *window);

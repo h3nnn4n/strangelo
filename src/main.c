@@ -228,7 +228,7 @@ int main(int argc, char *argv[]) {
     while (!glfwWindowShouldClose(window)) {
         // Process input
         glfwPollEvents();
-        processInput(window);
+        process_input(window);
 
         // Timer
         Manager_tick_timer(manager);
