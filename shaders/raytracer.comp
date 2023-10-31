@@ -196,17 +196,15 @@ vec3 gouNormal(vec3 pos, float ka, float kb){
 bool test_goursat_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, inout hit_t hit_info) {
   const float ka = 1.5;
   const float kb = 2.0;
-  const vec3 position = vec3(4.0, 0.0, 10.0);
+  const vec3 position = vec3(4.0, -2.0, 10.0);
 
-  ray_origin += position;
-
-  float t = gouIntersect(ray_origin, ray_direction, ka, kb);
+  float t = gouIntersect(ray_origin + position, ray_direction, ka, kb);
 
   if (t >= near_plane && t <= max_distance) {
     hit_info.hit      = true;
     hit_info.distance = t;
-    hit_info.position = ray_origin + ray_direction * t;
-    hit_info.normal   = gouNormal(hit_info.position, ka, kb);
+    hit_info.position = position + ray_origin + ray_direction * t;
+    hit_info.normal   = gouNormal(position + ray_origin + ray_direction * t, ka, kb);
     hit_info.id       = 1;
     hit_info.hit_type = HIT_GOURSAT;
 
