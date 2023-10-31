@@ -140,6 +140,7 @@ int main(int argc, char *argv[]) {
     compute_set_float(compute_shader, "near_plane", near_plane);
     compute_set_float(compute_shader, "far_plane", far_plane);
     compute_set_int(compute_shader, "n_spheres", n_spheres);
+    compute_set_int(compute_shader, "n_triangles", n_triangles);
 
     // Quad
     unsigned int VAO;
@@ -163,11 +164,17 @@ int main(int argc, char *argv[]) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
 
     // SSBOs
+    // Spheres
     set_shader_storage_buffer(10, n_spheres * sizeof(float) * 4, positions);
     set_shader_storage_buffer(11, n_spheres * sizeof(float), radius);
     set_shader_storage_buffer(12, n_spheres * sizeof(int), material_type);
     set_shader_storage_buffer(13, n_spheres * sizeof(float) * 4, albedo);
     set_shader_storage_buffer(14, n_spheres * sizeof(float), roughness);
+    // Triangles
+    set_shader_storage_buffer(20, n_triangles * sizeof(float) * 4, triangle_v0);
+    set_shader_storage_buffer(21, n_triangles * sizeof(float) * 4, triangle_v1);
+    set_shader_storage_buffer(22, n_triangles * sizeof(float) * 4, triangle_v2);
+    set_shader_storage_buffer(23, n_triangles * sizeof(float) * 4, triangle_albedo);
 
     // Compute texture
     const unsigned int TEXTURE_WIDTH  = WINDOW_WIDTH;

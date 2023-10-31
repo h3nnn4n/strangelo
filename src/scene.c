@@ -29,9 +29,14 @@ vec4  albedo[n_spheres];
 float roughness[n_spheres];
 int   material_type[n_spheres];
 
+vec4 triangle_v0[n_triangles];
+vec4 triangle_v1[n_triangles];
+vec4 triangle_v2[n_triangles];
+vec4 triangle_albedo[n_triangles];
+
 void init_scene() {
     // clang-format off
-    object_t data[] = {
+    sphere_t data[] = {
       //  position           ,   radius , albedo             , roughness , type
       { { 2.0 , 1.3 , -10.0} ,   1.5    , {1.0 , 2.0 , 7.5 } , 0.0       , LIGHT      } ,
       { { 0.0 , 1.0 , -10.0} ,   1.0    , {1.0 , 0.2 , 0.3 } , 0.0       , DIFFUSE    } ,
@@ -44,6 +49,20 @@ void init_scene() {
       { { 0.5 , 1.0 ,  -7.0} ,   1.0    , {1.0 , 1.0 , 1.0 } , 1.1       , DIELECTRIC } ,
       { { 2.5 , 1.0 ,  -7.0} ,   1.0    , {1.0 , 1.0 , 1.0 } , 1.5       , DIELECTRIC } ,
     };
+
+    float t_s = 1.0;
+
+    triangle_t triangles[] = {
+      { { t_s , 0.0  , 0.0 } , { 0.0 ,  t_s , 0.0 } , { 0.0 , 0.0 , t_s } , { 0.2 , 0.8 , 0.3 } } ,
+      { { t_s , 0.0  , 0.0 } , { 0.0 ,  0.0 ,-t_s } , { 0.0 , t_s , 0.0 } , { 0.2 , 0.8 , 0.3 } } ,
+      { { 0.0 , t_s  , 0.0 } , {-t_s ,  0.0 , 0.0 } , { 0.0 , 0.0 , t_s } , { 0.2 , 0.8 , 0.3 } } ,
+      { { 0.0 , 0.0  ,-t_s } , {-t_s ,  0.0 , 0.0 } , { 0.0 , t_s , 0.0 } , { 0.2 , 0.8 , 0.3 } } ,
+      { { t_s , 0.0  , 0.0 } , { 0.0 ,  0.0 , t_s } , { 0.0 ,-t_s , 0.0 } , { 0.2 , 0.8 , 0.3 } } ,
+      { { t_s , 0.0  , 0.0 } , { 0.0 , -t_s , 0.0 } , { 0.0 , 0.0 ,-t_s } , { 0.2 , 0.8 , 0.3 } } ,
+      { { 0.0 ,-t_s  , 0.0 } , { 0.0 ,  0.0 , t_s } , {-t_s , 0.0 , 0.0 } , { 0.2 , 0.8 , 0.3 } } ,
+      { { 0.0 , 0.0  ,-t_s } , { 0.0 , -t_s , 0.0 } , {-t_s , 0.0 , 0.0 } , { 0.2 , 0.8 , 0.3 } } ,
+    };
+
     // clang-format on
 
     for (int i = 0; i < n_spheres; i++) {
@@ -58,6 +77,32 @@ void init_scene() {
         radius[i]        = data[i].radius;
         roughness[i]     = data[i].roughness;
         material_type[i] = data[i].material_type;
+    }
+
+    for (int i = 0; i < n_triangles; i++) {
+        for (int j = 0; j < 3; j++) {
+            triangle_v0[i][j]     = triangles[i].v0[j];
+            triangle_v1[i][j]     = triangles[i].v1[j];
+            triangle_v2[i][j]     = triangles[i].v2[j];
+            triangle_albedo[i][j] = triangles[i].albedo[j];
+        }
+
+        triangle_v0[i][0] += 2.0;
+        triangle_v1[i][0] += 2.0;
+        triangle_v2[i][0] += 2.0;
+
+        triangle_v0[i][1] += 4.3;
+        triangle_v1[i][1] += 4.3;
+        triangle_v2[i][1] += 4.3;
+
+        triangle_v0[i][2] -= 10.0;
+        triangle_v1[i][2] -= 10.0;
+        triangle_v2[i][2] -= 10.0;
+
+        triangle_v0[i][3]     = 1.0;
+        triangle_v1[i][3]     = 1.0;
+        triangle_v2[i][3]     = 1.0;
+        triangle_albedo[i][3] = 1.0;
     }
 }
 
