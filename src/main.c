@@ -38,6 +38,7 @@
 #include "gui.h"
 #include "input_handling.h"
 #include "manager.h"
+#include "rendering.h"
 #include "scene.h"
 #include "settings.h"
 #include "shader_c.h"
@@ -162,40 +163,11 @@ int main(int argc, char *argv[]) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
 
     // SSBOs
-    GLuint ssbo_positions;
-    glGenBuffers(1, &ssbo_positions);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_positions);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, n_spheres * sizeof(float) * 4, positions, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 10, ssbo_positions);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-    GLuint ssbo_radius;
-    glGenBuffers(1, &ssbo_radius);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_radius);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, n_spheres * sizeof(float), radius, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, ssbo_radius);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-    GLuint ssbo_material_type;
-    glGenBuffers(1, &ssbo_material_type);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_material_type);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, n_spheres * sizeof(int), material_type, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 12, ssbo_material_type);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-    GLuint ssbo_albedo;
-    glGenBuffers(1, &ssbo_albedo);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_albedo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, n_spheres * sizeof(float) * 4, albedo, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 13, ssbo_albedo);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-
-    GLuint ssbo_roughness;
-    glGenBuffers(1, &ssbo_roughness);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_roughness);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, n_spheres * sizeof(float), roughness, GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 14, ssbo_roughness);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    set_shader_storage_buffer(10, n_spheres * sizeof(float) * 4, positions);
+    set_shader_storage_buffer(11, n_spheres * sizeof(float), radius);
+    set_shader_storage_buffer(12, n_spheres * sizeof(int), material_type);
+    set_shader_storage_buffer(13, n_spheres * sizeof(float) * 4, albedo);
+    set_shader_storage_buffer(14, n_spheres * sizeof(float), roughness);
 
     // Compute texture
     const unsigned int TEXTURE_WIDTH  = WINDOW_WIDTH;
