@@ -27,6 +27,7 @@
 #include <GLFW/glfw3.h>
 
 #include "gui.h"
+#include "imgui_custom_c.h"
 #include "manager.h"
 #include "settings.h"
 
@@ -81,6 +82,7 @@ void gui_render() {
     gui_new_frame();
 
     gui_update_fps();
+    gui_update_scene();
     gui_update_camera();
     gui_debug();
 
@@ -113,6 +115,20 @@ void update_rolling_fps_avg() {
 
     fps_buffer[fps_pivot] = avg_fps;
     fps_pivot++;
+}
+
+void gui_update_scene() {
+    if (!igBegin("Scene", NULL, 0))
+        return igEnd();
+
+    if (manager->ambient_light)
+        snprintf(buffer, sizeof(buffer), "ambient_light: ON");
+    else
+        snprintf(buffer, sizeof(buffer), "ambient_light: OFF");
+
+    toggle_buttom("ambient_light", buffer, &manager->ambient_light);
+
+    igEnd();
 }
 
 void gui_update_fps() {
@@ -192,7 +208,7 @@ void gui_update_camera() {
 #ifdef __SHOW_MVP
     {
         igSeparator();
-        mat4 *m = &camera->view;
+        const mat4 *m = &camera->view;
         igText("view matrix:");
         for (int i = 0; i < 4; i++) {
             snprintf(buffer, sizeof(buffer), "%4.2f %4.2f %4.2f %4.2f", *m[i][0], *m[i][1], *m[i][2], *m[i][3]);
@@ -202,7 +218,7 @@ void gui_update_camera() {
 
     {
         igSeparator();
-        mat4 *m = &camera->projection;
+        const mat4 *m = &camera->projection;
         igText("projection matrix:");
         for (int i = 0; i < 4; i++) {
             snprintf(buffer, sizeof(buffer), "%4.2f %4.2f %4.2f %4.2f", *m[i][0], *m[i][1], *m[i][2], *m[i][3]);

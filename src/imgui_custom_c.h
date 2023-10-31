@@ -16,39 +16,19 @@
  *
  */
 
-#ifndef _GUI_H
-#define _GUI_H
+#ifndef SRC_IMGUI_CUSTOM_C_H_
+#define SRC_IMGUI_CUSTOM_C_H_
 
-#include <glad/glad.h>
+#include <stdbool.h>
 
-#include <GLFW/glfw3.h>
-
-#define CIMGUI_DEFINE_ENUMS_AND_STRUCTS
-#include <cimgui.h>
-#include <cimplot.h>
-
-extern GLFWwindow           *window;
-extern struct ImGuiContext  *ctx;
-extern struct ImGuiIO       *io;
-extern struct ImPlotContext *plot_ctx;
-
-int  ImGui_ImplOpenGL3_Init(const char *glsl_version);
-int  ImGui_ImplGlfw_InitForOpenGL(GLFWwindow *window, bool install_callbacks);
-void ImGui_ImplGlfw_Shutdown();
-void ImGui_ImplOpenGL3_Shutdown();
-
-void ImGui_ImplOpenGL3_RenderDrawData();
-void ImGui_ImplOpenGL3_NewFrame();
-void ImGui_ImplGlfw_NewFrame();
-
-void gui_init();
-void gui_terminate();
-void gui_render();
-void gui_new_frame();
-
-void gui_update_fps();
-void gui_update_camera();
-void gui_update_scene();
-void gui_debug();
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+void toggle_buttom(const char *str_id, const char *label, bool *value);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // SRC_IMGUI_CUSTOM_C_H_

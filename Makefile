@@ -14,6 +14,7 @@ INCLUDES = -Isrc                         \
 	   -Ideps/cimgui/imgui           \
 	   -Ideps/cimgui/imgui/examples/ \
 	   -Ideps/cimplot/               \
+	   -Ideps/imgui/                 \
 	   -Ideps/cJSON/                 \
 	   -Ideps/stb/                   \
 	   -Ideps/pcg-c/include          \
@@ -129,7 +130,7 @@ clean:
 	@rm -rf "$(BUILDDIR)/src/"
 	@rm -f "$(TARGET).o"
 
-superclean:
+superclean: pcg_clean
 	@echo Activating clean slate protocol
 	@rm -rf "$(BUILDDIR)"
 	@rm -f "$(TARGET).o"
