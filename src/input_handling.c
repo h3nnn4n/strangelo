@@ -35,10 +35,9 @@ int right_mouse_pressed;
 int ctrl_key_pressed;
 int alt_key_pressed;
 
+int f2_key_pressed;
 int f3_key_pressed;
 int f4_key_pressed;
-int f5_key_pressed;
-int f9_key_pressed;
 
 vec3 mouse_world_position;
 
@@ -126,8 +125,8 @@ void process_input(GLFWwindow *window) {
         f4_key_pressed = 0;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_F5) == GLFW_PRESS) {
-        if (!f5_key_pressed) {
+    if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS) {
+        if (!f2_key_pressed) {
             toggle(&manager->freeze_movement);
 
             if (manager->freeze_movement)
@@ -136,9 +135,9 @@ void process_input(GLFWwindow *window) {
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
 
-        f5_key_pressed = 1;
-    } else if (glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE) {
-        f5_key_pressed = 0;
+        f2_key_pressed = 1;
+    } else if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_RELEASE) {
+        f2_key_pressed = 0;
     }
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
