@@ -81,10 +81,12 @@ void gui_new_frame() {
 void gui_render() {
     gui_new_frame();
 
-    gui_update_fps();
-    gui_update_scene();
-    gui_update_camera();
-    gui_debug();
+    if (!manager->hide_ui) {
+        gui_update_fps();
+        gui_update_scene();
+        gui_update_camera();
+        gui_debug();
+    }
 
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());

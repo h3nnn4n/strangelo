@@ -35,6 +35,7 @@ int right_mouse_pressed;
 int ctrl_key_pressed;
 int alt_key_pressed;
 
+int f1_key_pressed;
 int f2_key_pressed;
 int f3_key_pressed;
 int f4_key_pressed;
@@ -105,6 +106,15 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 void process_input(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, 1);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS) {
+        if (!f1_key_pressed)
+            toggle(&manager->hide_ui);
+
+        f1_key_pressed = 1;
+    } else if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
+        f1_key_pressed = 0;
     }
 
     if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {

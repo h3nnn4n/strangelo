@@ -48,6 +48,11 @@ typedef struct {
     bool freeze_movement;
 
     /////////////////
+    // GUI
+    //
+    bool hide_ui;
+
+    /////////////////
     // Camera
     //
     Camera *camera;
