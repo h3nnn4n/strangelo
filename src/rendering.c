@@ -22,6 +22,7 @@
 
 #include <glad/glad.h>
 
+#include "manager.h"
 #include "rendering.h"
 
 void set_shader_storage_buffer(uint32_t binding_id, uint32_t size, void *data) {
@@ -33,3 +34,5 @@ void set_shader_storage_buffer(uint32_t binding_id, uint32_t size, void *data) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding_id, ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
+
+void clear_texture(uint32_t texture_id) { glClearTexImage(texture_id, 0, GL_RGBA, GL_FLOAT, NULL); }

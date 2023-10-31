@@ -22,5 +22,6 @@
 #include <stdint.h>
 
 void set_shader_storage_buffer(uint32_t binding_id, uint32_t size, void *data);
+void clear_texture(uint32_t texture_id);
 
 #endif // SRC_RENDERING_H_

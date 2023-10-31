@@ -28,6 +28,7 @@
 
 #include "camera.h"
 #include "manager.h"
+#include "rendering.h"
 #include "settings.h"
 #include "utils.h"
 
@@ -163,6 +164,5 @@ void update_camera_position_matrix(Camera *camera) {
     glm_vec3_add(camera->camera_pos, camera->camera_front, camera->camera_target);
     glm_lookat(camera->camera_pos, camera->camera_target, camera->camera_up, camera->view);
 
-    // FIXME: Having this here isn't the clearest thing ever
-    glClearTexImage(manager->render_texture, 0, GL_RGBA, GL_FLOAT, NULL);
+    clear_texture(manager->render_texture);
 }
