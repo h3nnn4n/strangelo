@@ -8,31 +8,57 @@ layout (rgba32f, binding = 2) uniform image2D skybox_texture;
 
 layout (location = 0) uniform float time;
 
-layout (location = 1) uniform mat4 camera_view;
-layout (location = 2) uniform bool orthographic;
-layout (location = 3) uniform bool incremental_rendering;
+layout (location = 1) uniform mat4  camera_view;
+layout (location = 2) uniform bool  orthographic;
+layout (location = 3) uniform bool  incremental_rendering;
 layout (location = 5) uniform float near_plane;
 layout (location = 6) uniform float far_plane;
+layout (location = 7) uniform int   rng_seed;
 
-layout (location = 7) uniform int n_spheres;
+layout (location = 10) uniform vec3  look_from;
+layout (location = 11) uniform vec3  look_at;
+layout (location = 12) uniform float vfov;
+layout (location = 13) uniform float pitch;
+layout (location = 14) uniform float yaw;
 
-layout (std430, binding = 10) buffer Pos { vec4 positions[]; };
-layout (std430, binding = 11) buffer Rad { float radius[]; };
-layout (std430, binding = 12) buffer MatType { int material_type[]; };
-layout (std430, binding = 13) buffer Col { vec4 albedo[]; };
-layout (std430, binding = 14) buffer Rou { float roughness[]; };
+layout (location = 20) uniform int n_spheres;
+layout (location = 21) uniform int n_triangles;
+
+layout (std430, binding = 10) buffer SpherePos       { vec4  positions[];     } ;
+layout (std430, binding = 11) buffer SphereRad       { float radius[];        } ;
+layout (std430, binding = 12) buffer SphereMatType   { int   material_type[]; } ;
+layout (std430, binding = 13) buffer SphereCol       { vec4  albedo[];        } ;
+layout (std430, binding = 14) buffer SphereRou       { float roughness[];     } ;
+
+layout (std430, binding = 20) buffer TriangleV0      { vec4  triangle_v0[];     } ;
+layout (std430, binding = 21) buffer TriangleV1      { vec4  triangle_v1[];     } ;
+layout (std430, binding = 22) buffer TriangleV2      { vec4  triangle_v2[];     } ;
+layout (std430, binding = 23) buffer TriangleCol     { vec4  triangle_albedo[]; } ;
+
+#define MATERIAL_DIFFUSE    1
+#define MATERIAL_METAL      2
+#define MATERIAL_DIELECTRIC 3
+#define MATERIAL_LIGHT      5
+
+#define HIT_NOTHING  0
+#define HIT_GROUND   1
+#define HIT_SPHERE   2
+#define HIT_TRIANGLE 3
+#define HIT_GOURSAT  4
 
 uint rng_state;
 const float PI = 3.14159265f;
 
 #define N_BOUNCES 10
-#define N_SAMPLES 4
+#define N_SAMPLES 10
 
 struct hit_t {
-  bool hit;
-  vec3 normal;
-  vec3 position;
-  int id;
+  bool  hit;
+  vec3  normal;
+  vec3  position;
+  float distance;
+  int   id;
+  int   hit_type;
 };
 
 uint rand_xorshift() {
@@ -42,73 +68,17 @@ uint rand_xorshift() {
   return rng_state;
 }
 
-float sinCosRestrain(in float v) {
-    return max(-1.0, min(1.0, v));
-}
-
-vec2 toSphere(in vec3 v) {
-    float val;
-    vec2 o = vec2(1.0);
-
-    float r = sqrt(pow(v.x, 2.0) + pow(v.y, 2.0) + pow(v.z, 2.0));
-    val = max(-1.0, min(1.0, v.z / r));
-    float theta = acos(val);
-
-    float phi;
-    val = v.x / (r * sin(theta));
-    float first = acos(sinCosRestrain(val));
-    val = v.y / (r * sin(theta));
-    float second = asin(sinCosRestrain(val));
-
-    if (second >= 0.0)
-        phi = first;
-    else
-        phi = 2.0 * PI - first;
-
-    o.x = theta * cos(phi);
-    o.y = theta * sin(phi);
-    o.y /= PI;
-    o.x /= PI;
-
-    return o;
-}
-
-float atan2(in float y, in float x) {
-  bool s = abs(x) > abs(y);
-  return mix(PI / 2.0 - atan(x, y), atan(y, x), s);
-}
-
-vec4 sample_sky_image(vec3 ray) {
-  float theta = acos(ray.y);
-  float phi = atan2(ray.z, ray.x);
-
-  if (phi < 0)
-      phi += 2.0 * PI;
-
-  const vec2 skybox_size = vec2(4096, 2048);
-  float x = int(phi / (2.0 * PI) * skybox_size.x);
-  float y = skybox_size.y - (theta / PI * skybox_size.y);
-
-  return imageLoad(skybox_texture, ivec2(x, y));
-}
-
-vec4 sample_skybox(vec3 ray) {
-  const vec2 skybox_size = vec2(4096, 2048);
-  vec2 uv = (1.0 - (toSphere(ray) + 0.5)) * 0.5;
-  ivec2 pixel_position = ivec2(uv * skybox_size);
-  return imageLoad(skybox_texture, pixel_position);
-}
 
 float rand() {
-  return float(rand_xorshift()) * (1.0 / 4294967296.0);
+  return float(rand_xorshift()) / 4294967296.0;
 }
 
 vec3 random_vec3() {
-  return vec3(rand(), rand(), rand());
+  return vec3(rand(), rand(), rand()) * 2.0 - 1.0;
 }
 
 vec4 random_vec4() {
-  return vec4(rand(), rand(), rand(), rand());
+  return vec4(rand(), rand(), rand(), rand()) * 2.0 - 1.0;
 }
 
 // https://www.shadertoy.com/view/WttXWX
@@ -119,27 +89,6 @@ uint hash_lowbias32(uint x) {
   x *= 0x846ca68bU;
   x ^= x >> 16;
   return x;
-}
-
-mat3 get_tangent_space(vec3 normal) {
-  vec3 helper = vec3(1, 0, 0);
-  if (abs(normal.x) > 0.99f)
-    helper = vec3(0, 0, 1);
-
-  vec3 tangent = normalize(cross(normal, helper));
-  vec3 binormal = normalize(cross(normal, tangent));
-  return mat3(tangent, binormal, normal);
-}
-
-// http://three-eyed-games.com/2018/05/12/gpu-path-tracing-in-unity-part-2/
-vec3 sample_hemisphere(vec3 normal) {
-  // Uniformly sample hemisphere direction
-  float cosTheta = rand();
-  float sinTheta = sqrt(max(0.0f, 1.0f - cosTheta * cosTheta));
-  float phi = 2 * PI * rand();
-  vec3 tangent_space_dir = vec3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
-  // Transform direction to world space
-  return tangent_space_dir * get_tangent_space(normal);
 }
 
 vec3 sample_lambert(vec3 normal) {
@@ -163,72 +112,278 @@ vec3 refract(vec3 ray_direction, vec3 normal, float refraction_ratio) {
   return r_out_perp + r_out_parallel;
 }
 
-hit_t cast_ray(vec3 ray_origin, vec3 ray_direction) {
-  float hit_distance = far_plane;
-  int sphere_hit_id = -1;
-  vec3 normal = vec3(0.0, 0.0, 0.0);
-  vec3 hit_position = vec3(0.0, 0.0, 0.0);
+float schlick(float cosine, float refraction_ratio) {
+    float r0 = (1.0 - refraction_ratio) / (1.0 + refraction_ratio);
+    r0 = r0 * r0;
+    return r0 + (1.0 - r0) * pow((1.0 - cosine), 5.0);
+}
 
-  for (int i = 0; i < n_spheres; i++) {
-    vec4 position = camera_view * positions[i];
-    if (!orthographic) {
-      position *= -1;
+// https://www.shadertoy.com/view/3lj3DW
+// https://iquilezles.org/articles/intersectors/
+float gouIntersect(vec3 ro, vec3 rd, float ka, float kb) {
+    float po = 1.0;
+    vec3 rd2 = rd*rd; vec3 rd3 = rd2*rd;
+    vec3 ro2 = ro*ro; vec3 ro3 = ro2*ro;
+    float k4 = dot(rd2,rd2);
+    float k3 = dot(ro ,rd3);
+    float k2 = dot(ro2,rd2) - kb/6.0;
+    float k1 = dot(ro3,rd ) - kb*dot(rd,ro)/2.0;
+    float k0 = dot(ro2,ro2) + ka - kb*dot(ro,ro);
+    k3 /= k4;
+    k2 /= k4;
+    k1 /= k4;
+    k0 /= k4;
+    float c2 = k2 - k3*(k3);
+    float c1 = k1 + k3*(2.0*k3*k3-3.0*k2);
+    float c0 = k0 + k3*(k3*(c2+k2)*3.0-4.0*k1);
+
+    if (abs(c1) < 0.1*abs(c2)) {
+        po = -1.0;
+        float tmp=k1; k1=k3; k3=tmp;
+        k0 = 1.0/k0;
+        k1 = k1*k0;
+        k2 = k2*k0;
+        k3 = k3*k0;
+        c2 = k2 - k3*(k3);
+        c1 = k1 + k3*(2.0*k3*k3-3.0*k2);
+        c0 = k0 + k3*(k3*(c2+k2)*3.0-4.0*k1);
     }
 
-    // Equation for ray hitting a sphere:
-    // (ray_origin + ray_direction * t - position)^2 = radius^2
-    // O = ray_origin
-    // D = ray_direction
-    // C = sphere center
-    // omc = O - C
-    // bsqmc = B^2 - C
-    // iff bsqmc >= 0 then there is a hit
-    vec3 omc = ray_origin - position.xyz;
-    float b = dot(ray_direction, omc);
-    float c = dot(omc, omc) - radius[i]* radius[i];
-    float bsqmc = b * b - c;
+    c0 /= 3.0;
+    float Q = c2*c2 + c0;
+    float R = c2*c2*c2 - 3.0*c0*c2 + c1*c1;
+    float h = R*R - Q*Q*Q;
 
-    if (bsqmc >= 0.0) {
-      float t = -b - sqrt(bsqmc);
-      if (t > near_plane && t < hit_distance) {
-        hit_distance = t;
-        sphere_hit_id = i;
+    // 2 intersections
+    if (h > 0.0) {
+        h = sqrt(h);
+        float s = sign(R+h)*pow(abs(R+h),1.0/3.0); // cube root
+        float u = sign(R-h)*pow(abs(R-h),1.0/3.0); // cube root
+        float x = s+u+4.0*c2;
+        float y = s-u;
+        float ks = x*x + y*y*3.0;
+        float k = sqrt(ks);
+        float t = -0.5*po*abs(y)*sqrt(6.0/(k+x)) - 2.0*c1*(k+x)/(ks+x*k) - k3;
+        return (po<0.0)?1.0/t:t;
+    }
 
-        hit_position = ray_origin + ray_direction * t;
+    // 4 intersections
+    float sQ = sqrt(Q);
+    float w = sQ*cos(acos(-R/(sQ*Q))/3.0);
+    float d2 = -w - c2;
+    if (d2 < 0.0) return -1.0; //no intersection
+    float d1 = sqrt(d2);
+    float h1 = sqrt(w - 2.0*c2 + c1/d1);
+    float h2 = sqrt(w - 2.0*c2 - c1/d1);
+    float t1 = -d1 - h1 - k3; t1 = (po<0.0)?1.0/t1:t1;
+    float t2 = -d1 + h1 - k3; t2 = (po<0.0)?1.0/t2:t2;
+    float t3 =  d1 - h2 - k3; t3 = (po<0.0)?1.0/t3:t3;
+    float t4 =  d1 + h2 - k3; t4 = (po<0.0)?1.0/t4:t4;
+    float t = 1e20;
 
-        if (int(time * 1.0) % 2 == 0 && false)
-          normal = normalize(hit_position - position.xyz);
-        else
-          normal = normalize(position.xyz - hit_position);
-      }
+    if (t1 > 0.0) t = t1;
+    if (t2 > 0.0) t = min(t, t2);
+    if (t3 > 0.0) t = min(t, t3);
+    if (t4 > 0.0) t = min(t, t4);
+
+    return t;
+}
+
+vec3 gouNormal(vec3 pos, float ka, float kb){
+    return normalize( 4.0*pos*pos*pos - 2.0*pos*kb );
+}
+
+bool test_goursat_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, inout hit_t hit_info) {
+  const float ka = 1.5;
+  const float kb = 2.0;
+  const vec3 position = vec3(4.0, 0.0, 10.0);
+
+  ray_origin += position;
+
+  float t = gouIntersect(ray_origin, ray_direction, ka, kb);
+
+  if (t >= near_plane && t <= max_distance) {
+    hit_info.hit      = true;
+    hit_info.distance = t;
+    hit_info.position = ray_origin + ray_direction * t;
+    hit_info.normal   = gouNormal(hit_info.position, ka, kb);
+    hit_info.id       = 1;
+    hit_info.hit_type = HIT_GOURSAT;
+
+    return true;
+  }
+
+  return false;
+}
+
+// https://www.shadertoy.com/view/MlGcDz
+vec3 triIntersect(vec3 ray_origin, vec3 ray_direction, vec3 v0, vec3 v1, vec3 v2) {
+  // Triangle intersection. Returns { t, u, v }
+  vec3 v1v0 = v1 - v0;
+  vec3 v2v0 = v2 - v0;
+  vec3 rov0 = ray_origin - v0;
+
+  vec3  n = cross(v1v0, v2v0);
+  vec3  q = cross(rov0, ray_direction);
+  float d = 1.0 / dot(ray_direction, n);
+  float u = d * dot(-q, v2v0);
+  float v = d * dot( q, v1v0);
+  float t = d * dot(-n, rov0);
+
+  //t = min(u, min(v, min(1.0 - (u + v), t)));
+  if (u < 0.0 || v < 0.0 || (u + v) > 1.0)
+    t = -1.0;
+
+  return vec3(t, u, v);
+}
+
+bool test_triangle_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, int triangle_id, inout hit_t hit_info) {
+  vec3 v0 = triangle_v0[triangle_id].xyz;
+  vec3 v1 = triangle_v1[triangle_id].xyz;
+  vec3 v2 = triangle_v2[triangle_id].xyz;
+
+  vec3 intersect = triIntersect(ray_origin, ray_direction, v0, v1, v2);
+  float t = intersect.x;
+
+  if (intersect.x >= near_plane && t <= max_distance) {
+    hit_info.hit      = true;
+    hit_info.distance = t;
+    hit_info.position = ray_origin + ray_direction * t;
+    hit_info.normal   = normalize(cross(v1 - v0, v2 - v0));
+    hit_info.id       = triangle_id;
+    hit_info.hit_type = HIT_TRIANGLE;
+
+    return true;
+  }
+
+  return false;
+}
+
+bool test_sphere_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, int sphere_id, inout hit_t hit_info) {
+  vec4 position = positions[sphere_id];
+  vec3 omc = ray_origin - position.xyz;
+  float a = dot(ray_direction, ray_direction);
+  float b = dot(omc, ray_direction);
+  float c = dot(omc, omc) - radius[sphere_id] * radius[sphere_id];
+  float discriminant = b * b - a * c;
+
+  if (discriminant < 0.0)
+    return false;
+
+  float t = (-b - sqrt(discriminant)) / a;
+  if (t >= near_plane && t <= max_distance) {
+    hit_info.hit = true;
+    hit_info.position = ray_origin + ray_direction * t;
+    hit_info.normal = normalize(hit_info.position - position.xyz);
+    hit_info.distance = t;
+    hit_info.id = sphere_id;
+    hit_info.hit_type = HIT_SPHERE;
+
+    return true;
+  } else {
+    t = (-b + sqrt(discriminant)) / a;
+    if (t >= near_plane && t <= max_distance) {
+      hit_info.hit = true;
+      hit_info.position = ray_origin + ray_direction * t;
+      hit_info.normal = normalize(hit_info.position - position.xyz);
+      hit_info.distance = t;
+      hit_info.id = sphere_id;
+      hit_info.hit_type = HIT_SPHERE;
+
+      return true;
     }
   }
 
-  hit_t hit = hit_t(
-    sphere_hit_id >= 0,
-    normal,
-    hit_position.xyz,
-    sphere_hit_id
-  );
+  return false;
+}
 
-  return hit;
+bool test_ground_plane_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, inout hit_t hit_info) {
+  float t = -ray_origin.y / ray_direction.y;
+
+  if (t >= near_plane && t <= max_distance) {
+    hit_info.hit      = true;
+    hit_info.distance = t;
+    hit_info.position = ray_origin + ray_direction * t;
+    hit_info.normal   = vec3(0.0, 1.0, 0.0);
+    hit_info.id       = 1; // FIXME: Ground plane should have its own material
+    hit_info.hit_type = HIT_GROUND;
+
+    return true;
+  }
+
+  return false;
+}
+
+bool cast_ray(vec3 ray_origin, vec3 ray_direction, inout hit_t hit_info) {
+  float hit_distance  = far_plane;
+  bool  hit_something = false;
+
+  if (test_ground_plane_hit(hit_distance, ray_origin, ray_direction, hit_info)) {
+    hit_distance  = hit_info.distance;
+    hit_something = true;
+  }
+
+  if (test_goursat_hit(hit_distance, ray_origin, ray_direction, hit_info)) {
+    hit_distance  = hit_info.distance;
+    hit_something = true;
+  }
+
+  for (int triangle_id = 0; triangle_id < n_triangles; triangle_id++) {
+    if (test_triangle_hit(hit_distance, ray_origin, ray_direction, triangle_id, hit_info)) {
+      hit_distance  = hit_info.distance;
+      hit_something = true;
+    }
+  }
+
+  for (int sphere_id = 0; sphere_id < n_spheres; sphere_id++) {
+    if (test_sphere_hit(hit_distance, ray_origin, ray_direction, sphere_id, hit_info)) {
+      hit_distance  = hit_info.distance;
+      hit_something = true;
+    }
+  }
+
+  return hit_something;
+}
+
+// https://gist.github.com/yiwenl/3f804e80d0930e34a0b33359259b556c
+mat4 rotation_matrix(vec3 axis, float angle) {
+  axis     = normalize(axis);
+  float s  = sin(angle);
+  float c  = cos(angle);
+  float oc = 1.0 - c;
+
+  return mat4(
+    oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+    oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+    oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+    0.0,                                0.0,                                0.0,                                1.0
+  );
+}
+
+vec3 rotate(vec3 v, vec3 axis, float angle) {
+  mat4 m = rotation_matrix(axis, angle);
+  return (m * vec4(v, 1.0)).xyz;
 }
 
 void main() {
-  rng_state = hash_lowbias32(gl_GlobalInvocationID.x * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x + int(mod(time * 100000.0, 100000000)));
+  rng_state = hash_lowbias32(gl_GlobalInvocationID.x * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x) + rng_seed;
 
-  vec4 pixel_color = vec4(0.0, 0.0, 0.0, 1.0);
+  vec4  pixel_color    = vec4(0.0, 0.0, 0.0, 1.0);
   ivec2 pixel_position = ivec2(gl_GlobalInvocationID.xy);
-  ivec2 texture_size = imageSize(render_texture);
-  vec2 pixel_size = vec2(1.0 / float(texture_size.x), 1.0 / float(texture_size.y));
-  vec4 old_color = imageLoad(render_texture, pixel_position);
+  ivec2 texture_size   = imageSize(render_texture);
+  vec2  pixel_size     = vec2(1.0 / float(texture_size.x), 1.0 / float(texture_size.y));
+  vec4  old_color      = imageLoad(render_texture, pixel_position);
+  float aspect_ratio   = float(texture_size.x) / float(texture_size.y);
+  float max_y          = 5.0;
+  float max_x          = max_y * aspect_ratio;
+
   imageStore(debug_texture, pixel_position, vec4(0.0, 0.0, 0.0, 1.0));
 
-  float aspect_ratio = float(texture_size.x) / float(texture_size.y);
-  float max_y = 5.0;
-  float max_x = max_y * aspect_ratio;
-
   for (int i_sample = 0; i_sample < N_SAMPLES; i_sample++) {
+    // Ray sample output color
+    // Alpha channel is used for progressive rendering
+    vec4 result        = vec4(1.0, 1.0, 1.0, 0.0);
+
     // Build a x,y in clip space (ie -1 to 1)
     float x = (float(pixel_position.x * 2 - texture_size.x) / texture_size.x);
     float y = (float(pixel_position.y * 2 - texture_size.y) / texture_size.y);
@@ -237,53 +392,60 @@ void main() {
     x += rand() * pixel_size.x;
     y += rand() * pixel_size.y;
 
-    // Build a ray from the camera position pointing forward (negative z)
-    // Orthographic projection:
-    vec3 ray_origin = vec3(x * max_x, y * max_y, 0.0);
-    vec3 ray_direction = vec3(0.0, 0.0, -1.0);
-
-    // Perspective projection:
-    if (!orthographic) {
-      ray_origin = vec3(0.0, 0.0, 0.0);
-      ray_direction = normalize(ray_origin - vec3(x * max_x, y * max_y, -10.0));
-    }
-
-    vec4 result        = vec4(0.0, 0.0, 0.0, 0.0);
-    vec3 ambient_light = vec3(0.0, 0.0, 0.0);
-    ambient_light      = vec3(0.1, 0.1, 0.1);
-    result.rgb = ambient_light;
+    // Poor man's camera math
+    vec3 ray_origin    = vec3(0.0, 0.0, 0.0);
+    vec3 ray_direction = normalize(vec3(x * max_x, y * max_y, -10.0));
+    ray_direction      = rotate(ray_direction, vec3(-1, 0, 0), radians(pitch));
+    ray_direction      = rotate(ray_direction, vec3(0, 1, 0), radians(yaw + 90));
+    ray_origin        += look_from;
 
     for (int i = 0; i < N_BOUNCES; i++) {
-      hit_t hit_info = cast_ray(ray_origin, ray_direction);
+      hit_t hit_info = hit_t(false, vec3(0.0), vec3(0.0), 0.0, 0, HIT_NOTHING);
 
-      if (!hit_info.hit) {
-        //result.rgb *= ambient_light;
-        vec3 ray;
-        ray = normalize(camera_view * vec4(ray_direction, 1.0)).xyz;
-        //ray = normalize(camera_view * vec4(ray_origin - ray_direction, 1.0)).xyz;
-        //ray = normalize(vec4(ray_direction, 1.0)).xyz;
-        //ray = normalize(vec4(ray_origin - ray_direction, 1.0)).xyz;
-        //result.rgb = sample_skybox(ray).rgb;
-        result.rgb = sample_sky_image(ray).rgb;
+      if (!cast_ray(ray_origin, ray_direction, hit_info)) {
+        float t = 0.5 * (ray_direction.y + 1.0);
+        vec3 sky_color = (1.0 - t) * vec3(1.0) + t * vec3(0.5, 0.7, 1.0);
+        result.rgb *= sky_color;
         break;
       }
 
-      // I am not convinced by this
-      ray_origin = hit_info.position + hit_info.normal * 0.001;
-      ray_origin = hit_info.position;
-
-      int material_type = material_type[hit_info.id];
-      if (material_type == 1) {
-        // Diffuse
-        result.rgb *= albedo[hit_info.id].rgb * dot(hit_info.normal, ray_direction);
-        //result.rgb = albedo[hit_info.id].rgb;
-        ray_direction = sample_hemisphere(hit_info.normal);
+      if (hit_info.hit_type == HIT_GROUND) {
+        ray_origin = hit_info.position + hit_info.normal * 0.001;
+        result.rgb *= vec3(1.0, 1.0, 1.0) * dot(-hit_info.normal, ray_direction);
         ray_direction = sample_lambert(hit_info.normal);
 
-        imageStore(debug_texture, pixel_position, vec4(hit_info.normal * 0.5 + 0.5, 1.0));
-      } else if (material_type == 2) {
+        continue;
+      } else if (hit_info.hit_type == HIT_TRIANGLE) {
+        ray_origin = hit_info.position + hit_info.normal * 0.001;
+        result.rgb *= triangle_albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
+        ray_direction = sample_lambert(hit_info.normal);
+
+        continue;
+      } else if (hit_info.hit_type == HIT_GOURSAT) {
+        ray_origin = hit_info.position + hit_info.normal * 0.001;
+        result.rgb *= vec3(1.0, 1.0, 1.0) * dot(-hit_info.normal, ray_direction);
+        ray_direction = sample_lambert(hit_info.normal);
+
+        continue;
+      }
+
+      int material_type = material_type[hit_info.id];
+      if (material_type == MATERIAL_DIFFUSE) {
+        // Diffuse Material
+
+        // FIXME: No idea what is going on with the cossine rule here. Maybe
+        // missing the camera view matrix? Feels super weird to need to invert
+        // the normal around.
+        result.rgb *= albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
+        ray_direction = sample_lambert(hit_info.normal);
+
+        if (i == 0) {
+          vec4 normal_color = vec4(hit_info.normal * 0.5 + 0.5, 1.0);
+          imageStore(debug_texture, pixel_position, normal_color);
+        }
+      } else if (material_type == MATERIAL_METAL) {
         // Metal
-        result.rgb *= albedo[hit_info.id].rgb;
+        result.rgb *= albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
         ray_direction = reflect(ray_direction, hit_info.normal);
         vec3 fuzz = random_vec3() * roughness[hit_info.id];
 
@@ -292,31 +454,33 @@ void main() {
           fuzz = -fuzz;
 
         ray_direction = normalize(ray_direction + fuzz);
-      } else if (material_type == 3) {
-        // Dieletrics
+      } else if (material_type == MATERIAL_DIELECTRIC) {
+        // Dieletric Material
 
-        // When the ray gets refracted, we just pass it through the object with
-        // changing the color
-        result.rgb *= vec3(1.0, 1.0, 1.0);
-
-        // TODO: Make the refraction ratio a property of the material
-        float refraction_ratio = 1.5;
-
-        // This might be backwards
-        if (dot(ray_direction, hit_info.normal) < 0.0)
-          refraction_ratio = 1.0 / refraction_ratio;
-
-        // TODO: Implement reflections
-        // TODO: Implement total internal reflection
-        vec3 refracted = refract(normalize(ray_origin - ray_direction), hit_info.normal, refraction_ratio);
-        ray_direction = refracted;
-        //result.rgb = refracted * 0.5 + 0.5;
-        //break;
-      } else if (material_type < 4) {
-        // Whatever
+        // NOTE: Not sure if it makes sense for a glass material to have an
+        // albedo. There are colored glasses in real life, so maybe?
         result.rgb *= albedo[hit_info.id].rgb;
-        ray_direction = sample_lambert(hit_info.normal);
-      } else if (material_type == 5) {
+        vec3 normal = hit_info.normal;
+
+        // We reuse the roughness parameter to store the refraction index
+        float refraction_ratio = roughness[hit_info.id];
+
+        if (dot(ray_direction, normal) > 0.0) {
+          normal = -normal;
+        } else {
+          refraction_ratio = 1.0 / refraction_ratio;
+        }
+
+        float cos_theta = min(dot(-ray_direction, normal), 1.0);
+        float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+        bool cannot_refract = refraction_ratio * sin_theta > 1.0;
+
+        if (cannot_refract || schlick(cos_theta, refraction_ratio) > rand()) {
+          ray_direction = reflect(ray_direction, normal);
+        } else {
+          ray_direction = refract(ray_direction, normal, refraction_ratio);
+        }
+      } else if (material_type == MATERIAL_LIGHT) {
         // Light
         result.rgb += albedo[hit_info.id].rgb;
 
@@ -326,9 +490,11 @@ void main() {
         // ended at the camera)
         break;
       }
+
+      ray_origin = hit_info.position + hit_info.normal * 0.001;
     }
 
-    pixel_color.rgb += clamp(result.rgb, 0.0, 1.0) / float(N_SAMPLES);
+    pixel_color.rgb += (result.rgb) / float(N_SAMPLES);
   }
 
   vec4 final_color = vec4((old_color + pixel_color).rgb, old_color.a + 1);

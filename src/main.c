@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
     Shader_use(shader);
     Shader_set_int(shader, "tex", 0);
 
-    compute_t *compute_shader = build_compute_shader("shaders/raytracer_debug.comp");
+    compute_t *compute_shader = build_compute_shader("shaders/raytracer.comp");
     compute_use(compute_shader);
     compute_set_float(compute_shader, "near_plane", near_plane);
     compute_set_float(compute_shader, "far_plane", far_plane);
