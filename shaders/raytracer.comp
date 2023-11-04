@@ -329,9 +329,16 @@ void main() {
       }
 
       if (hit_info.hit_type == HIT_GROUND) {
+        float cosine_loss = dot(-hit_info.normal, ray_direction);
         ray_origin = hit_info.position + hit_info.normal * 0.001;
-        result.rgb *= vec3(1.0, 1.0, 1.0) * dot(-hit_info.normal, ray_direction);
         ray_direction = sample_lambert(hit_info.normal);
+
+        // Checkboard pattern
+        if (int(floor(hit_info.position.x)) % 2 == int(floor(hit_info.position.z)) % 2) {
+          result.rgb *= vec3(0.8, 0.8, 0.8) * cosine_loss;
+        } else {
+          result.rgb *= vec3(0.2, 0.2, 0.2) * cosine_loss;
+        }
 
         continue;
       } else if (hit_info.hit_type == HIT_TRIANGLE) {
