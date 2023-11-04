@@ -145,7 +145,7 @@ void gui_update_fps() {
     snprintf(buffer, sizeof(buffer), "FPS: %6.2f", fps);
     igText(buffer);
 
-    snprintf(buffer, sizeof(buffer), " ms: %8.6f", ms);
+    snprintf(buffer, sizeof(buffer), " ms: %9.5f", ms);
     igText(buffer);
 
     ImVec2 size            = {200, 100};
