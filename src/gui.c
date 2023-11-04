@@ -99,10 +99,25 @@ void gui_update_fps() {
 
     float ms          = manager->delta_time;
     float instant_fps = 1.0 / ms;
-    float average_fps = get_average_fps();
-    float max_fps     = get_max_fps();
+    float average_fps = 0.0f;
 
     add_fps_sample(instant_fps);
+
+    static int n_samples_old = -1;
+    int        n_samples     = get_fps_sample_count();
+    n_samples                = (float)fmin(n_samples, (((int)(instant_fps * 1.2f) / 10.0f) * 10.0f));
+
+    if (n_samples_old == -1) {
+        n_samples_old = n_samples;
+    } else if (n_samples_old != n_samples) {
+        n_samples     = n_samples_old * 0.9 + n_samples * 0.1;
+        n_samples_old = n_samples;
+    }
+
+    average_fps       = get_average_fps_with_sample_limit(n_samples);
+    float  max_fps    = get_max_fps_with_sample_limit(n_samples);
+    float *fps_index  = get_fps_index_buffer();
+    float *fps_buffer = get_fps_buffer_with_sample_limit(n_samples);
 
     snprintf(buffer, sizeof(buffer), "FPS: %6.2f  (%.2f)", instant_fps, average_fps);
     igText(buffer);
@@ -115,14 +130,13 @@ void gui_update_fps() {
     ImVec4 plot_color_fill = {1, 1, 0, 0.25};
 
     if (ImPlot_BeginPlot("fps", size, 0)) {
-        ImPlot_SetupAxesLimits(0, FPS_BUFFER_SIZE, 0, max_fps * 1.2, ImGuiCond_Always);
+        ImPlot_SetupAxesLimits(0, n_samples, 0, max_fps * 1.2, ImGuiCond_Always);
         ImPlot_SetupAxes("time", "fps", 0, 0);
         ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, plot_color_line);
         ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, plot_color_fill);
         ImPlotAxisFlags axis_flags = ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_Lock |
                                      ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels;
-        ImPlot_PlotLine_FloatPtrFloatPtr("f(x)", get_fps_index_buffer(), get_fps_buffer(), FPS_BUFFER_SIZE, axis_flags,
-                                         0, 4);
+        ImPlot_PlotLine_FloatPtrFloatPtr("f(x)", fps_index, fps_buffer, n_samples, axis_flags, 0, 4);
         ImPlot_PopStyleColor(2);
 
         ImPlot_EndPlot();

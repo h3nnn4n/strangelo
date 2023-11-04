@@ -24,8 +24,12 @@
 void   init_fps();
 void   add_fps_sample(float fps);
 float  get_max_fps();
+float  get_max_fps_with_sample_limit(unsigned int last_n_samples);
 float  get_average_fps();
+float  get_average_fps_with_sample_limit(unsigned int last_n_samples);
 float *get_fps_buffer();
+float *get_fps_buffer_with_sample_limit(unsigned int last_n_samples);
 float *get_fps_index_buffer();
+int    get_fps_sample_count();
 
 #endif // SRC_FPS_H_

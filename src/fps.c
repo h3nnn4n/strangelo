@@ -21,8 +21,8 @@
 
 #include "fps.h"
 
-static float fps_buffer[FPS_BUFFER_SIZE];
-static float fps_index[FPS_BUFFER_SIZE];
+static float fps_buffer[FPS_BUFFER_SIZE * 2];
+static float fps_index[FPS_BUFFER_SIZE * 2];
 static int   fps_pivot   = 0;
 static int   fps_samples = 0;
 
@@ -38,6 +38,8 @@ void add_fps_sample(float fps) {
     fps_buffer[fps_pivot] = fps;
     fps_pivot             = (fps_pivot + 1) % FPS_BUFFER_SIZE;
     fps_samples           = fps_samples < FPS_BUFFER_SIZE ? fps_samples + 1 : FPS_BUFFER_SIZE;
+
+    fps_buffer[fps_pivot + FPS_BUFFER_SIZE] = fps;
 }
 
 float get_max_fps() {
@@ -52,8 +54,35 @@ float get_max_fps() {
     return max_fps;
 }
 
+float get_max_fps_with_sample_limit(unsigned int last_n_samples) {
+    float max_fps = 0;
+
+    for (int i = 0; i < last_n_samples; ++i) {
+        if (fps_buffer[(fps_pivot - i) % FPS_BUFFER_SIZE] > max_fps) {
+            max_fps = fps_buffer[(fps_pivot - i) % FPS_BUFFER_SIZE];
+        }
+    }
+
+    return max_fps;
+}
+
 float *get_fps_buffer() { return fps_buffer; }
+
 float *get_fps_index_buffer() { return fps_index; }
+
+float *get_fps_buffer_with_sample_limit(unsigned int last_n_samples) {
+    if (last_n_samples > fps_samples)
+        return fps_buffer;
+
+    int index = fps_pivot - last_n_samples;
+
+    if (index > 0)
+        return &fps_buffer[index];
+
+    index += FPS_BUFFER_SIZE;
+
+    return &fps_buffer[index];
+}
 
 float get_average_fps() {
     float sum = 0;
@@ -64,3 +93,15 @@ float get_average_fps() {
 
     return sum / fps_samples;
 }
+
+float get_average_fps_with_sample_limit(unsigned int last_n_samples) {
+    float sum = 0;
+
+    for (int i = 0; i < last_n_samples; ++i) {
+        sum += fps_buffer[(fps_pivot - i) % FPS_BUFFER_SIZE];
+    }
+
+    return sum / last_n_samples;
+}
+
+int get_fps_sample_count() { return fps_samples; }
