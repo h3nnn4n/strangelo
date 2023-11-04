@@ -45,7 +45,6 @@ layout (std430, binding = 23) buffer TriangleCol     { vec4  triangle_albedo[]; 
 #define HIT_GROUND   1
 #define HIT_SPHERE   2
 #define HIT_TRIANGLE 3
-#define HIT_GOURSAT  4
 
 uint rng_state;
 const float PI = 3.14159265f;
@@ -117,102 +116,6 @@ float schlick(float cosine, float refraction_ratio) {
     float r0 = (1.0 - refraction_ratio) / (1.0 + refraction_ratio);
     r0 = r0 * r0;
     return r0 + (1.0 - r0) * pow((1.0 - cosine), 5.0);
-}
-
-// https://www.shadertoy.com/view/3lj3DW
-// https://iquilezles.org/articles/intersectors/
-float gouIntersect(vec3 ro, vec3 rd, float ka, float kb) {
-    float po = 1.0;
-    vec3 rd2 = rd*rd; vec3 rd3 = rd2*rd;
-    vec3 ro2 = ro*ro; vec3 ro3 = ro2*ro;
-    float k4 = dot(rd2,rd2);
-    float k3 = dot(ro ,rd3);
-    float k2 = dot(ro2,rd2) - kb/6.0;
-    float k1 = dot(ro3,rd ) - kb*dot(rd,ro)/2.0;
-    float k0 = dot(ro2,ro2) + ka - kb*dot(ro,ro);
-    k3 /= k4;
-    k2 /= k4;
-    k1 /= k4;
-    k0 /= k4;
-    float c2 = k2 - k3*(k3);
-    float c1 = k1 + k3*(2.0*k3*k3-3.0*k2);
-    float c0 = k0 + k3*(k3*(c2+k2)*3.0-4.0*k1);
-
-    if (abs(c1) < 0.1*abs(c2)) {
-        po = -1.0;
-        float tmp=k1; k1=k3; k3=tmp;
-        k0 = 1.0/k0;
-        k1 = k1*k0;
-        k2 = k2*k0;
-        k3 = k3*k0;
-        c2 = k2 - k3*(k3);
-        c1 = k1 + k3*(2.0*k3*k3-3.0*k2);
-        c0 = k0 + k3*(k3*(c2+k2)*3.0-4.0*k1);
-    }
-
-    c0 /= 3.0;
-    float Q = c2*c2 + c0;
-    float R = c2*c2*c2 - 3.0*c0*c2 + c1*c1;
-    float h = R*R - Q*Q*Q;
-
-    // 2 intersections
-    if (h > 0.0) {
-        h = sqrt(h);
-        float s = sign(R+h)*pow(abs(R+h),1.0/3.0); // cube root
-        float u = sign(R-h)*pow(abs(R-h),1.0/3.0); // cube root
-        float x = s+u+4.0*c2;
-        float y = s-u;
-        float ks = x*x + y*y*3.0;
-        float k = sqrt(ks);
-        float t = -0.5*po*abs(y)*sqrt(6.0/(k+x)) - 2.0*c1*(k+x)/(ks+x*k) - k3;
-        return (po<0.0)?1.0/t:t;
-    }
-
-    // 4 intersections
-    float sQ = sqrt(Q);
-    float w = sQ*cos(acos(-R/(sQ*Q))/3.0);
-    float d2 = -w - c2;
-    if (d2 < 0.0) return -1.0; //no intersection
-    float d1 = sqrt(d2);
-    float h1 = sqrt(w - 2.0*c2 + c1/d1);
-    float h2 = sqrt(w - 2.0*c2 - c1/d1);
-    float t1 = -d1 - h1 - k3; t1 = (po<0.0)?1.0/t1:t1;
-    float t2 = -d1 + h1 - k3; t2 = (po<0.0)?1.0/t2:t2;
-    float t3 =  d1 - h2 - k3; t3 = (po<0.0)?1.0/t3:t3;
-    float t4 =  d1 + h2 - k3; t4 = (po<0.0)?1.0/t4:t4;
-    float t = 1e20;
-
-    if (t1 > 0.0) t = t1;
-    if (t2 > 0.0) t = min(t, t2);
-    if (t3 > 0.0) t = min(t, t3);
-    if (t4 > 0.0) t = min(t, t4);
-
-    return t;
-}
-
-vec3 gouNormal(vec3 pos, float ka, float kb){
-    return normalize( 4.0*pos*pos*pos - 2.0*pos*kb );
-}
-
-bool test_goursat_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, inout hit_t hit_info) {
-  const float ka = 1.5;
-  const float kb = 2.0;
-  const vec3 position = vec3(4.0, -2.0, 10.0);
-
-  float t = gouIntersect(ray_origin + position, ray_direction, ka, kb);
-
-  if (t >= near_plane && t <= max_distance) {
-    hit_info.hit      = true;
-    hit_info.distance = t;
-    hit_info.position = position + ray_origin + ray_direction * t;
-    hit_info.normal   = gouNormal(position + ray_origin + ray_direction * t, ka, kb);
-    hit_info.id       = 1;
-    hit_info.hit_type = HIT_GOURSAT;
-
-    return true;
-  }
-
-  return false;
 }
 
 // https://www.shadertoy.com/view/MlGcDz
@@ -322,11 +225,6 @@ bool cast_ray(vec3 ray_origin, vec3 ray_direction, inout hit_t hit_info) {
     hit_something = true;
   }
 
-  if (test_goursat_hit(hit_distance, ray_origin, ray_direction, hit_info)) {
-    hit_distance  = hit_info.distance;
-    hit_something = true;
-  }
-
   for (int triangle_id = 0; triangle_id < n_triangles; triangle_id++) {
     if (test_triangle_hit(hit_distance, ray_origin, ray_direction, triangle_id, hit_info)) {
       hit_distance  = hit_info.distance;
@@ -417,12 +315,6 @@ void main() {
       } else if (hit_info.hit_type == HIT_TRIANGLE) {
         ray_origin = hit_info.position + hit_info.normal * 0.001;
         result.rgb *= triangle_albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
-        ray_direction = sample_lambert(hit_info.normal);
-
-        continue;
-      } else if (hit_info.hit_type == HIT_GOURSAT) {
-        ray_origin = hit_info.position + hit_info.normal * 0.001;
-        result.rgb *= vec3(1.0, 1.0, 1.0) * dot(-hit_info.normal, ray_direction);
         ray_direction = sample_lambert(hit_info.normal);
 
         continue;
