@@ -26,6 +26,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include "fps.h"
 #include "gui.h"
 #include "imgui_custom_c.h"
 #include "manager.h"
@@ -36,16 +37,6 @@ struct ImGuiIO       *io;
 struct ImPlotContext *plot_ctx;
 
 char buffer[1024];
-
-#define FPS_BUFFER_SIZE     512
-#define FPS_AVG_BUFFER_SIZE 512
-
-float fps_buffer[FPS_BUFFER_SIZE];
-float fps_index[FPS_BUFFER_SIZE];
-float fps_avg_buffer[FPS_AVG_BUFFER_SIZE];
-float max_fps       = 0;
-int   fps_pivot     = 0;
-int   fps_avg_pivot = 0;
 
 void gui_init() {
     ctx      = igCreateContext(NULL);
@@ -58,11 +49,7 @@ void gui_init() {
 
     igStyleColorsDark(NULL);
 
-    memset(fps_buffer, 0, sizeof(float));
-
-    for (int i = 0; i < FPS_BUFFER_SIZE; ++i) {
-        fps_index[i] = (float)i;
-    }
+    init_fps();
 }
 
 void gui_terminate() {
@@ -92,33 +79,6 @@ void gui_render() {
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
 }
 
-void update_rolling_fps_avg() {
-    float ms  = manager->delta_time;
-    float fps = 1.0f / ms;
-
-    if (fps_avg_pivot >= FPS_AVG_BUFFER_SIZE) {
-        fps_avg_pivot = 0;
-    }
-
-    fps_avg_buffer[fps_avg_pivot] = fps;
-    fps_avg_pivot++;
-
-    float avg_fps = 0;
-
-    max_fps = 0;
-    for (int i = 0; i < FPS_AVG_BUFFER_SIZE; ++i) {
-        avg_fps += fps_avg_buffer[i] / FPS_AVG_BUFFER_SIZE;
-        max_fps = fmax(max_fps, fps_avg_buffer[i]);
-    }
-
-    if (fps_pivot >= FPS_BUFFER_SIZE) {
-        fps_pivot = 0;
-    }
-
-    fps_buffer[fps_pivot] = avg_fps;
-    fps_pivot++;
-}
-
 void gui_update_scene() {
     if (!igBegin("Scene", NULL, 0))
         return igEnd();
@@ -137,12 +97,14 @@ void gui_update_fps() {
     if (!igBegin("Window", NULL, 0))
         return igEnd();
 
-    float ms  = manager->delta_time;
-    float fps = 1.0 / ms;
+    float ms          = manager->delta_time;
+    float instant_fps = 1.0 / ms;
+    float average_fps = get_average_fps();
+    float max_fps     = get_max_fps();
 
-    update_rolling_fps_avg();
+    add_fps_sample(instant_fps);
 
-    snprintf(buffer, sizeof(buffer), "FPS: %6.2f", fps);
+    snprintf(buffer, sizeof(buffer), "FPS: %6.2f  (%.2f)", instant_fps, average_fps);
     igText(buffer);
 
     snprintf(buffer, sizeof(buffer), " ms: %9.5f", ms);
@@ -159,7 +121,8 @@ void gui_update_fps() {
         ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, plot_color_fill);
         ImPlotAxisFlags axis_flags = ImPlotAxisFlags_NoDecorations | ImPlotAxisFlags_Lock |
                                      ImPlotAxisFlags_NoTickMarks | ImPlotAxisFlags_NoTickLabels;
-        ImPlot_PlotLine_FloatPtrFloatPtr("f(x)", fps_index, fps_buffer, FPS_BUFFER_SIZE, axis_flags, 0, 4);
+        ImPlot_PlotLine_FloatPtrFloatPtr("f(x)", get_fps_index_buffer(), get_fps_buffer(), FPS_BUFFER_SIZE, axis_flags,
+                                         0, 4);
         ImPlot_PopStyleColor(2);
 
         ImPlot_EndPlot();
