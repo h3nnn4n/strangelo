@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef _GUI_H
-#define _GUI_H
+#ifndef SRC_GUI_H_
+#define SRC_GUI_H_
 
 #include <glad/glad.h>
 
@@ -51,4 +51,4 @@ void gui_update_camera();
 void gui_update_scene();
 void gui_debug();
 
-#endif
+#endif // SRC_GUI_H_
