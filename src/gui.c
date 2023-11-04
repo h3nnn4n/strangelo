@@ -114,10 +114,10 @@ void gui_update_fps() {
         n_samples_old = n_samples;
     }
 
-    average_fps       = get_average_fps_with_sample_limit(n_samples);
-    float  max_fps    = get_max_fps_with_sample_limit(n_samples);
-    float *fps_index  = get_fps_index_buffer();
-    float *fps_buffer = get_fps_buffer_with_sample_limit(n_samples);
+    average_fps             = get_average_fps_with_sample_limit(n_samples);
+    float        max_fps    = get_max_fps_with_sample_limit(n_samples);
+    const float *fps_buffer = get_fps_buffer_with_sample_limit(n_samples);
+    const float *fps_index  = get_fps_index_buffer();
 
     snprintf(buffer, sizeof(buffer), "FPS: %6.2f  (%.2f)", instant_fps, average_fps);
     igText(buffer);
