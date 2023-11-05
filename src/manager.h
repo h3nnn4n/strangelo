@@ -37,6 +37,7 @@ typedef struct {
     // Rendering
     //
     bool     incremental_rendering;
+    uint32_t tone_mapping_mode;
     uint32_t render_texture;
     uint32_t skybox_texture;
     uint32_t debug_texture;

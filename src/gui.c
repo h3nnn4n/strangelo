@@ -90,6 +90,20 @@ void gui_update_scene() {
 
     toggle_button("ambient_light", buffer, &manager->ambient_light);
 
+    igSeparator();
+
+    // Radio button for tone mapping selection
+    igText("Tone Mapping");
+    igRadioButton_IntPtr("NONE", (int *)&manager->tone_mapping_mode, 0);
+    igRadioButton_IntPtr("ACES Narkowicz", (int *)&manager->tone_mapping_mode, 1);
+    igRadioButton_IntPtr("Filmic", (int *)&manager->tone_mapping_mode, 2);
+    igRadioButton_IntPtr("Lottes", (int *)&manager->tone_mapping_mode, 3);
+    igRadioButton_IntPtr("Reinhard", (int *)&manager->tone_mapping_mode, 4);
+    igRadioButton_IntPtr("Reinhard 2", (int *)&manager->tone_mapping_mode, 5);
+    igRadioButton_IntPtr("Uchimura", (int *)&manager->tone_mapping_mode, 6);
+    igRadioButton_IntPtr("Uncharted 2", (int *)&manager->tone_mapping_mode, 7);
+    igRadioButton_IntPtr("Unreal", (int *)&manager->tone_mapping_mode, 8);
+
     igEnd();
 }
 

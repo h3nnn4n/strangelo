@@ -33,6 +33,7 @@ Manager *init_manager() {
 
     _manager->incremental_rendering = true;
     _manager->ambient_light         = true;
+    _manager->tone_mapping_mode     = 6; // Uchimura
 
     return _manager;
 }
