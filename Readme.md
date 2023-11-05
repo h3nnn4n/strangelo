@@ -7,6 +7,13 @@
 
 Adventures on tracing rays for fun and... Yeah just fun. No profits here.
 
+This implements a path tracer using an OpenGL compute shader. Spheres and
+triangle primitives are supported, with diffuse, metallic and dielectric
+materials.
+
+There are a few bugs laying around causing some visual artifacts, and some
+portions are implemented in a plain wrong way (but giving reasonable outputs).
+
 ## Setting up
 
 - Run `git submodules update --init --recursive` in the `deps` folder
@@ -16,4 +23,8 @@ Adventures on tracing rays for fun and... Yeah just fun. No profits here.
 
 # LICENSE
 
-- All code outside of the `deps` folder is under the [MIT](LICENSE). Stuff in `deps` has their own license there.
+All code outside of the `deps` folder is under the [MIT](LICENSE). Stuff in
+`deps` has their own license there.
+
+Some portions of the code were copy-pasted verbatim or with minor
+modifications. Proper attribution is given next to such occurrences.
