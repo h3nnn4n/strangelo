@@ -169,12 +169,14 @@ int main(int argc, char *argv[]) {
     set_shader_storage_buffer(11, n_spheres * sizeof(float), radius);
     set_shader_storage_buffer(12, n_spheres * sizeof(int), material_type);
     set_shader_storage_buffer(13, n_spheres * sizeof(float) * 4, albedo);
-    set_shader_storage_buffer(14, n_spheres * sizeof(float), roughness);
+    set_shader_storage_buffer(14, n_spheres * sizeof(float) * 4, emission);
+    set_shader_storage_buffer(15, n_spheres * sizeof(float), roughness);
     // Triangles
     set_shader_storage_buffer(20, n_triangles * sizeof(float) * 4, triangle_v0);
     set_shader_storage_buffer(21, n_triangles * sizeof(float) * 4, triangle_v1);
     set_shader_storage_buffer(22, n_triangles * sizeof(float) * 4, triangle_v2);
     set_shader_storage_buffer(23, n_triangles * sizeof(float) * 4, triangle_albedo);
+    set_shader_storage_buffer(24, n_triangles * sizeof(float) * 4, triangle_emission);
 
     // Compute texture
     const unsigned int TEXTURE_WIDTH  = WINDOW_WIDTH;

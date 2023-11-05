@@ -26,6 +26,7 @@ vec3 camera_orientation = { -6.0 , 270.0  , 45.0  };
 vec4  positions[n_spheres];
 float radius[n_spheres];
 vec4  albedo[n_spheres];
+vec4  emission[n_spheres];
 float roughness[n_spheres];
 int   material_type[n_spheres];
 
@@ -33,21 +34,22 @@ vec4 triangle_v0[n_triangles];
 vec4 triangle_v1[n_triangles];
 vec4 triangle_v2[n_triangles];
 vec4 triangle_albedo[n_triangles];
+vec4 triangle_emission[n_triangles];
 
 void init_scene() {
     // clang-format off
     sphere_t data[] = {
-      //  position           ,   radius , albedo             , roughness , type
-      { { 2.0 , 1.3 , -10.0} ,   1.5    , {1.0 , 2.0 , 7.5 } , 0.0       , LIGHT      } ,
-      { { 0.0 , 1.0 , -10.0} ,   1.0    , {1.0 , 0.2 , 0.3 } , 0.0       , DIFFUSE    } ,
-      { { 4.0 , 1.0 ,  -9.0} ,   1.0    , {0.3 , 0.9 , 0.1 } , 0.0       , DIFFUSE    } ,
-      { {-4.0 , 1.0 , -10.0} ,   1.0    , {0.0 , 0.2 , 0.9 } , 0.0       , DIFFUSE    } ,
-      { { 0.0 , 3.0 , -10.0} ,   1.0    , {0.7 , 0.6 , 0.2 } , 0.1       , METAL      } ,
-      { { 4.0 , 3.0 , -10.0} ,   1.0    , {0.3 , 0.8 , 0.2 } , 0.3       , METAL      } ,
-      { {-4.0 , 3.0 , -10.0} ,   1.0    , {0.3 , 0.1 , 0.8 } , 0.5       , METAL      } ,
-      { {-2.0 , 2.0 , -15.0} ,   3.0    , {0.7 , 0.6 , 0.3 } , 0.25      , METAL      } ,
-      { { 0.5 , 1.0 ,  -7.0} ,   1.0    , {1.0 , 1.0 , 1.0 } , 1.1       , DIELECTRIC } ,
-      { { 2.5 , 1.0 ,  -7.0} ,   1.0    , {1.0 , 1.0 , 1.0 } , 1.5       , DIELECTRIC } ,
+      //  position           ,   radius , albedo             , emission           , roughness , type
+      { { 2.0 , 1.3 , -10.0} ,   1.5    , {1.0 , 1.0 , 1.0 } , {1.0 , 1.0 , 1.0 } , 0.0       , DIFFUSE    } ,
+      { { 0.0 , 1.0 , -10.0} ,   1.0    , {1.0 , 0.2 , 0.3 } , {0.0 , 0.0 , 0.0 } , 0.0       , DIFFUSE    } ,
+      { { 4.0 , 1.0 ,  -9.0} ,   1.0    , {0.3 , 0.9 , 0.1 } , {0.0 , 0.0 , 0.0 } , 0.0       , DIFFUSE    } ,
+      { {-4.0 , 1.0 , -10.0} ,   1.0    , {0.0 , 0.2 , 0.9 } , {0.0 , 0.0 , 0.0 } , 0.0       , DIFFUSE    } ,
+      { { 0.0 , 3.0 , -10.0} ,   1.0    , {0.7 , 0.6 , 0.2 } , {0.0 , 0.0 , 0.0 } , 0.1       , METAL      } ,
+      { { 4.0 , 3.0 , -10.0} ,   1.0    , {0.3 , 0.8 , 0.2 } , {0.0 , 0.0 , 0.0 } , 0.3       , METAL      } ,
+      { {-4.0 , 3.0 , -10.0} ,   1.0    , {0.3 , 0.1 , 0.8 } , {0.0 , 0.0 , 0.0 } , 0.5       , METAL      } ,
+      { {-2.0 , 2.0 , -15.0} ,   3.0    , {0.7 , 0.6 , 0.3 } , {0.0 , 0.0 , 0.0 } , 0.25      , METAL      } ,
+      { { 0.5 , 1.0 ,  -7.0} ,   1.0    , {1.0 , 1.0 , 1.0 } , {0.0 , 0.0 , 0.0 } , 1.1       , DIELECTRIC } ,
+      { { 2.5 , 1.0 ,  -7.0} ,   1.0    , {1.0 , 1.0 , 1.0 } , {0.0 , 0.0 , 0.0 } , 1.5       , DIELECTRIC } ,
     };
 
     float t_s = 1.0;
@@ -69,10 +71,12 @@ void init_scene() {
         for (int j = 0; j < 3; j++) {
             positions[i][j] = data[i].position[j];
             albedo[i][j]    = data[i].albedo[j];
+            emission[i][j]  = data[i].emission[j];
         }
 
         positions[i][3] = 1.0;
         albedo[i][3]    = 1.0;
+        emission[i][3]  = 1.0;
 
         radius[i]        = data[i].radius;
         roughness[i]     = data[i].roughness;
@@ -81,10 +85,11 @@ void init_scene() {
 
     for (int i = 0; i < n_triangles; i++) {
         for (int j = 0; j < 3; j++) {
-            triangle_v0[i][j]     = triangles[i].v0[j];
-            triangle_v1[i][j]     = triangles[i].v1[j];
-            triangle_v2[i][j]     = triangles[i].v2[j];
-            triangle_albedo[i][j] = triangles[i].albedo[j];
+            triangle_v0[i][j]       = triangles[i].v0[j];
+            triangle_v1[i][j]       = triangles[i].v1[j];
+            triangle_v2[i][j]       = triangles[i].v2[j];
+            triangle_albedo[i][j]   = triangles[i].albedo[j];
+            triangle_emission[i][j] = triangles[i].emission[j];
         }
 
         triangle_v0[i][0] += 2.0;
@@ -99,10 +104,11 @@ void init_scene() {
         triangle_v1[i][2] -= 10.0;
         triangle_v2[i][2] -= 10.0;
 
-        triangle_v0[i][3]     = 1.0;
-        triangle_v1[i][3]     = 1.0;
-        triangle_v2[i][3]     = 1.0;
-        triangle_albedo[i][3] = 1.0;
+        triangle_v0[i][3]       = 1.0;
+        triangle_v1[i][3]       = 1.0;
+        triangle_v2[i][3]       = 1.0;
+        triangle_albedo[i][3]   = 1.0;
+        triangle_emission[i][3] = 1.0;
     }
 }
 

@@ -29,17 +29,18 @@ layout (std430, binding = 10) buffer SpherePos       { vec4  positions[];     } 
 layout (std430, binding = 11) buffer SphereRad       { float radius[];        } ;
 layout (std430, binding = 12) buffer SphereMatType   { int   material_type[]; } ;
 layout (std430, binding = 13) buffer SphereCol       { vec4  albedo[];        } ;
-layout (std430, binding = 14) buffer SphereRou       { float roughness[];     } ;
+layout (std430, binding = 13) buffer SphereEmi       { vec4  emission[];      } ;
+layout (std430, binding = 15) buffer SphereRou       { float roughness[];     } ;
 
-layout (std430, binding = 20) buffer TriangleV0      { vec4  triangle_v0[];     } ;
-layout (std430, binding = 21) buffer TriangleV1      { vec4  triangle_v1[];     } ;
-layout (std430, binding = 22) buffer TriangleV2      { vec4  triangle_v2[];     } ;
-layout (std430, binding = 23) buffer TriangleCol     { vec4  triangle_albedo[]; } ;
+layout (std430, binding = 20) buffer TriangleV0      { vec4  triangle_v0[];       } ;
+layout (std430, binding = 21) buffer TriangleV1      { vec4  triangle_v1[];       } ;
+layout (std430, binding = 22) buffer TriangleV2      { vec4  triangle_v2[];       } ;
+layout (std430, binding = 23) buffer TriangleCol     { vec4  triangle_albedo[];   } ;
+layout (std430, binding = 24) buffer TriangleEmi     { vec4  triangle_emission[]; } ;
 
 #define MATERIAL_DIFFUSE    1
 #define MATERIAL_METAL      2
 #define MATERIAL_DIELECTRIC 3
-#define MATERIAL_LIGHT      5
 
 #define HIT_NOTHING  0
 #define HIT_GROUND   1
@@ -356,7 +357,7 @@ void main() {
         // FIXME: No idea what is going on with the cossine rule here. Maybe
         // missing the camera view matrix? Feels super weird to need to invert
         // the normal around.
-        result.rgb *= albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
+        result.rgb *= emission[hit_info.id].rgb + albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
         ray_direction = sample_lambert(hit_info.normal);
 
         if (i == 0) {
@@ -365,7 +366,7 @@ void main() {
         }
       } else if (material_type == MATERIAL_METAL) {
         // Metal
-        result.rgb *= albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
+        result.rgb *= emission[hit_info.id].rgb + albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
         ray_direction = reflect(ray_direction, hit_info.normal);
         vec3 fuzz = random_vec3_sphere() * roughness[hit_info.id];
 
@@ -379,7 +380,7 @@ void main() {
 
         // NOTE: Not sure if it makes sense for a glass material to have an
         // albedo. There are colored glasses in real life, so maybe?
-        result.rgb *= albedo[hit_info.id].rgb;
+        result.rgb *= emission[hit_info.id].rgb + albedo[hit_info.id].rgb;
         vec3 normal = hit_info.normal;
 
         // We reuse the roughness parameter to store the refraction index
@@ -400,15 +401,6 @@ void main() {
         } else {
           ray_direction = refract(ray_direction, normal, refraction_ratio);
         }
-      } else if (material_type == MATERIAL_LIGHT) {
-        // Light
-        result.rgb += albedo[hit_info.id].rgb;
-
-        imageStore(debug_texture, pixel_position, vec4(hit_info.normal * 0.5 + 0.5, 1.0));
-        // After a ray hits a light, it stops there (since the ray is actually
-        // going backwards, it means that the ray started at the light and
-        // ended at the camera)
-        break;
       }
 
       ray_origin = hit_info.position + hit_info.normal * 0.001;

@@ -34,6 +34,7 @@ typedef struct {
     vec4            position;
     float           radius;
     vec4            albedo;
+    vec4            emission;
     float           roughness;
     material_type_t material_type;
 } sphere_t;
@@ -43,6 +44,7 @@ typedef struct {
     vec4 v1;
     vec4 v2;
     vec4 albedo;
+    vec4 emission;
 } triangle_t;
 
 void init_scene();
@@ -62,6 +64,7 @@ extern vec3 camera_orientation;
 extern vec4  positions[n_spheres];
 extern float radius[n_spheres];
 extern vec4  albedo[n_spheres];
+extern vec4  emission[n_spheres];
 extern float roughness[n_spheres];
 extern int   material_type[n_spheres];
 
@@ -69,6 +72,7 @@ extern vec4 triangle_v0[n_triangles];
 extern vec4 triangle_v1[n_triangles];
 extern vec4 triangle_v2[n_triangles];
 extern vec4 triangle_albedo[n_triangles];
+extern vec4 triangle_emission[n_triangles];
 
 #endif // _OVEN_SCENE
 
