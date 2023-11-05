@@ -195,6 +195,11 @@
     "file": "/home/h3nnn4n/progs/raytracer/src/compute.c"
   },
   {
+    "command": "cc -c -Wall -std=c99 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/imgui/ -Ideps/cJSON/ -Ideps/stb/ -Ideps/pcg-c/include -Ideps/pcg-c/extras -o /home/h3nnn4n/progs/raytracer/build/src/fps.o src/fps.c",
+    "directory": "/home/h3nnn4n/progs/raytracer",
+    "file": "/home/h3nnn4n/progs/raytracer/src/fps.c"
+  },
+  {
     "command": "cc -c -Wall -std=c99 -O0 -g \"-DIMGUI_IMPL_API=extern \\\"C\\\"\" -DIMGUI_IMPL_OPENGL_LOADER_GLAD -DIMGUI_IMPL_OPENGL_LOADER_GLFW -Isrc -Ideps/glad/include/ -Ideps/glfw/include/ -Ideps/cglm/include/ -Ideps/glm/ -Ideps/cimgui/ -Ideps/cimgui/imgui -Ideps/cimgui/imgui/examples/ -Ideps/cimplot/ -Ideps/imgui/ -Ideps/cJSON/ -Ideps/stb/ -Ideps/pcg-c/include -Ideps/pcg-c/extras -o /home/h3nnn4n/progs/raytracer/build/src/gui.o src/gui.c",
     "directory": "/home/h3nnn4n/progs/raytracer",
     "file": "/home/h3nnn4n/progs/raytracer/src/gui.c"
