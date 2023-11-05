@@ -32,6 +32,7 @@ Manager *init_manager() {
     memset(_manager, 0, sizeof(Manager));
 
     _manager->incremental_rendering = true;
+    _manager->ambient_light         = true;
 
     return _manager;
 }
