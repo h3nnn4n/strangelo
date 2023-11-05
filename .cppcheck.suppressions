@@ -1,3 +1,4 @@
-unusedFunction:*:*
-unmatchedSuppression:*:*
-missingIncludeSystem:*:*
+missingIncludeSystem
+unmatchedSuppression
+unusedFunction
+unusedStructMember
