@@ -6,6 +6,7 @@ in vec2 TexCoords;
 
 uniform sampler2D tex;
 uniform int       tone_mapping_mode;
+uniform float     exposure;
 
 // Significant portion of code taken from:
 // https://gist.github.com/Pikachuxxxx/136940d6d0d64074aba51246f514bd26
@@ -189,6 +190,8 @@ void main() {
   // Alpha channel contains the number of samples we took, so we divide by that
   // to get final color from multiple rendering passes
   texCol.rgb /= texCol.a;
+
+  texCol.rgb *= exposure;
 
   switch(tone_mapping_mode) {
     case 0:

@@ -92,6 +92,8 @@ void gui_update_scene() {
 
     igSeparator();
 
+    igSliderFloat("Exposure", &manager->exposure, 0, 2, "%.3f", 0);
+
     igSliderInt("Samples", &manager->n_samples, 1, 20, "%3d", 0);
     igSliderInt("Bounces", &manager->n_bounces, 1, 20, "%3d", 0);
 

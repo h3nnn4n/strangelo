@@ -44,6 +44,7 @@ typedef struct {
     bool     ambient_light;
     uint32_t n_samples;
     uint32_t n_bounces;
+    float    exposure;
 
     /////////////////
     // Movement
