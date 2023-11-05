@@ -249,6 +249,8 @@ int main(int argc, char *argv[]) {
         compute_set_bool(compute_shader, "orthographic", manager->camera->orthographic);
         compute_set_bool(compute_shader, "incremental_rendering", manager->incremental_rendering);
         compute_set_int(compute_shader, "rng_seed", pcg32_random());
+        compute_set_int(compute_shader, "n_samples", manager->n_samples);
+        compute_set_int(compute_shader, "n_bounces", manager->n_bounces);
 
         compute_set_vec3(compute_shader, "look_from", &manager->camera->camera_pos);
         compute_set_vec3(compute_shader, "look_at", &manager->camera->camera_target);

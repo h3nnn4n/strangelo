@@ -42,6 +42,8 @@ typedef struct {
     uint32_t skybox_texture;
     uint32_t debug_texture;
     bool     ambient_light;
+    uint32_t n_samples;
+    uint32_t n_bounces;
 
     /////////////////
     // Movement

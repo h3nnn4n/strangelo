@@ -92,6 +92,11 @@ void gui_update_scene() {
 
     igSeparator();
 
+    igSliderInt("Samples", &manager->n_samples, 1, 20, "%3d", 0);
+    igSliderInt("Bounces", &manager->n_bounces, 1, 20, "%3d", 0);
+
+    igSeparator();
+
     // Radio button for tone mapping selection
     igText("Tone Mapping");
     igRadioButton_IntPtr("NONE", (int *)&manager->tone_mapping_mode, 0);

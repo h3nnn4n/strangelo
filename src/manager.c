@@ -35,6 +35,9 @@ Manager *init_manager() {
     _manager->ambient_light         = true;
     _manager->tone_mapping_mode     = 6; // Uchimura
 
+    _manager->n_samples = 10;
+    _manager->n_bounces = 5;
+
     return _manager;
 }
 
