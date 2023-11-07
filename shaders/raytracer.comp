@@ -3,7 +3,7 @@
 layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
 layout (rgba32f, binding = 0) uniform image2D render_texture;
-layout (rgba32f, binding = 1) uniform image2D debug_texture;
+layout (rgba32f, binding = 1) uniform image2D normal_texture;
 layout (rgba32f, binding = 2) uniform image2D skybox_texture;
 
 layout (location = 0) uniform float time;
@@ -296,7 +296,8 @@ void main() {
   float max_y          = 5.0;
   float max_x          = max_y * aspect_ratio;
 
-  imageStore(debug_texture, pixel_position, vec4(0.0, 0.0, 0.0, 1.0));
+  // Cleanup normal texture
+  imageStore(normal_texture, pixel_position, vec4(0.0, 0.0, 0.0, 1.0));
 
   for (int i_sample = 0; i_sample < n_samples; i_sample++) {
     // Ray sample output color
@@ -326,6 +327,11 @@ void main() {
         vec3 sky_color = (1.0 - t) * vec3(1.0) + t * vec3(0.5, 0.7, 1.0);
         result.rgb *= sky_color;
         break;
+      }
+
+      if (i == 0) {
+        vec4 normal_color = vec4(hit_info.normal * 0.5 + 0.5, 1.0);
+        imageStore(normal_texture, pixel_position, normal_color);
       }
 
       if (hit_info.hit_type == HIT_GROUND) {
@@ -358,11 +364,6 @@ void main() {
         // the normal around.
         result.rgb *= emission[hit_info.id].rgb + albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
         ray_direction = sample_lambert(hit_info.normal);
-
-        if (i == 0) {
-          vec4 normal_color = vec4(hit_info.normal * 0.5 + 0.5, 1.0);
-          imageStore(debug_texture, pixel_position, normal_color);
-        }
       } else if (material_type == MATERIAL_METAL) {
         // Metal
         result.rgb *= emission[hit_info.id].rgb + albedo[hit_info.id].rgb * dot(-hit_info.normal, ray_direction);
