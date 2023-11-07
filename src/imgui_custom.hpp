@@ -16,11 +16,11 @@
  *
  */
 
-#ifndef SRC_IMGUI_H_
-#define SRC_IMGUI_H_
+#ifndef SRC_IMGUI_CUSTOM_HPP_
+#define SRC_IMGUI_CUSTOM_HPP_
 
 #include <stdbool.h>
 
 void ToggleButton(const char *str_id, const char *label, bool *value);
 
-#endif // SRC_IMGUI_H_
+#endif // SRC_IMGUI_CUSTOM_HPP_

@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef SRC_SHADER_HPP_
+#define SRC_SHADER_HPP_
 
 #include <glad/glad.h>
 
@@ -56,4 +56,4 @@ class Shader {
     void load(const char *vertexPath, const char *fragmentPath, const char *geometryPath);
 };
 
-#endif
+#endif // SRC_SHADER_HPP_
