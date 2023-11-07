@@ -19,13 +19,15 @@
 #ifndef SRC_COMPUTE_H_
 #define SRC_COMPUTE_H_
 
+#include <stdint.h>
+
 #include <cglm/call.h>
 #include <cglm/cglm.h>
 #include <glad/glad.h>
 
 typedef struct {
-    char              shader_path[256];
-    unsigned long int id;
+    char     shader_path[256];
+    uint64_t id;
 } compute_t;
 
 compute_t *build_compute_shader(char *shader_path);
