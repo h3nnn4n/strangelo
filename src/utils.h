@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef _UTILS_H
-#define _UTILS_H
+#ifndef SRC_UTILS_H_
+#define SRC_UTILS_H_
 
 #include <stdbool.h>
 
@@ -32,4 +32,4 @@ typedef enum Direction {
 
 bool toggle(bool *value);
 
-#endif
+#endif // SRC_UTILS_H_

@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef _INPUT_HANDLING_H
-#define _INPUT_HANDLING_H
+#ifndef SRC_INPUT_HANDLING_H_
+#define SRC_INPUT_HANDLING_H_
 
 #include <GLFW/glfw3.h>
 
@@ -42,4 +42,4 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 void handle_camera_movements(GLFWwindow *window);
 
-#endif
+#endif // SRC_INPUT_HANDLING_H_

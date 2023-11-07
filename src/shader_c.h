@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef SHADER_C_H
-#define SHADER_C_H
+#ifndef SRC_SHADER_C_H_
+#define SRC_SHADER_C_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,4 +45,4 @@ void Shader_destroy(Shader *shader);
 }
 #endif
 
-#endif
+#endif // SRC_SHADER_C_H_

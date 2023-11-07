@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef _COMPUTE_H
-#define _COMPUTE_H
+#ifndef SRC_COMPUTE_H_
+#define SRC_COMPUTE_H_
 
 #include <cglm/call.h>
 #include <cglm/cglm.h>
@@ -38,4 +38,4 @@ void       compute_set_matrix4(compute_t *compute, char *name, mat4 *m);
 void       compute_set_bool(compute_t *compute, char *name, bool value);
 void       check_compile_errors(GLuint shader, const char *type);
 
-#endif
+#endif // SRC_COMPUTE_H_

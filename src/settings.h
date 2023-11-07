@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef _SETTING_H
-#define _SETTING_H
+#ifndef SRC_SETTINGS_H_
+#define SRC_SETTINGS_H_
 
 extern const int   WINDOW_WIDTH;
 extern const int   WINDOW_HEIGHT;
@@ -26,4 +26,4 @@ extern const float aspect_ratio;
 extern const float near_plane;
 extern const float far_plane;
 
-#endif
+#endif // SRC_SETTINGS_H_

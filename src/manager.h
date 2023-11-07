@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef _MANAGER_H
-#define _MANAGER_H
+#ifndef SRC_MANAGER_H_
+#define SRC_MANAGER_H_
 
 #include <stdint.h>
 
@@ -69,4 +69,4 @@ Manager *init_manager();
 void Manager_tick_timer(Manager *manager);
 void Manager_set_camera(Manager *manager, Camera *camera);
 
-#endif
+#endif // SRC_MANAGER_H_

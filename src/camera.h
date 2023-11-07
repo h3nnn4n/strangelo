@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef _CAMERA_H
-#define _CAMERA_H
+#ifndef SRC_CAMERA_H_
+#define SRC_CAMERA_H_
 
 #include <stdbool.h>
 
@@ -53,4 +53,4 @@ void    update_camera_position(Camera *camera, Direction direction);
 void update_camera_projection_matrix(Camera *camera);
 void update_camera_position_matrix(Camera *camera);
 
-#endif
+#endif // SRC_CAMERA_H_
