@@ -84,8 +84,7 @@ std::string Shadinclude::load(std::string path) {
             lineBuffer.erase(0, includeIndentifier.size());
 
             // The include path is relative to the current shader file path
-            std::string pathOfThisFile;
-            Shadinclude::getFilePath(path, pathOfThisFile);
+            std::string pathOfThisFile = Shadinclude::getFilePath(path);
             lineBuffer.insert(0, pathOfThisFile);
 
             // By using recursion, the new include file can be extracted
@@ -117,8 +116,10 @@ std::string Shadinclude::load(std::string path) {
     return fullSourceCode;
 }
 
-void Shadinclude::getFilePath(const std::string &fullPath, std::string &pathWithoutFileName) {
+std::string Shadinclude::getFilePath(const std::string &fullPath) {
     // Remove the file name and store the path to this folder
-    size_t found        = fullPath.find_last_of("/\\");
-    pathWithoutFileName = fullPath.substr(0, found + 1);
+    size_t      found               = fullPath.find_last_of("/\\");
+    std::string pathWithoutFileName = fullPath.substr(0, found + 1);
+
+    return pathWithoutFileName;
 }

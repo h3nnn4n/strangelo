@@ -68,7 +68,7 @@ class Shadinclude {
     std::string load(std::string path);
 
   private:
-    void getFilePath(const std::string &fullPath, std::string &pathWithoutFileName);
+    std::string getFilePath(const std::string &fullPath);
 };
 
 #endif // SRC_GLSL_SHADER_INCLUDES_HPP_
