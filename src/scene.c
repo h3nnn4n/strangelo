@@ -83,6 +83,10 @@ void init_scene() {
         material_type[i] = data[i].material_type;
     }
 
+    const float triangle_x_offset = 2.0;
+    const float triangle_y_offset = 4.3;
+    const float triangle_z_offset = -10.0;
+
     for (int i = 0; i < n_triangles; i++) {
         for (int j = 0; j < 3; j++) {
             triangle_v0[i][j]       = triangles[i].v0[j];
@@ -92,17 +96,17 @@ void init_scene() {
             triangle_emission[i][j] = triangles[i].emission[j];
         }
 
-        triangle_v0[i][0] += 2.0;
-        triangle_v1[i][0] += 2.0;
-        triangle_v2[i][0] += 2.0;
+        triangle_v0[i][0] += triangle_x_offset;
+        triangle_v1[i][0] += triangle_x_offset;
+        triangle_v2[i][0] += triangle_x_offset;
 
-        triangle_v0[i][1] += 4.3;
-        triangle_v1[i][1] += 4.3;
-        triangle_v2[i][1] += 4.3;
+        triangle_v0[i][1] += triangle_y_offset;
+        triangle_v1[i][1] += triangle_y_offset;
+        triangle_v2[i][1] += triangle_y_offset;
 
-        triangle_v0[i][2] -= 10.0;
-        triangle_v1[i][2] -= 10.0;
-        triangle_v2[i][2] -= 10.0;
+        triangle_v0[i][2] += triangle_z_offset;
+        triangle_v1[i][2] += triangle_z_offset;
+        triangle_v2[i][2] += triangle_z_offset;
 
         triangle_v0[i][3]       = 1.0;
         triangle_v1[i][3]       = 1.0;
