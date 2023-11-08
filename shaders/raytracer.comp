@@ -194,31 +194,32 @@ bool test_sphere_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, in
   if (discriminant < 0.0)
     return false;
 
-  float t = (-b - sqrt(discriminant)) / a;
-  if (t >= near_plane && t <= max_distance) {
+  float t_a = (-b - sqrt(discriminant)) / a;
+  float t_b = (-b + sqrt(discriminant)) / a;
+
+  if (t_a >= near_plane && t_a <= max_distance) {
     hit_info.hit = true;
-    hit_info.position = ray_origin + ray_direction * t;
+    hit_info.position = ray_origin + ray_direction * t_a;
     hit_info.normal = normalize(hit_info.position - position.xyz);
-    hit_info.distance = t;
+    hit_info.distance = t_a;
     hit_info.id = sphere_id;
     hit_info.hit_type = HIT_SPHERE;
 
-    return true;
-  } else {
-    t = (-b + sqrt(discriminant)) / a;
-    if (t >= near_plane && t <= max_distance) {
-      hit_info.hit = true;
-      hit_info.position = ray_origin + ray_direction * t;
-      hit_info.normal = normalize(hit_info.position - position.xyz);
-      hit_info.distance = t;
-      hit_info.id = sphere_id;
-      hit_info.hit_type = HIT_SPHERE;
-
-      return true;
-    }
+    max_distance = t_a;
   }
 
-  return false;
+  if (t_b >= near_plane && t_b <= max_distance) {
+    hit_info.hit = true;
+    hit_info.position = ray_origin + ray_direction * t_b;
+    hit_info.normal = normalize(hit_info.position - position.xyz);
+    hit_info.distance = t_b;
+    hit_info.id = sphere_id;
+    hit_info.hit_type = HIT_SPHERE;
+
+    max_distance = t_b;
+  }
+
+  return hit_info.hit;
 }
 
 bool test_ground_plane_hit(float max_distance, vec3 ray_origin, vec3 ray_direction, inout hit_t hit_info) {
