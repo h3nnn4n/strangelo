@@ -16,10 +16,12 @@
  *
  */
 
-#include <assert.h>
-#include <stdbool.h>
-
 #include "utils.h"
+
+#include <assert.h>
+#include <math.h>
+#include <pcg_variants.h>
+#include <stdbool.h>
 
 bool toggle(bool *value) {
     assert(value);
@@ -28,3 +30,5 @@ bool toggle(bool *value) {
 
     return *value;
 }
+
+float random() { return ldexp(pcg32_random(), -32); }

@@ -42,6 +42,7 @@
 #include "scene.h"
 #include "settings.h"
 #include "shader_c.h"
+#include "utils.h"
 
 GLFWwindow *window;
 
@@ -147,10 +148,6 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-    printf("starting clifford rendering\n");
-
-    printf("finished clifford rendering\n");
-
     printf("starting render loop\n");
 
     while (!glfwWindowShouldClose(window)) {
@@ -165,7 +162,7 @@ int main(int argc, char *argv[]) {
             printf("fps: %f\n", 1.0f / manager->delta_time);
         }
 
-        iterate_clifford(manager->clifford, 10000, pcg32_random(), pcg32_random());
+        iterate_clifford(manager->clifford, 10000, random(), random());
 
         // Main pass
         glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);

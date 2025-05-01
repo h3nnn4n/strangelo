@@ -17,6 +17,7 @@
  */
 
 #include "clifford.h"
+#include "utils.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -41,6 +42,15 @@ Clifford *make_clifford(uint32_t width, uint32_t height, float a, float b, float
 }
 
 void destroy_clifford(Clifford *clifford) { free(clifford->buffer); }
+
+void update_clifford(Clifford *clifford, float a, float b, float c, float d) {
+    clifford->a = a;
+    clifford->b = b;
+    clifford->c = c;
+    clifford->d = d;
+
+    reset_clifford(clifford);
+}
 
 void iterate_clifford(Clifford *c, uint32_t num_iterations, float x, float y) {
     // xn + 1 = sin(a yn) + c cos(a xn)
@@ -69,4 +79,16 @@ void reset_clifford(Clifford *c) {
     for (int i = 0; i < c->width * c->height; i++) {
         c->buffer[i] = 0;
     }
+}
+
+float get_occupancy(Clifford *c) {
+    float occupancy = 0;
+
+    for (int i = 0; i < c->width * c->height; i++) {
+        if (c->buffer[i] > 0) {
+            occupancy++;
+        }
+    }
+
+    return occupancy / (c->width * c->height);
 }

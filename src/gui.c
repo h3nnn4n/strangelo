@@ -26,6 +26,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <pcg_variants.h>
+
 #include "fps.h"
 #include "gui.h"
 #include "imgui_custom_c.h"
@@ -99,6 +101,21 @@ void gui_update_clifford() {
     if (old_a != clifford->a || old_b != clifford->b || old_c != clifford->c || old_d != clifford->d) {
         reset_clifford(clifford);
     }
+
+    ImVec2 size = {100, 0};
+    if (igButton("Randomize", size)) {
+        float a = random() * 4 - 2;
+        float b = random() * 4 - 2;
+        float c = random() * 4 - 2;
+        float d = random() * 4 - 2;
+        update_clifford(clifford, a, b, c, d);
+    }
+
+    igSeparator();
+
+    // Occupancy
+    snprintf(buffer, sizeof(buffer), "Occupancy: %2.6f", get_occupancy(clifford));
+    igText(buffer);
 
     return igEnd();
 }
