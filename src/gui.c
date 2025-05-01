@@ -104,7 +104,7 @@ void gui_update_clifford() {
 
     ImVec2 size = {100, 0};
     if (igButton("Randomize", size)) {
-        randomize_clifford(clifford);
+        randomize_until_chaotic(clifford);
     }
 
     igSeparator();

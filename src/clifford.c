@@ -84,6 +84,13 @@ void randomize_clifford(Clifford *clifford) {
     update_clifford(clifford, a, b, c, d);
 }
 
+void randomize_until_chaotic(Clifford *clifford) {
+    do {
+        randomize_clifford(clifford);
+        iterate_clifford(clifford, 25000, random(), random());
+    } while (get_occupancy(clifford) < 0.01);
+}
+
 void reset_clifford(Clifford *c) {
     for (int i = 0; i < c->width * c->height; i++) {
         c->buffer[i] = 0;
