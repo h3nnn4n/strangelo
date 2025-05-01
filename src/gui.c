@@ -104,11 +104,7 @@ void gui_update_clifford() {
 
     ImVec2 size = {100, 0};
     if (igButton("Randomize", size)) {
-        float a = random() * 4 - 2;
-        float b = random() * 4 - 2;
-        float c = random() * 4 - 2;
-        float d = random() * 4 - 2;
-        update_clifford(clifford, a, b, c, d);
+        randomize_clifford(clifford);
     }
 
     igSeparator();

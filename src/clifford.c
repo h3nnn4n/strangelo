@@ -75,6 +75,15 @@ void iterate_clifford(Clifford *c, uint32_t num_iterations, float x, float y) {
     }
 }
 
+void randomize_clifford(Clifford *clifford) {
+    float a = random() * 4 - 2;
+    float b = random() * 4 - 2;
+    float c = random() * 4 - 2;
+    float d = random() * 4 - 2;
+
+    update_clifford(clifford, a, b, c, d);
+}
+
 void reset_clifford(Clifford *c) {
     for (int i = 0; i < c->width * c->height; i++) {
         c->buffer[i] = 0;
