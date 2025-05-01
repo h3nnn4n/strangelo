@@ -57,6 +57,6 @@ void iterate_clifford(Clifford *c, uint32_t num_iterations, float x, float y) {
         uint32_t scaled_x = (uint32_t)((clamped_x + 2.0f) / 4.0f * c->width);
         uint32_t scaled_y = (uint32_t)((clamped_y + 2.0f) / 4.0f * c->height);
 
-        c->buffer[scaled_x + scaled_y * c->width] = 255;
+        c->buffer[scaled_x + scaled_y * c->width] += 1;
     }
 }

@@ -74,10 +74,17 @@ void Manager_set_camera(Manager *manager, Camera *camera) {
 
 // Maybe should be somewhere else since this is a rendering function?
 void blit_clifford_to_texture(Manager *manager) {
+    uint32_t max_value = 0;
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
-        manager->texture_data[i * 4 + 0] = manager->clifford->buffer[i];
-        manager->texture_data[i * 4 + 1] = manager->clifford->buffer[i];
-        manager->texture_data[i * 4 + 2] = manager->clifford->buffer[i];
+        if (manager->clifford->buffer[i] > max_value) {
+            max_value = manager->clifford->buffer[i];
+        }
+    }
+
+    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
+        manager->texture_data[i * 4 + 0] = manager->clifford->buffer[i] * 255 / max_value;
+        manager->texture_data[i * 4 + 1] = manager->clifford->buffer[i] * 255 / max_value;
+        manager->texture_data[i * 4 + 2] = manager->clifford->buffer[i] * 255 / max_value;
         manager->texture_data[i * 4 + 3] = 255;
     }
 
