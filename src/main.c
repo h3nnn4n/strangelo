@@ -139,7 +139,6 @@ int main(int argc, char *argv[]) {
     const unsigned int TEXTURE_HEIGHT = 512;
     const int          CHESS_SIZE     = 64; // Larger chess squares for better visibility
 
-    // Use unsigned char array instead of float for standard texture format
     unsigned char *chessboard_data = malloc(TEXTURE_WIDTH * TEXTURE_HEIGHT * 4 * sizeof(unsigned char));
     for (int y = 0; y < TEXTURE_HEIGHT; y++) {
         for (int x = 0; x < TEXTURE_WIDTH; x++) {
@@ -153,27 +152,21 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // Create and bind the texture
     glGenTextures(1, &manager->render_texture);
-    glActiveTexture(GL_TEXTURE0); // Activate texture unit 0
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, manager->render_texture);
     
-    // Set texture parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
-    // Load the texture data
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, chessboard_data);
     
-    // Generate mipmaps (optional)
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    // Free the texture data as it's now in GPU memory
     free(chessboard_data);
     
-    // Ensure texture unit 0 is active and texture is bound
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, manager->render_texture);
 
@@ -199,19 +192,15 @@ int main(int argc, char *argv[]) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        // Activate shader program
         Shader_use(shader);
         
-        // Set uniforms
-        Shader_set_int(shader, "tex", 0); // Make sure texture sampler is set to texture unit 0
+        Shader_set_int(shader, "tex", 0);
         Shader_set_int(shader, "tone_mapping_mode", manager->tone_mapping_mode);
         Shader_set_float(shader, "exposure", manager->exposure);
         
-        // Bind texture to texture unit 0
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, manager->render_texture);
         
-        // Draw quad
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glBindVertexArray(0);
