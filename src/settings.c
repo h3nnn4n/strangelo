@@ -18,8 +18,8 @@
 
 #include "settings.h"
 
-const int   WINDOW_WIDTH  = 1366;
-const int   WINDOW_HEIGHT = 768;
+const int   WINDOW_WIDTH  = 1920;
+const int   WINDOW_HEIGHT = 1080;
 const float aspect_ratio  = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 
 const float near_plane = 0.0f;
