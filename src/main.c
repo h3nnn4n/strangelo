@@ -193,14 +193,14 @@ int main(int argc, char *argv[]) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         Shader_use(shader);
-        
-        Shader_set_int(shader, "tex", 0);
+
+        Shader_set_int(shader, "texture1", 0);
         Shader_set_int(shader, "tone_mapping_mode", manager->tone_mapping_mode);
         Shader_set_float(shader, "exposure", manager->exposure);
-        
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, manager->render_texture);
-        
+
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glBindVertexArray(0);
