@@ -2,7 +2,7 @@
  * Copyright (C) 2023  Renan S. Silva, aka h3nnn4n
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
- * documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
  * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
@@ -34,7 +34,6 @@
 #include <entropy.h>
 
 #include "camera.h"
-#include "compute.h"
 #include "gui.h"
 #include "input_handling.h"
 #include "manager.h"
@@ -83,27 +82,6 @@ int main(int argc, char *argv[]) {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_FRAMEBUFFER_SRGB);
 
-    int work_grp_cnt[3];
-
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &work_grp_cnt[0]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &work_grp_cnt[1]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &work_grp_cnt[2]);
-
-    printf("max global (total) work group counts x:%i y:%i z:%i\n", work_grp_cnt[0], work_grp_cnt[1], work_grp_cnt[2]);
-
-    int work_grp_size[3];
-
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_size[1]);
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
-
-    printf("max local (in one shader) work group sizes x:%i y:%i z:%i\n", work_grp_size[0], work_grp_size[1],
-           work_grp_size[2]);
-
-    int work_grp_inv;
-    glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &work_grp_inv);
-    printf("max local work group invocations %i\n", work_grp_inv);
-
     {
         uint64_t seeds[2];
         entropy_getbytes((void *)seeds, sizeof(seeds));
@@ -135,14 +113,7 @@ int main(int argc, char *argv[]) {
     Shader_use(shader);
     Shader_set_int(shader, "tex", 0);
 
-    compute_t *compute_shader = build_compute_shader("shaders/raytracer.comp");
-    compute_use(compute_shader);
-    compute_set_float(compute_shader, "near_plane", near_plane);
-    compute_set_float(compute_shader, "far_plane", far_plane);
-    compute_set_int(compute_shader, "n_spheres", n_spheres);
-    compute_set_int(compute_shader, "n_triangles", n_triangles);
-
-    // Quad
+    // Quad for fullscreen rendering
     unsigned int VAO;
     unsigned int VBO;
     float        quadVertices[] = {
@@ -163,70 +134,36 @@ int main(int argc, char *argv[]) {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
 
-    // SSBOs
-    // Spheres
-    set_shader_storage_buffer(10, n_spheres * sizeof(float) * 4, positions);
-    set_shader_storage_buffer(11, n_spheres * sizeof(float), radius);
-    set_shader_storage_buffer(12, n_spheres * sizeof(int), material_type);
-    set_shader_storage_buffer(13, n_spheres * sizeof(float) * 4, albedo);
-    set_shader_storage_buffer(14, n_spheres * sizeof(float) * 4, emission);
-    set_shader_storage_buffer(15, n_spheres * sizeof(float), roughness);
-    // Triangles
-    set_shader_storage_buffer(20, n_triangles * sizeof(float) * 4, triangle_v0);
-    set_shader_storage_buffer(21, n_triangles * sizeof(float) * 4, triangle_v1);
-    set_shader_storage_buffer(22, n_triangles * sizeof(float) * 4, triangle_v2);
-    set_shader_storage_buffer(23, n_triangles * sizeof(float) * 4, triangle_albedo);
-    set_shader_storage_buffer(24, n_triangles * sizeof(float) * 4, triangle_emission);
-
-    // Compute texture
+    // Create a texture with a chessboard pattern
     const unsigned int TEXTURE_WIDTH  = WINDOW_WIDTH;
     const unsigned int TEXTURE_HEIGHT = WINDOW_HEIGHT;
+
+    float *chessboard_data = malloc(TEXTURE_WIDTH * TEXTURE_HEIGHT * 4 * sizeof(float));
+    for (int y = 0; y < TEXTURE_HEIGHT; y++) {
+        for (int x = 0; x < TEXTURE_WIDTH; x++) {
+            int index = (y * TEXTURE_WIDTH + x) * 4;
+            // Create a pixel-level chessboard pattern
+            float color                = ((x & 1) ^ (y & 1)) ? 1.0f : 0.0f;
+            chessboard_data[index + 0] = color; // R
+            chessboard_data[index + 1] = color; // G
+            chessboard_data[index + 2] = color; // B
+            chessboard_data[index + 3] = 1.0f;  // A
+        }
+    }
 
     glGenTextures(1, &manager->render_texture);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, manager->render_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-    glBindImageTexture(0, manager->render_texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); // Use NEAREST for pixel-perfect pattern
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_FLOAT, chessboard_data);
+
+    free(chessboard_data);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, manager->render_texture);
-
-    glGenTextures(1, &manager->debug_texture);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, manager->debug_texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-    glBindImageTexture(1, manager->debug_texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-
-#if 0
-    {
-        // TODO(@h3nnn4n): Would be nice for this to be async to make it start rendering faster.
-        // Although it would probably invalidate whatever has been rendered so far.
-        // Alternatively we could have a skybox toggle and we lazily load the texture.
-        printf("loading skybox image\n");
-        int32_t        image_width, image_height, n_components;
-        unsigned char *image_data =
-            stbi_load("assets/cape_hill_half.png", &image_width, &image_height, &n_components, 0);
-        printf("  loaded: resolution %dx%d with %d components\n", image_width, image_height, n_components);
-        glGenTextures(1, &manager->skybox_texture);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, manager->skybox_texture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-        glBindImageTexture(2, manager->skybox_texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-        stbi_image_free(image_data);
-    }
-#endif
 
     printf("starting render loop\n");
 
@@ -241,32 +178,6 @@ int main(int argc, char *argv[]) {
         if (manager->frame_count % 1000 == 0) {
             printf("fps: %f\n", 1.0f / manager->delta_time);
         }
-
-        // Run compute shader
-        compute_use(compute_shader);
-        compute_set_float(compute_shader, "time", manager->current_time);
-        compute_set_matrix4(compute_shader, "camera_view", &manager->camera->view);
-        compute_set_bool(compute_shader, "orthographic", manager->camera->orthographic);
-        compute_set_bool(compute_shader, "incremental_rendering", manager->incremental_rendering);
-        compute_set_int(compute_shader, "rng_seed", pcg32_random());
-        compute_set_int(compute_shader, "n_samples", manager->n_samples);
-        compute_set_int(compute_shader, "n_bounces", manager->n_bounces);
-
-        compute_set_vec3(compute_shader, "look_from", &manager->camera->camera_pos);
-        compute_set_vec3(compute_shader, "look_at", &manager->camera->camera_target);
-        compute_set_float(compute_shader, "vfov", manager->camera->zoom);
-        compute_set_float(compute_shader, "yaw", manager->camera->yaw);
-        compute_set_float(compute_shader, "pitch", manager->camera->pitch);
-
-        vec3 black = {0.0f, 0.0f, 0.0f};
-        vec3 white = {1.0f, 1.0f, 1.0f};
-        if (manager->ambient_light)
-            compute_set_vec3(compute_shader, "ambient_light", &white);
-        else
-            compute_set_vec3(compute_shader, "ambient_light", &black);
-
-        glDispatchCompute(TEXTURE_WIDTH / 32, TEXTURE_HEIGHT / 32, 1);
-        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         // Main pass
         glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
