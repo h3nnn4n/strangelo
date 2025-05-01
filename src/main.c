@@ -95,6 +95,8 @@ int main(int argc, char *argv[]) {
         Camera *camera = make_camera();
         Manager_set_camera(manager, camera);
 
+        manager->clifford = make_clifford(WINDOW_WIDTH, WINDOW_HEIGHT, -1.4, 1.6, 1.0, 0.7);
+
         camera->camera_pos[0] = camera_pos[0];
         camera->camera_pos[1] = camera_pos[1];
         camera->camera_pos[2] = camera_pos[2];
@@ -137,20 +139,6 @@ int main(int argc, char *argv[]) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    const unsigned int TEXTURE_WIDTH  = 512;
-    const unsigned int TEXTURE_HEIGHT = 512;
-
-    unsigned char *texture_data = malloc(TEXTURE_WIDTH * TEXTURE_HEIGHT * 4 * sizeof(unsigned char));
-    for (int y = 0; y < TEXTURE_HEIGHT; y++) {
-        for (int x = 0; x < TEXTURE_WIDTH; x++) {
-            int index = (y * TEXTURE_WIDTH + x) * 4;
-            texture_data[index + 0] = 127; // R
-            texture_data[index + 1] = 0;   // G
-            texture_data[index + 2] = 0;   // B
-            texture_data[index + 3] = 255; // A
-        }
-    }
-
     glGenTextures(1, &manager->render_texture);
     glBindTexture(GL_TEXTURE_2D, manager->render_texture);
     
@@ -160,22 +148,6 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     printf("starting clifford rendering\n");
-    Clifford clifford = make_clifford(TEXTURE_WIDTH, TEXTURE_HEIGHT, -1.4, 1.6, 1.0, 0.7);
-    iterate_clifford(&clifford, 100000, 1.2, -0.7);
-
-    // Map clifford to texture
-    for (int y = 0; y < TEXTURE_HEIGHT; y++) {
-        for (int x = 0; x < TEXTURE_WIDTH; x++) {
-            int index               = (y * TEXTURE_WIDTH + x) * 4;
-            texture_data[index + 0] = clifford.buffer[x + y * TEXTURE_WIDTH];
-        }
-    }
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture_data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    destroy_clifford(&clifford);
-    free(texture_data);
 
     printf("finished clifford rendering\n");
 
@@ -193,6 +165,8 @@ int main(int argc, char *argv[]) {
             printf("fps: %f\n", 1.0f / manager->delta_time);
         }
 
+        iterate_clifford(manager->clifford, 10000, pcg32_random(), pcg32_random());
+
         // Main pass
         glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -200,7 +174,9 @@ int main(int argc, char *argv[]) {
         // Clear screen
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+
+        blit_clifford_to_texture(manager);
+
         Shader_use(shader);
 
         Shader_set_int(shader, "texture1", 0);

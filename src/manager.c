@@ -23,6 +23,7 @@
 #include <GLFW/glfw3.h>
 
 #include "manager.h"
+#include "settings.h"
 
 Manager *manager;
 
@@ -39,6 +40,17 @@ Manager *init_manager() {
     _manager->n_bounces = 5;
 
     _manager->exposure = 0.75f;
+
+    _manager->texture_data = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4 * sizeof(unsigned char));
+    for (int y = 0; y < WINDOW_HEIGHT; y++) {
+        for (int x = 0; x < WINDOW_WIDTH; x++) {
+            int index                         = (y * WINDOW_WIDTH + x) * 4;
+            _manager->texture_data[index + 0] = 0;   // R
+            _manager->texture_data[index + 1] = 0;   // G
+            _manager->texture_data[index + 2] = 0;   // B
+            _manager->texture_data[index + 3] = 255; // A
+        }
+    }
 
     return _manager;
 }
@@ -58,4 +70,17 @@ void Manager_set_camera(Manager *manager, Camera *camera) {
     assert(camera);
 
     manager->camera = camera;
+}
+
+// Maybe should be somewhere else since this is a rendering function?
+void blit_clifford_to_texture(Manager *manager) {
+    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
+        manager->texture_data[i * 4 + 0] = manager->clifford->buffer[i];
+        manager->texture_data[i * 4 + 1] = manager->clifford->buffer[i];
+        manager->texture_data[i * 4 + 2] = manager->clifford->buffer[i];
+        manager->texture_data[i * 4 + 3] = 255;
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 manager->texture_data);
 }

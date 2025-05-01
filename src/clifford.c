@@ -19,17 +19,22 @@
 #include "clifford.h"
 
 #include <math.h>
+#include <stdio.h>
+Clifford *make_clifford(uint32_t width, uint32_t height, float a, float b, float c, float d) {
+    Clifford *clifford = malloc(sizeof(Clifford));
 
-Clifford make_clifford(uint32_t width, uint32_t height, float a, float b, float c, float d) {
-    Clifford clifford;
-    clifford.a = a;
-    clifford.b = b;
-    clifford.c = c;
-    clifford.d = d;
+    clifford->a = a;
+    clifford->b = b;
+    clifford->c = c;
+    clifford->d = d;
 
-    clifford.width  = width;
-    clifford.height = height;
-    clifford.buffer = malloc(width * height * sizeof(uint32_t));
+    clifford->width  = width;
+    clifford->height = height;
+    clifford->buffer = malloc(width * height * sizeof(uint32_t));
+
+    for (int i = 0; i < width * height; i++) {
+        clifford->buffer[i] = 0;
+    }
 
     return clifford;
 }

@@ -22,7 +22,7 @@
 #include <stdint.h>
 
 #include "camera.h"
-
+#include "clifford.h"
 typedef struct {
     /////////////////
     // Timer Stuff
@@ -46,6 +46,12 @@ typedef struct {
     uint32_t n_bounces;
     float    exposure;
 
+    unsigned char *texture_data;
+
+    //////////////////
+    // Cliffords
+    Clifford *clifford;
+
     /////////////////
     // Movement
     //
@@ -68,5 +74,7 @@ Manager *init_manager();
 
 void Manager_tick_timer(Manager *manager);
 void Manager_set_camera(Manager *manager, Camera *camera);
+
+void blit_clifford_to_texture(Manager *manager);
 
 #endif // SRC_MANAGER_H_
