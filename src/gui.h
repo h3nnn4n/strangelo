@@ -47,8 +47,6 @@ void gui_render();
 void gui_new_frame();
 
 void gui_update_fps();
-void gui_update_camera();
-void gui_update_scene();
-void gui_debug();
+void gui_update_clifford();
 
 #endif // SRC_GUI_H_

@@ -70,48 +70,37 @@ void gui_render() {
 
     if (!manager->hide_ui) {
         gui_update_fps();
-        gui_update_scene();
-        gui_update_camera();
-        gui_debug();
+        gui_update_clifford();
     }
 
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
 }
 
-void gui_update_scene() {
-    if (!igBegin("Scene", NULL, 0))
+void gui_update_clifford() {
+    if (!igBegin("Clifford", NULL, 0))
         return igEnd();
 
-    if (manager->ambient_light)
-        snprintf(buffer, sizeof(buffer), "ambient_light: ON");
-    else
-        snprintf(buffer, sizeof(buffer), "ambient_light: OFF");
+    Clifford *clifford = manager->clifford;
 
-    toggle_button("ambient_light", buffer, &manager->ambient_light);
+    snprintf(buffer, sizeof(buffer), "%2.6f %2.6f %2.6f %2.6f", clifford->a, clifford->b, clifford->c , clifford->d);
+    igText(buffer);
 
-    igSeparator();
+    float old_a = clifford->a;
+    float old_b = clifford->b;
+    float old_c = clifford->c;
+    float old_d = clifford->d;
 
-    igSliderFloat("Exposure", &manager->exposure, 0, 2, "%.3f", 0);
+    igSliderFloat("a", &clifford->a, -2, 2, "%2.6f", 0);
+    igSliderFloat("b", &clifford->b, -2, 2, "%2.6f", 0);
+    igSliderFloat("c", &clifford->c, -2, 2, "%2.6f", 0);
+    igSliderFloat("d", &clifford->d, -2, 2, "%2.6f", 0);
 
-    igSliderInt("Samples", (int *)&manager->n_samples, 1, 20, "%3d", 0);
-    igSliderInt("Bounces", (int *)&manager->n_bounces, 1, 20, "%3d", 0);
+    if (old_a != clifford->a || old_b != clifford->b || old_c != clifford->c || old_d != clifford->d) {
+        reset_clifford(clifford);
+    }
 
-    igSeparator();
-
-    // Radio button for tone mapping selection
-    igText("Tone Mapping");
-    igRadioButton_IntPtr("NONE", (int *)&manager->tone_mapping_mode, 0);
-    igRadioButton_IntPtr("ACES Narkowicz", (int *)&manager->tone_mapping_mode, 1);
-    igRadioButton_IntPtr("Filmic", (int *)&manager->tone_mapping_mode, 2);
-    igRadioButton_IntPtr("Lottes", (int *)&manager->tone_mapping_mode, 3);
-    igRadioButton_IntPtr("Reinhard", (int *)&manager->tone_mapping_mode, 4);
-    igRadioButton_IntPtr("Reinhard 2", (int *)&manager->tone_mapping_mode, 5);
-    igRadioButton_IntPtr("Uchimura", (int *)&manager->tone_mapping_mode, 6);
-    igRadioButton_IntPtr("Uncharted 2", (int *)&manager->tone_mapping_mode, 7);
-    igRadioButton_IntPtr("Unreal", (int *)&manager->tone_mapping_mode, 8);
-
-    igEnd();
+    return igEnd();
 }
 
 void gui_update_fps() {
@@ -162,79 +151,6 @@ void gui_update_fps() {
 
         ImPlot_EndPlot();
     }
-
-    igEnd();
-}
-
-void gui_update_camera() {
-    Camera *camera = manager->camera;
-
-    assert(camera);
-
-    igBegin("Camera", NULL, 0);
-
-    if (camera->orthographic)
-        snprintf(buffer, sizeof(buffer), "mode: ORTHOGRAPHIC");
-    else
-        snprintf(buffer, sizeof(buffer), "mode: PROJECTION");
-    igText(buffer);
-
-    if (manager->incremental_rendering)
-        snprintf(buffer, sizeof(buffer), "incremental_rendering: true");
-    else
-        snprintf(buffer, sizeof(buffer), "incremental_rendering: false");
-    igText(buffer);
-
-    if (manager->freeze_movement)
-        snprintf(buffer, sizeof(buffer), "freeze_movement: true");
-    else
-        snprintf(buffer, sizeof(buffer), "freeze_movement: false");
-    igText(buffer);
-
-    snprintf(buffer, sizeof(buffer), "position: %4.2f %4.2f %4.2f", camera->camera_pos[0], camera->camera_pos[1],
-             camera->camera_pos[2]);
-    igText(buffer);
-
-    snprintf(buffer, sizeof(buffer), "target: %4.2f %4.2f %4.2f", camera->camera_target[0], camera->camera_target[1],
-             camera->camera_target[2]);
-    igText(buffer);
-
-    snprintf(buffer, sizeof(buffer), "yaw, pitch: %4.2f %4.2f", camera->yaw, camera->pitch);
-    igText(buffer);
-
-    snprintf(buffer, sizeof(buffer), "fov: %4.2f", camera->zoom);
-    igText(buffer);
-
-#ifdef __SHOW_MVP
-    {
-        igSeparator();
-        const mat4 *m = &camera->view;
-        igText("view matrix:");
-        for (int i = 0; i < 4; i++) {
-            snprintf(buffer, sizeof(buffer), "%4.2f %4.2f %4.2f %4.2f", *m[i][0], *m[i][1], *m[i][2], *m[i][3]);
-            igText(buffer);
-        }
-    }
-
-    {
-        igSeparator();
-        const mat4 *m = &camera->projection;
-        igText("projection matrix:");
-        for (int i = 0; i < 4; i++) {
-            snprintf(buffer, sizeof(buffer), "%4.2f %4.2f %4.2f %4.2f", *m[i][0], *m[i][1], *m[i][2], *m[i][3]);
-            igText(buffer);
-        }
-    }
-#endif
-
-    igEnd();
-}
-
-void gui_debug() {
-    igBegin("Debug", NULL, 0);
-
-    igImage((ImTextureID)(intptr_t)manager->debug_texture, (ImVec2){200 * aspect_ratio, 200}, (ImVec2){0, 1},
-            (ImVec2){1, 0}, (ImVec4){1, 1, 1, 1}, (ImVec4){1, 1, 1, 0});
 
     igEnd();
 }

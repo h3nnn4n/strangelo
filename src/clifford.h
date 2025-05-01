@@ -43,5 +43,6 @@ Clifford *make_clifford(uint32_t width, uint32_t height, float a, float b, float
 void     destroy_clifford(Clifford *clifford);
 
 void iterate_clifford(Clifford *c, uint32_t num_iterations, float x, float y);
+void reset_clifford(Clifford *c);
 
 #endif // SRC_CLIFFORD_H_
