@@ -136,21 +136,18 @@ int main(int argc, char *argv[]) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    // Create a texture with a chessboard pattern
+    // Create a black texture
     const unsigned int TEXTURE_WIDTH  = 512; // Use smaller resolution for better performance
     const unsigned int TEXTURE_HEIGHT = 512;
-    const int          CHESS_SIZE     = 64; // Larger chess squares for better visibility
 
-    unsigned char *chessboard_data = malloc(TEXTURE_WIDTH * TEXTURE_HEIGHT * 4 * sizeof(unsigned char));
+    unsigned char *texture_data = malloc(TEXTURE_WIDTH * TEXTURE_HEIGHT * 4 * sizeof(unsigned char));
     for (int y = 0; y < TEXTURE_HEIGHT; y++) {
         for (int x = 0; x < TEXTURE_WIDTH; x++) {
             int index = (y * TEXTURE_WIDTH + x) * 4;
-            // Create a larger chessboard pattern
-            unsigned char color       = (((x / CHESS_SIZE) & 1) ^ ((y / CHESS_SIZE) & 1)) ? 255 : 0;
-            chessboard_data[index + 0] = color; // R
-            chessboard_data[index + 1] = color; // G
-            chessboard_data[index + 2] = color; // B
-            chessboard_data[index + 3] = 255;   // A
+            texture_data[index + 0] = 0;   // R
+            texture_data[index + 1] = 0;   // G
+            texture_data[index + 2] = 0;   // B
+            texture_data[index + 3] = 255; // A
         }
     }
 
@@ -162,11 +159,10 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-                 chessboard_data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture_data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    free(chessboard_data);
+    free(texture_data);
 
     printf("starting render loop\n");
 
