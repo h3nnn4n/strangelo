@@ -44,6 +44,7 @@ void     destroy_clifford(Clifford *clifford);
 
 void  update_clifford(Clifford *clifford, float a, float b, float c, float d);
 void  iterate_clifford(Clifford *clifford, uint32_t num_iterations, float x, float y);
+void  iterate_clifford_until_timeout(Clifford *clifford, float timeout);
 void  randomize_clifford(Clifford *clifford);
 void  randomize_until_chaotic(Clifford *clifford);
 void  reset_clifford(Clifford *clifford);

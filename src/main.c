@@ -162,7 +162,7 @@ int main(int argc, char *argv[]) {
             printf("fps: %f\n", 1.0f / manager->delta_time);
         }
 
-        iterate_clifford(manager->clifford, 10000, random(), random());
+        iterate_clifford_until_timeout(manager->clifford, 1 / 60.0f);
 
         // Main pass
         glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);

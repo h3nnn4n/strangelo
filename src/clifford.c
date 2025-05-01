@@ -19,6 +19,7 @@
 #include "clifford.h"
 #include "utils.h"
 
+#include <GLFW/glfw3.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -72,6 +73,14 @@ void iterate_clifford(Clifford *c, uint32_t num_iterations, float x, float y) {
         uint32_t scaled_y = (uint32_t)((y + max_y) / (max_y - min_y) * c->height);
 
         c->buffer[scaled_x + scaled_y * c->width] += 1;
+    }
+}
+
+void iterate_clifford_until_timeout(Clifford *c, float timeout) {
+    float start_time = glfwGetTime();
+
+    while (glfwGetTime() - start_time < timeout) {
+        iterate_clifford(c, 10000, random(), random());
     }
 }
 
