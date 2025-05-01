@@ -12,3 +12,5 @@ gmon.out
 shaders/*.final
 
 *.cap
+
+**/.claude/settings.local.json
