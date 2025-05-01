@@ -82,11 +82,11 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     lastX = xpos;
     lastY = ypos;
 
-    update_camera_target(manager->camera, xoffset, yoffset);
-    update_camera_projection_matrix(manager->camera);
+    // update_camera_target(manager->camera, xoffset, yoffset);
+    // update_camera_projection_matrix(manager->camera);
 
-    if (xpos != 0 && ypos != 0)
-        glClearTexImage(manager->render_texture, 0, GL_RGBA, GL_FLOAT, NULL);
+    // if (xpos != 0 && ypos != 0)
+    //     glClearTexImage(manager->render_texture, 0, GL_RGBA, GL_FLOAT, NULL);
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {

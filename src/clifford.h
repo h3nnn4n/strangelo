@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef SRC_CAMERA_H_
-#define SRC_CAMERA_H_
+#ifndef SRC_CLIFFORD_H_
+#define SRC_CLIFFORD_H_
 
 #include <assert.h>
 #include <stdint.h>
@@ -42,6 +42,6 @@ typedef struct {
 Clifford make_clifford(uint32_t width, uint32_t height, float a, float b, float c, float d);
 void     destroy_clifford(Clifford *clifford);
 
-void iterate_clifford(Clifford *c, uint32_t num_iterations, uint32_t x, uint32_t y);
+void iterate_clifford(Clifford *c, uint32_t num_iterations, float x, float y);
 
-#endif // SRC_CAMERA_H_
+#endif // SRC_CLIFFORD_H_

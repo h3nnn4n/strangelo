@@ -34,6 +34,7 @@
 #include <entropy.h>
 
 #include "camera.h"
+#include "clifford.h"
 #include "gui.h"
 #include "input_handling.h"
 #include "manager.h"
@@ -136,15 +137,14 @@ int main(int argc, char *argv[]) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    // Create a black texture
-    const unsigned int TEXTURE_WIDTH  = 512; // Use smaller resolution for better performance
+    const unsigned int TEXTURE_WIDTH  = 512;
     const unsigned int TEXTURE_HEIGHT = 512;
 
     unsigned char *texture_data = malloc(TEXTURE_WIDTH * TEXTURE_HEIGHT * 4 * sizeof(unsigned char));
     for (int y = 0; y < TEXTURE_HEIGHT; y++) {
         for (int x = 0; x < TEXTURE_WIDTH; x++) {
             int index = (y * TEXTURE_WIDTH + x) * 4;
-            texture_data[index + 0] = 0;   // R
+            texture_data[index + 0] = 127; // R
             texture_data[index + 1] = 0;   // G
             texture_data[index + 2] = 0;   // B
             texture_data[index + 3] = 255; // A
@@ -159,10 +159,25 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+    printf("starting clifford rendering\n");
+    Clifford clifford = make_clifford(TEXTURE_WIDTH, TEXTURE_HEIGHT, -1.4, 1.6, 1.0, 0.7);
+    iterate_clifford(&clifford, 100000, 1.2, -0.7);
+
+    // Map clifford to texture
+    for (int y = 0; y < TEXTURE_HEIGHT; y++) {
+        for (int x = 0; x < TEXTURE_WIDTH; x++) {
+            int index               = (y * TEXTURE_WIDTH + x) * 4;
+            texture_data[index + 0] = clifford.buffer[x + y * TEXTURE_WIDTH];
+        }
+    }
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXTURE_WIDTH, TEXTURE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, texture_data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
+    destroy_clifford(&clifford);
     free(texture_data);
+
+    printf("finished clifford rendering\n");
 
     printf("starting render loop\n");
 
