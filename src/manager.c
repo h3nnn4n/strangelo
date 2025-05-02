@@ -87,7 +87,7 @@ void blit_clifford_to_texture(Manager *manager) {
     }
 
     // Apply rendering functions
-    apply_histogram_normalization(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
+    // apply_histogram_normalization(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
     apply_tone_mapping(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     // Calculate the max value for normalizing
