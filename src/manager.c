@@ -38,6 +38,8 @@ Manager *init_manager() {
     _manager->tone_mapping_mode     = 6; // Uchimura
     _manager->exposure              = 0.75f;
     _manager->gamma = 2.2f;
+    _manager->brightness = 0.0f;
+    _manager->contrast = 1.0f;
     _manager->freeze_movement       = false;
 
     _manager->border_size_percent = 0.05f;

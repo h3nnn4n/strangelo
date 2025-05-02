@@ -115,7 +115,11 @@ void gui_update_clifford() {
 
     igSeparator();
 
+    // Post-processing parameters
+    igText("Post-processing:");
     igSliderFloat("Gamma", &manager->gamma, 0.1f, 5.0f, "%2.2f", 0);
+    igSliderFloat("Brightness", &manager->brightness, -0.5f, 0.5f, "%2.2f", 0);
+    igSliderFloat("Contrast", &manager->contrast, 0.5f, 2.0f, "%2.2f", 0);
 
     return igEnd();
 }

@@ -42,6 +42,8 @@ typedef struct {
     float    exposure;
     uint32_t render_texture;
     float gamma;
+    float brightness;
+    float contrast;
 
     bool freeze_movement;
 

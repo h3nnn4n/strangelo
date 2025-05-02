@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Shaders
-    Shader *shader = newShader("shaders/main.vert", "shaders/gamma_correction.frag", NULL);
+    Shader *shader = newShader("shaders/main.vert", "shaders/post_processing.frag", NULL);
     Shader_use(shader);
     Shader_set_int(shader, "texture1", 0);
 
@@ -162,7 +162,10 @@ int main(int argc, char *argv[]) {
         Shader_use(shader);
 
         Shader_set_int(shader, "texture1", 0);
+        // Set post-processing parameters
         Shader_set_float(shader, "gamma", manager->gamma);
+        Shader_set_float(shader, "brightness", manager->brightness);
+        Shader_set_float(shader, "contrast", manager->contrast);
         // Keep these for compatibility with potential future shaders
         Shader_set_int(shader, "tone_mapping_mode", manager->tone_mapping_mode);
         Shader_set_float(shader, "exposure", manager->exposure);
