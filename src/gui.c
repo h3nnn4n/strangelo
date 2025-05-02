@@ -120,6 +120,14 @@ void gui_update_clifford() {
     igSliderFloat("Gamma", &manager->gamma, 0.1f, 5.0f, "%2.2f", 0);
     igSliderFloat("Brightness", &manager->brightness, -0.5f, 0.5f, "%2.2f", 0);
     igSliderFloat("Contrast", &manager->contrast, 0.5f, 2.0f, "%2.2f", 0);
+    
+    // Reset button for post-processing parameters
+    ImVec2 reset_button_size = {120, 0}; // Width of 120, auto height
+    if (igButton("Reset Post-Proc", reset_button_size)) {
+        manager->gamma = 2.2f;      // Default gamma
+        manager->brightness = 0.0f; // Default brightness
+        manager->contrast = 1.0f;   // Default contrast
+    }
 
     return igEnd();
 }
