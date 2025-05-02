@@ -44,6 +44,8 @@ Manager *init_manager() {
 
     _manager->gamma = 2.2f;
 
+    _manager->border_size_percent = 0.05f;
+
     _manager->texture_data = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4 * sizeof(uint32_t));
     for (int i = 0; i < WINDOW_WIDTH; i++) {
         for (int j = 0; j < WINDOW_HEIGHT; j++) {
@@ -55,6 +57,14 @@ Manager *init_manager() {
     }
 
     _manager->texture_data_gl = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4 * sizeof(unsigned char));
+    for (int i = 0; i < WINDOW_WIDTH; i++) {
+        for (int j = 0; j < WINDOW_HEIGHT; j++) {
+            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0;
+            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0;
+            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0;
+            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 255;
+        }
+    }
 
     return _manager;
 }
@@ -76,21 +86,36 @@ void Manager_set_camera(Manager *manager, Camera *camera) {
     manager->camera = camera;
 }
 
-// Maybe should be somewhere else since this is a rendering function?
-void blit_clifford_to_texture(Manager *manager) {
-    // Copy the clifford buffer to the high res texture data
+void clean_texture(Manager *manager) {
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
-        manager->texture_data[i * 4 + 0] = manager->clifford->buffer[i];
-        manager->texture_data[i * 4 + 1] = manager->clifford->buffer[i];
-        manager->texture_data[i * 4 + 2] = manager->clifford->buffer[i];
+        manager->texture_data[i * 4 + 0] = 0;
+        manager->texture_data[i * 4 + 1] = 0;
+        manager->texture_data[i * 4 + 2] = 0;
         manager->texture_data[i * 4 + 3] = 255;
     }
+}
 
-    // Apply rendering functions
-    // apply_histogram_normalization(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
-    apply_tone_mapping(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
+void copy_clifford_to_texture(Manager *manager) {
+    uint32_t  border_size_x = WINDOW_WIDTH * manager->border_size_percent;
+    uint32_t  border_size_y = WINDOW_HEIGHT * manager->border_size_percent;
+    Clifford *clifford      = manager->clifford;
 
-    // Calculate the max value for normalizing
+    // Copy the clifford buffer to the high res texture data, centered
+    for (int i = 0; i < clifford->width; i++) {
+        for (int j = 0; j < clifford->height; j++) {
+            int      index         = i + j * (clifford->width);
+            int      texture_index = ((border_size_x + i) + (border_size_y + j) * WINDOW_WIDTH) * 4;
+            uint32_t density       = clifford->density_map[index];
+
+            manager->texture_data[texture_index + 0] = density;
+            manager->texture_data[texture_index + 1] = density;
+            manager->texture_data[texture_index + 2] = density;
+            manager->texture_data[texture_index + 3] = 255;
+        }
+    }
+}
+
+void normalize_texture(Manager *manager) {
     uint32_t max_value = 0;
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
         if (manager->texture_data[i * 4 + 0] > max_value) {
@@ -105,6 +130,18 @@ void blit_clifford_to_texture(Manager *manager) {
         manager->texture_data_gl[i * 4 + 2] = manager->texture_data[i * 4 + 2] * 255 / max_value;
         manager->texture_data_gl[i * 4 + 3] = 255;
     }
+}
+
+// Maybe should be somewhere else since this is a rendering function?
+void blit_clifford_to_texture(Manager *manager) {
+    clean_texture(manager);
+
+    copy_clifford_to_texture(manager);
+
+    // apply_histogram_normalization(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
+    apply_tone_mapping(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    normalize_texture(manager);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                  manager->texture_data_gl);

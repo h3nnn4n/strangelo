@@ -33,16 +33,19 @@ Clifford *make_clifford(uint32_t width, uint32_t height, float a, float b, float
 
     clifford->width  = width;
     clifford->height = height;
-    clifford->buffer = malloc(width * height * sizeof(uint32_t));
+    clifford->density_map = malloc(width * height * sizeof(uint32_t));
+
+    printf("Instantitating clifford with params a: %f, b: %f, c: %f, d: %f\n", a, b, c, d);
+    printf("Density map size: %dx%d\n", width, height);
 
     for (int i = 0; i < width * height; i++) {
-        clifford->buffer[i] = 0;
+        clifford->density_map[i] = 0;
     }
 
     return clifford;
 }
 
-void destroy_clifford(Clifford *clifford) { free(clifford->buffer); }
+void destroy_clifford(Clifford *clifford) { free(clifford->density_map); }
 
 void update_clifford(Clifford *clifford, float a, float b, float c, float d) {
     clifford->a = a;
@@ -75,7 +78,7 @@ void iterate_clifford(Clifford *c, uint32_t num_iterations, float x, float y) {
         uint32_t scaled_x = (uint32_t)((x + max_x) / (max_x - min_x) * c->width);
         uint32_t scaled_y = (uint32_t)((y + max_y) / (max_y - min_y) * c->height);
 
-        c->buffer[scaled_x + scaled_y * c->width] += 1;
+        c->density_map[scaled_x + scaled_y * c->width] += 1;
     }
 }
 
@@ -105,7 +108,7 @@ void randomize_until_chaotic(Clifford *clifford) {
 
 void reset_clifford(Clifford *c) {
     for (int i = 0; i < c->width * c->height; i++) {
-        c->buffer[i] = 0;
+        c->density_map[i] = 0;
     }
 }
 
@@ -113,7 +116,7 @@ float get_occupancy(Clifford *c) {
     float occupancy = 0;
 
     for (int i = 0; i < c->width * c->height; i++) {
-        if (c->buffer[i] > 0) {
+        if (c->density_map[i] > 0) {
             occupancy++;
         }
     }

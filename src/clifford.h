@@ -36,7 +36,7 @@ typedef struct {
 
     uint32_t  width;
     uint32_t  height;
-    uint32_t *buffer;
+    uint32_t *density_map;
 } Clifford;
 
 Clifford *make_clifford(uint32_t width, uint32_t height, float a, float b, float c, float d);

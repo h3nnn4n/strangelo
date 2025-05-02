@@ -58,6 +58,7 @@ int main(int argc, char *argv[]) {
         glfwTerminate();
         return -1;
     }
+    printf("Created window of size %dx%d\n", WINDOW_WIDTH, WINDOW_HEIGHT);
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(0);
@@ -96,7 +97,8 @@ int main(int argc, char *argv[]) {
         Camera *camera = make_camera();
         Manager_set_camera(manager, camera);
 
-        manager->clifford = make_clifford(WINDOW_WIDTH, WINDOW_HEIGHT, -1.4, 1.6, 1.0, 0.7);
+        manager->clifford = make_clifford((1.0f - manager->border_size_percent) * WINDOW_WIDTH,
+                                          (1.0f - manager->border_size_percent) * WINDOW_HEIGHT, -1.4, 1.6, 1.0, 0.7);
 
         camera->camera_pos[0] = camera_pos[0];
         camera->camera_pos[1] = camera_pos[1];
