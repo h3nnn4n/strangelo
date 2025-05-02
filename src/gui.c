@@ -117,6 +117,19 @@ void gui_update_clifford() {
 
     // Post-processing parameters
     igText("Post-processing:");
+    
+    // Tone mapping combo box
+    const char* tone_mapping_modes[] = {
+        "None", "ACES", "Filmic", "Lottes", "Reinhard", 
+        "Reinhard II", "Uchimura", "Uncharted 2", "Unreal"
+    };
+    int tone_mapping_count = 9; // Number of elements in the array above
+    int current_mode = (int)manager->tone_mapping_mode;
+    igCombo_Str_arr("Tone Mapping", &current_mode, 
+                tone_mapping_modes, tone_mapping_count, 0);
+    manager->tone_mapping_mode = (uint32_t)current_mode;
+                
+    igSliderFloat("Exposure", &manager->exposure, 0.1f, 5.0f, "%2.2f", 0);
     igSliderFloat("Gamma", &manager->gamma, 0.1f, 5.0f, "%2.2f", 0);
     igSliderFloat("Brightness", &manager->brightness, -0.5f, 0.5f, "%2.2f", 0);
     igSliderFloat("Contrast", &manager->contrast, 0.5f, 2.0f, "%2.2f", 0);
@@ -124,9 +137,11 @@ void gui_update_clifford() {
     // Reset button for post-processing parameters
     ImVec2 reset_button_size = {120, 0}; // Width of 120, auto height
     if (igButton("Reset Post-Proc", reset_button_size)) {
-        manager->gamma = 2.2f;      // Default gamma
-        manager->brightness = 0.0f; // Default brightness
-        manager->contrast = 1.0f;   // Default contrast
+        manager->tone_mapping_mode = 6;  // Default: Uchimura
+        manager->exposure = 0.75f;       // Default exposure
+        manager->gamma = 2.2f;           // Default gamma
+        manager->brightness = 0.0f;      // Default brightness
+        manager->contrast = 1.0f;        // Default contrast
     }
 
     return igEnd();
