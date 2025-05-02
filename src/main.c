@@ -98,9 +98,9 @@ int main(int argc, char *argv[]) {
     }
 
     // Shaders
-    Shader *shader = newShader("shaders/main.vert", "shaders/main.frag", NULL);
+    Shader *shader = newShader("shaders/main.vert", "shaders/gamma_correction.frag", NULL);
     Shader_use(shader);
-    Shader_set_int(shader, "tex", 0);
+    Shader_set_int(shader, "texture1", 0);
 
     // Quad for fullscreen rendering
     unsigned int VAO;
@@ -162,6 +162,8 @@ int main(int argc, char *argv[]) {
         Shader_use(shader);
 
         Shader_set_int(shader, "texture1", 0);
+        Shader_set_float(shader, "gamma", manager->gamma);
+        // Keep these for compatibility with potential future shaders
         Shader_set_int(shader, "tone_mapping_mode", manager->tone_mapping_mode);
         Shader_set_float(shader, "exposure", manager->exposure);
 
