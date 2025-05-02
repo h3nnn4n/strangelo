@@ -12,10 +12,24 @@ uniform float gamma;
 uniform float brightness;
 uniform float contrast;
 
+// Threshold for determining what's considered "black" background
+const float BLACK_THRESHOLD = 0.005;
+
 void main()
 {
     // Sample the texture
     vec4 color = texture(texture1, TexCoord);
+    
+    // Check if this pixel is part of the background (black)
+    float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+    
+    if (luminance <= BLACK_THRESHOLD) {
+        // This is background - leave it untouched
+        FragColor = color;
+        return;
+    }
+    
+    // Process non-background pixels
     
     // Step 1: Apply gamma correction to RGB channels
     vec3 corrected = pow(color.rgb, vec3(1.0 / gamma));
