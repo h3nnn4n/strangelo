@@ -56,10 +56,13 @@ void update_clifford(Clifford *clifford, float a, float b, float c, float d) {
 void iterate_clifford(Clifford *c, uint32_t num_iterations, float x, float y) {
     // xn + 1 = sin(a yn) + c cos(a xn)
     // yn + 1 = sin(b xn) + d cos(b yn)
-    const float min_x = -1 - fabs(c->c);
-    const float max_x = 1 + fabs(c->c);
-    const float min_y = -1 - fabs(c->d);
-    const float max_y = 1 + fabs(c->d);
+
+    // HACK: The attractor engine shouldn't have to care about rendering
+    const float margin = 0.05; // 5% margin
+    const float min_x  = (-1 - fabs(c->c)) * (1 + margin);
+    const float max_x  = (1 + fabs(c->c)) * (1 + margin);
+    const float min_y  = (-1 - fabs(c->d)) * (1 + margin);
+    const float max_y  = (1 + fabs(c->d)) * (1 + margin);
 
     for (uint32_t i = 0; i < num_iterations; i++) {
         float x_new = sin(c->a * y) + c->c * cos(c->a * x);
