@@ -33,13 +33,11 @@
 
 #include <entropy.h>
 
-#include "camera.h"
 #include "clifford.h"
 #include "gui.h"
 #include "input_handling.h"
 #include "manager.h"
 #include "rendering.h"
-#include "scene.h"
 #include "settings.h"
 #include "shader_c.h"
 #include "utils.h"
@@ -93,26 +91,11 @@ int main(int argc, char *argv[]) {
 
     {
         gui_init();
-        manager        = init_manager();
-        Camera *camera = make_camera();
-        Manager_set_camera(manager, camera);
+        manager = init_manager();
 
         manager->clifford = make_clifford((1.0f - manager->border_size_percent) * WINDOW_WIDTH,
                                           (1.0f - manager->border_size_percent) * WINDOW_HEIGHT, -1.4, 1.6, 1.0, 0.7);
-
-        camera->camera_pos[0] = camera_pos[0];
-        camera->camera_pos[1] = camera_pos[1];
-        camera->camera_pos[2] = camera_pos[2];
-
-        camera->pitch = camera_orientation[0];
-        camera->yaw   = camera_orientation[1];
-        camera->zoom  = camera_orientation[2];
-
-        update_camera_target(camera, 0, 0);
-        update_camera_position_matrix(camera);
     }
-
-    init_scene();
 
     // Shaders
     Shader *shader = newShader("shaders/main.vert", "shaders/main.frag", NULL);
@@ -198,8 +181,6 @@ int main(int argc, char *argv[]) {
 
     gui_terminate();
     glfwTerminate();
-
-    destroy_camera(manager->camera);
 
     return 0;
 }

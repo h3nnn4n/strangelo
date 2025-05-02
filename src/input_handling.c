@@ -22,7 +22,6 @@
 
 #include <cglm/cglm.h>
 
-#include "camera.h"
 #include "input_handling.h"
 #include "manager.h"
 #include "settings.h"
@@ -75,32 +74,16 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
         lastY      = ypos;
         firstMouse = 0;
     }
-
-    // float xoffset = xpos - lastX;
-    // float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
-
-    // lastX = xpos;
-    // lastY = ypos;
-
-    // update_camera_target(manager->camera, xoffset, yoffset);
-    // update_camera_projection_matrix(manager->camera);
-
-    // if (xpos != 0 && ypos != 0)
-    //     glClearTexImage(manager->render_texture, 0, GL_RGBA, GL_FLOAT, NULL);
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
     if (manager->freeze_movement)
         return;
-
-    update_camera_fov(manager->camera, xoffset, yoffset);
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     // FIXME: Should update aspect_ratio and window size
     glViewport(0, 0, width, height);
-
-    update_camera_projection_matrix(manager->camera);
 }
 
 void process_input(GLFWwindow *window) {
@@ -118,9 +101,6 @@ void process_input(GLFWwindow *window) {
     }
 
     if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS) {
-        if (!f3_key_pressed)
-            toggle(&manager->camera->orthographic);
-
         f3_key_pressed = 1;
     } else if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
         f3_key_pressed = 0;
@@ -160,36 +140,5 @@ void process_input(GLFWwindow *window) {
         alt_key_pressed = 1;
     } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE) {
         alt_key_pressed = 0;
-    }
-
-    handle_camera_movements(window);
-}
-
-void handle_camera_movements(GLFWwindow *window) {
-    if (manager->freeze_movement)
-        return;
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        update_camera_position(manager->camera, FRONT);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        update_camera_position(manager->camera, BACK);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        update_camera_position(manager->camera, LEFT);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        update_camera_position(manager->camera, RIGHT);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
-        update_camera_position(manager->camera, DOWN);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        update_camera_position(manager->camera, UP);
     }
 }

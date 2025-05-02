@@ -19,9 +19,9 @@
 #ifndef SRC_MANAGER_H_
 #define SRC_MANAGER_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
-#include "camera.h"
 #include "clifford.h"
 
 typedef struct {
@@ -39,15 +39,11 @@ typedef struct {
     //
     bool     incremental_rendering;
     uint32_t tone_mapping_mode;
-    uint32_t render_texture;
-    uint32_t skybox_texture;
-    uint32_t debug_texture;
-    bool     ambient_light;
-    uint32_t n_samples;
-    uint32_t n_bounces;
     float    exposure;
-
+    uint32_t render_texture;
     float gamma;
+
+    bool freeze_movement;
 
     uint32_t      *texture_data;
     unsigned char *texture_data_gl;
@@ -59,19 +55,9 @@ typedef struct {
     Clifford *clifford;
 
     /////////////////
-    // Movement
-    //
-    bool freeze_movement;
-
-    /////////////////
     // GUI
     //
     bool hide_ui;
-
-    /////////////////
-    // Camera
-    //
-    Camera *camera;
 } Manager;
 
 extern Manager *manager;
@@ -79,7 +65,6 @@ extern Manager *manager;
 Manager *init_manager();
 
 void Manager_tick_timer(Manager *manager);
-void Manager_set_camera(Manager *manager, Camera *camera);
 
 void blit_clifford_to_texture(Manager *manager);
 

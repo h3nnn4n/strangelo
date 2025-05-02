@@ -21,8 +21,6 @@
 
 #include <GLFW/glfw3.h>
 
-#include "camera.h"
-
 extern int   firstMouse;
 extern float lastX;
 extern float lastY;
@@ -39,7 +37,5 @@ void mouse_click_callback(GLFWwindow *window, int button, int action, int mods);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void process_input(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-
-void handle_camera_movements(GLFWwindow *window);
 
 #endif // SRC_INPUT_HANDLING_H_

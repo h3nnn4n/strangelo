@@ -17,6 +17,7 @@
  */
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -34,15 +35,10 @@ Manager *init_manager() {
     memset(_manager, 0, sizeof(Manager));
 
     _manager->incremental_rendering = true;
-    _manager->ambient_light         = true;
     _manager->tone_mapping_mode     = 6; // Uchimura
-
-    _manager->n_samples = 10;
-    _manager->n_bounces = 5;
-
-    _manager->exposure = 0.75f;
-
+    _manager->exposure              = 0.75f;
     _manager->gamma = 2.2f;
+    _manager->freeze_movement       = false;
 
     _manager->border_size_percent = 0.05f;
 
@@ -77,13 +73,6 @@ void Manager_tick_timer(Manager *manager) {
     manager->delta_time         = manager->current_frame_time - manager->last_frame_time;
 
     manager->frame_count++;
-}
-
-void Manager_set_camera(Manager *manager, Camera *camera) {
-    assert(manager);
-    assert(camera);
-
-    manager->camera = camera;
 }
 
 void clean_texture(Manager *manager) {
