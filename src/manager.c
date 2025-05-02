@@ -42,6 +42,8 @@ Manager *init_manager() {
 
     _manager->exposure = 0.75f;
 
+    _manager->gamma = 2.2f;
+
     _manager->texture_data = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4 * sizeof(uint32_t));
     for (int i = 0; i < WINDOW_WIDTH; i++) {
         for (int j = 0; j < WINDOW_HEIGHT; j++) {
@@ -76,8 +78,6 @@ void Manager_set_camera(Manager *manager, Camera *camera) {
 
 // Maybe should be somewhere else since this is a rendering function?
 void blit_clifford_to_texture(Manager *manager) {
-    uint32_t max_value = 0;
-
     // Copy the clifford buffer to the high res texture data
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
         manager->texture_data[i * 4 + 0] = manager->clifford->buffer[i];
@@ -90,7 +90,8 @@ void blit_clifford_to_texture(Manager *manager) {
     apply_histogram_normalization(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
     apply_tone_mapping(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    // Calculate the max value
+    // Calculate the max value for normalizing
+    uint32_t max_value = 0;
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
         if (manager->texture_data[i * 4 + 0] > max_value) {
             max_value = manager->texture_data[i * 4 + 0];

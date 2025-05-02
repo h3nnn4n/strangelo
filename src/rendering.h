@@ -26,6 +26,6 @@ void clear_texture(uint32_t texture_id);
 
 void     apply_histogram_normalization(uint32_t *texture_data, uint32_t width, uint32_t height);
 void     apply_tone_mapping(uint32_t *texture_data, uint32_t width, uint32_t height);
-uint32_t apply_gamma_correction(uint32_t color, float gamma);
+float    apply_gamma_correction(float color, float gamma);
 
 #endif // SRC_RENDERING_H_

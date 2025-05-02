@@ -47,6 +47,8 @@ typedef struct {
     uint32_t n_bounces;
     float    exposure;
 
+    float gamma;
+
     uint32_t      *texture_data;
     unsigned char *texture_data_gl;
 

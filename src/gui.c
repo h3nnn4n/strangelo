@@ -113,6 +113,10 @@ void gui_update_clifford() {
     snprintf(buffer, sizeof(buffer), "Occupancy: %2.6f", get_occupancy(clifford));
     igText(buffer);
 
+    igSeparator();
+
+    igSliderFloat("Gamma", &manager->gamma, 0.1f, 5.0f, "%2.2f", 0);
+
     return igEnd();
 }
 
