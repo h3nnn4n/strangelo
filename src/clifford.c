@@ -85,9 +85,13 @@ void iterate_clifford(Clifford *c, uint32_t num_iterations, float x, float y) {
 void iterate_clifford_until_timeout(Clifford *c, float timeout) {
     float start_time = glfwGetTime();
 
+    uint32_t num_iterations = 0;
     while (glfwGetTime() - start_time < timeout) {
         iterate_clifford(c, 10000, random(), random());
+        num_iterations += 10000;
     }
+
+    // printf("num_iterations: %7d  time taken: %f\n", num_iterations, glfwGetTime() - start_time);
 }
 
 void randomize_clifford(Clifford *clifford) {

@@ -138,8 +138,9 @@ void blit_clifford_to_texture(Manager *manager) {
 
     copy_clifford_to_texture(manager);
 
+    // TODO: Move to GPU
     // apply_histogram_normalization(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
-    apply_tone_mapping(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
+    // apply_tone_mapping(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     normalize_texture(manager);
 
