@@ -76,11 +76,11 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
         firstMouse = 0;
     }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
+    // float xoffset = xpos - lastX;
+    // float yoffset = lastY - ypos; // reversed since y-coordinates range from bottom to top
 
-    lastX = xpos;
-    lastY = ypos;
+    // lastX = xpos;
+    // lastY = ypos;
 
     // update_camera_target(manager->camera, xoffset, yoffset);
     // update_camera_projection_matrix(manager->camera);
