@@ -23,6 +23,7 @@
 
 #include "camera.h"
 #include "clifford.h"
+
 typedef struct {
     /////////////////
     // Timer Stuff
@@ -46,7 +47,8 @@ typedef struct {
     uint32_t n_bounces;
     float    exposure;
 
-    unsigned char *texture_data;
+    uint32_t      *texture_data;
+    unsigned char *texture_data_gl;
 
     //////////////////
     // Cliffords

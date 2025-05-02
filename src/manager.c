@@ -23,6 +23,7 @@
 #include <GLFW/glfw3.h>
 
 #include "manager.h"
+#include "rendering.h"
 #include "settings.h"
 
 Manager *manager;
@@ -41,16 +42,17 @@ Manager *init_manager() {
 
     _manager->exposure = 0.75f;
 
-    _manager->texture_data = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4 * sizeof(unsigned char));
-    for (int y = 0; y < WINDOW_HEIGHT; y++) {
-        for (int x = 0; x < WINDOW_WIDTH; x++) {
-            int index                         = (y * WINDOW_WIDTH + x) * 4;
-            _manager->texture_data[index + 0] = 0;   // R
-            _manager->texture_data[index + 1] = 0;   // G
-            _manager->texture_data[index + 2] = 0;   // B
-            _manager->texture_data[index + 3] = 255; // A
+    _manager->texture_data = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4 * sizeof(uint32_t));
+    for (int i = 0; i < WINDOW_WIDTH; i++) {
+        for (int j = 0; j < WINDOW_HEIGHT; j++) {
+            _manager->texture_data[i * WINDOW_HEIGHT + j] = 0;
+            _manager->texture_data[i * WINDOW_HEIGHT + j] = 0;
+            _manager->texture_data[i * WINDOW_HEIGHT + j] = 0;
+            _manager->texture_data[i * WINDOW_HEIGHT + j] = 255;
         }
     }
+
+    _manager->texture_data_gl = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4 * sizeof(unsigned char));
 
     return _manager;
 }
@@ -75,19 +77,34 @@ void Manager_set_camera(Manager *manager, Camera *camera) {
 // Maybe should be somewhere else since this is a rendering function?
 void blit_clifford_to_texture(Manager *manager) {
     uint32_t max_value = 0;
-    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
-        if (manager->clifford->buffer[i] > max_value) {
-            max_value = manager->clifford->buffer[i];
-        }
-    }
 
+    // Copy the clifford buffer to the high res texture data
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
-        manager->texture_data[i * 4 + 0] = manager->clifford->buffer[i] * 255 / max_value;
-        manager->texture_data[i * 4 + 1] = manager->clifford->buffer[i] * 255 / max_value;
-        manager->texture_data[i * 4 + 2] = manager->clifford->buffer[i] * 255 / max_value;
+        manager->texture_data[i * 4 + 0] = manager->clifford->buffer[i];
+        manager->texture_data[i * 4 + 1] = manager->clifford->buffer[i];
+        manager->texture_data[i * 4 + 2] = manager->clifford->buffer[i];
         manager->texture_data[i * 4 + 3] = 255;
     }
 
+    // Apply rendering functions
+    apply_histogram_normalization(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
+    apply_tone_mapping(manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    // Calculate the max value
+    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
+        if (manager->texture_data[i * 4 + 0] > max_value) {
+            max_value = manager->texture_data[i * 4 + 0];
+        }
+    }
+
+    // Copy the high res texture data to the low res texture data
+    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
+        manager->texture_data_gl[i * 4 + 0] = manager->texture_data[i * 4 + 0] * 255 / max_value;
+        manager->texture_data_gl[i * 4 + 1] = manager->texture_data[i * 4 + 1] * 255 / max_value;
+        manager->texture_data_gl[i * 4 + 2] = manager->texture_data[i * 4 + 2] * 255 / max_value;
+        manager->texture_data_gl[i * 4 + 3] = 255;
+    }
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-                 manager->texture_data);
+                 manager->texture_data_gl);
 }
