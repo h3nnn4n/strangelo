@@ -83,6 +83,11 @@ void clean_texture(Manager *manager) {
         manager->texture_data[i * 4 + 1] = 0;
         manager->texture_data[i * 4 + 2] = 0;
         manager->texture_data[i * 4 + 3] = 255;
+
+        manager->texture_data_gl[i * 4 + 0] = 0;
+        manager->texture_data_gl[i * 4 + 1] = 0;
+        manager->texture_data_gl[i * 4 + 2] = 0;
+        manager->texture_data_gl[i * 4 + 3] = 255;
     }
 }
 
@@ -116,9 +121,9 @@ void normalize_texture(Manager *manager) {
 
     // Copy the high res texture data to the low res texture data
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
-        manager->texture_data_gl[i * 4 + 0] = manager->texture_data[i * 4 + 0] * 255 / max_value;
-        manager->texture_data_gl[i * 4 + 1] = manager->texture_data[i * 4 + 1] * 255 / max_value;
-        manager->texture_data_gl[i * 4 + 2] = manager->texture_data[i * 4 + 2] * 255 / max_value;
+        manager->texture_data_gl[i * 4 + 0] = (manager->texture_data[i * 4 + 0] / (float)max_value) * 255.0f;
+        manager->texture_data_gl[i * 4 + 1] = (manager->texture_data[i * 4 + 1] / (float)max_value) * 255.0f;
+        manager->texture_data_gl[i * 4 + 2] = (manager->texture_data[i * 4 + 2] / (float)max_value) * 255.0f;
         manager->texture_data_gl[i * 4 + 3] = 255;
     }
 }
