@@ -185,5 +185,5 @@ void main()
     FragColor = vec4(corrected, color.a);
 
     // FragColor = texture(texture1, TexCoord);
-    FragColor = color;
+    // FragColor = color;
 }

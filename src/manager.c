@@ -134,8 +134,10 @@ void normalize_texture(Manager *manager) {
         manager->texture_data_gl[i * 4 + 2] = value;
         manager->texture_data_gl[i * 4 + 3] = 255;
 
-        // Count pixel values for histogram
-        manager->histogram[value]++;
+        // Count pixel values for histogram, ignoring black
+        if (value > 0) {
+            manager->histogram[value]++;
+        }
     }
 
     // Normalize histogram values for display
