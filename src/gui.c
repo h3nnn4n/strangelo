@@ -73,6 +73,7 @@ void gui_render() {
     if (!manager->hide_ui) {
         gui_update_fps();
         gui_update_clifford();
+        gui_update_histogram();
     }
 
     igRender();
@@ -117,7 +118,7 @@ void gui_update_clifford() {
 
     // Post-processing parameters
     igText("Post-processing:");
-    
+
     // Tone mapping combo box
     const char* tone_mapping_modes[] = {
         "None", "ACES", "Filmic", "Lottes", "Reinhard", 
@@ -145,6 +146,54 @@ void gui_update_clifford() {
     }
 
     return igEnd();
+}
+
+void gui_update_histogram() {
+    if (!igBegin("Histogram", NULL, 0))
+        return igEnd();
+        
+    // Create x-axis indices for the histogram (0-255)
+    static float x_data[256];
+    static bool initialized = false;
+    
+    if (!initialized) {
+        for (int i = 0; i < 256; i++) {
+            x_data[i] = (float)i;
+        }
+        initialized = true;
+    }
+    
+    // Display histogram
+    ImVec2 size = {300, 200};
+    
+    if (ImPlot_BeginPlot("Image Histogram", size, ImPlotFlags_NoMouseText)) {
+        ImPlot_SetupAxesLimits(0, 255, 0, 1.05, ImGuiCond_Always);
+        ImPlot_SetupAxes("Pixel Value", "Normalized Count", 
+                        ImPlotAxisFlags_AutoFit, 
+                        ImPlotAxisFlags_AutoFit);
+                        
+        // Plot the histogram as a line
+        ImVec4 line_color = {1, 1, 1, 1}; // White line
+        ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, line_color);
+        ImPlot_PlotLine_FloatPtrFloatPtr("Luminance", 
+                                     x_data, 
+                                     manager->histogram_normalized, 
+                                     256, 0, 0, 4);
+        ImPlot_PopStyleColor(1);
+        
+        // Plot the histogram as filled bars
+        ImVec4 fill_color = {0.5, 0.5, 0.5, 0.5}; // Semi-transparent gray
+        ImPlot_PushStyleColor_Vec4(ImPlotCol_Fill, fill_color);
+        ImPlot_PlotShaded_FloatPtrFloatPtrInt("##Shaded", 
+                                      x_data, 
+                                      manager->histogram_normalized, 
+                                      256, 0, 0, 0, 4);
+        ImPlot_PopStyleColor(1);
+        
+        ImPlot_EndPlot();
+    }
+    
+    igEnd();
 }
 
 void gui_update_fps() {

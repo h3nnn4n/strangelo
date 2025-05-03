@@ -89,6 +89,10 @@ void clean_texture(Manager *manager) {
         manager->texture_data_gl[i * 4 + 2] = 0;
         manager->texture_data_gl[i * 4 + 3] = 255;
     }
+
+    // Reset histogram data
+    memset(manager->histogram, 0, sizeof(manager->histogram));
+    memset(manager->histogram_normalized, 0, sizeof(manager->histogram_normalized));
 }
 
 void copy_clifford_to_texture(Manager *manager) {
@@ -119,12 +123,36 @@ void normalize_texture(Manager *manager) {
         }
     }
 
+    // Reset histogram data
+    memset(manager->histogram, 0, sizeof(manager->histogram));
+
     // Copy the high res texture data to the low res texture data
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
-        manager->texture_data_gl[i * 4 + 0] = (manager->texture_data[i * 4 + 0] / (float)max_value) * 255.0f;
-        manager->texture_data_gl[i * 4 + 1] = (manager->texture_data[i * 4 + 1] / (float)max_value) * 255.0f;
-        manager->texture_data_gl[i * 4 + 2] = (manager->texture_data[i * 4 + 2] / (float)max_value) * 255.0f;
+        unsigned char value                 = (manager->texture_data[i * 4 + 0] / (float)max_value) * 255.0f;
+        manager->texture_data_gl[i * 4 + 0] = value;
+        manager->texture_data_gl[i * 4 + 1] = value;
+        manager->texture_data_gl[i * 4 + 2] = value;
         manager->texture_data_gl[i * 4 + 3] = 255;
+
+        // Count pixel values for histogram
+        manager->histogram[value]++;
+    }
+
+    // Normalize histogram values for display
+    int max_bin_count = 0;
+    for (int i = 0; i < 256; i++) {
+        if (manager->histogram[i] > max_bin_count) {
+            max_bin_count = manager->histogram[i];
+        }
+    }
+
+    // Normalize to 0.0-1.0 range
+    if (max_bin_count > 0) {
+        for (int i = 0; i < 256; i++) {
+            manager->histogram_normalized[i] = (float)manager->histogram[i] / max_bin_count;
+        }
+    } else {
+        memset(manager->histogram_normalized, 0, sizeof(manager->histogram_normalized));
     }
 }
 

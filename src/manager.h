@@ -49,6 +49,10 @@ typedef struct {
 
     uint32_t      *texture_data;
     unsigned char *texture_data_gl;
+    
+    // Histogram data
+    int histogram[256];
+    float histogram_normalized[256];
 
     float    border_size_percent;
 
