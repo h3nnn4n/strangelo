@@ -41,22 +41,22 @@ typedef struct {
     uint32_t tone_mapping_mode;
     float    exposure;
     uint32_t render_texture;
-    float gamma;
-    float brightness;
-    float contrast;
-    
+    float    gamma;
+    float    brightness;
+    float    contrast;
+
     // Image processing flags
     bool enable_histogram_equalization;
     bool freeze_movement;
 
     uint32_t      *texture_data;
     unsigned char *texture_data_gl;
-    
+
     // Histogram data
-    int histogram[256];
+    int   histogram[256];
     float histogram_normalized[256];
 
-    float    border_size_percent;
+    float border_size_percent;
 
     //////////////////
     // Cliffords

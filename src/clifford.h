@@ -40,7 +40,7 @@ typedef struct {
 } Clifford;
 
 Clifford *make_clifford(uint32_t width, uint32_t height, float a, float b, float c, float d);
-void     destroy_clifford(Clifford *clifford);
+void      destroy_clifford(Clifford *clifford);
 
 void  update_clifford(Clifford *clifford, float a, float b, float c, float d);
 void  iterate_clifford(Clifford *clifford, uint32_t num_iterations, float x, float y);

@@ -30,7 +30,7 @@ typedef enum Direction {
     DOWN,
 } Direction;
 
-bool toggle(bool *value);
+bool  toggle(bool *value);
 float random();
 
 #endif // SRC_UTILS_H_
