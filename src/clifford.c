@@ -31,8 +31,8 @@ Clifford *make_clifford(uint32_t width, uint32_t height, float a, float b, float
     clifford->c = c;
     clifford->d = d;
 
-    clifford->width  = width;
-    clifford->height = height;
+    clifford->width       = width;
+    clifford->height      = height;
     clifford->density_map = malloc(width * height * sizeof(uint32_t));
 
     printf("Instantitating clifford with params a: %f, b: %f, c: %f, d: %f\n", a, b, c, d);

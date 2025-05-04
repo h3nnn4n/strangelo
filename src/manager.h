@@ -44,7 +44,9 @@ typedef struct {
     float gamma;
     float brightness;
     float contrast;
-
+    
+    // Image processing flags
+    bool enable_histogram_equalization;
     bool freeze_movement;
 
     uint32_t      *texture_data;
@@ -73,5 +75,10 @@ Manager *init_manager();
 void Manager_tick_timer(Manager *manager);
 
 void blit_clifford_to_texture(Manager *manager);
+
+// New histogram-related functions
+void calculate_histogram(Manager *manager);
+void normalize_histogram(Manager *manager);
+void apply_histogram_equalization(Manager *manager);
 
 #endif // SRC_MANAGER_H_

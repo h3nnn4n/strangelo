@@ -143,6 +143,10 @@ void gui_update_clifford() {
         manager->gamma = 2.2f;           // Default gamma
         manager->brightness = 0.0f;      // Default brightness
         manager->contrast = 1.0f;        // Default contrast
+        manager->enable_histogram_equalization = false; // Disable histogram equalization
+        
+        // Force update to apply the reset settings
+        blit_clifford_to_texture(manager);
     }
 
     return igEnd();
@@ -151,48 +155,85 @@ void gui_update_clifford() {
 void gui_update_histogram() {
     if (!igBegin("Histogram", NULL, 0))
         return igEnd();
-        
+
     // Create x-axis indices for the histogram (0-255)
     static float x_data[256];
-    static bool initialized = false;
-    
+    static bool  initialized = false;
+
     if (!initialized) {
         for (int i = 0; i < 256; i++) {
             x_data[i] = (float)i;
         }
         initialized = true;
     }
-    
+
+    // Histogram Controls
+    if (igCollapsingHeader_BoolPtr("Histogram Settings", NULL, 0)) {
+        // Add checkbox for histogram equalization
+        igCheckbox("Enable Histogram Equalization", &manager->enable_histogram_equalization);
+
+        if (manager->enable_histogram_equalization) {
+            igTextWrapped("Histogram equalization enhances image contrast by redistributing intensity values.");
+
+            // Add a button to manually apply equalization right away
+            ImVec2 apply_btn_size = {180, 0};
+            if (igButton("Apply Now", apply_btn_size)) {
+                // Force recalculation of the histogram and application of equalization
+                blit_clifford_to_texture(manager);
+            }
+        }
+
+        igSeparator();
+    }
+
     // Display histogram
     ImVec2 size = {300, 200};
-    
+
+    // Calculate histogram statistics before plotting
+    int non_zero_bins  = 0;
+    int first_non_zero = 255;
+    int last_non_zero  = 0;
+
+    for (int i = 0; i < 256; i++) {
+        if (manager->histogram[i] > 0) {
+            non_zero_bins++;
+            first_non_zero = (i < first_non_zero) ? i : first_non_zero;
+            last_non_zero  = (i > last_non_zero) ? i : last_non_zero;
+        }
+    }
+
     if (ImPlot_BeginPlot("Image Histogram", size, ImPlotFlags_NoMouseText)) {
         ImPlot_SetupAxesLimits(0, 255, 0, 1.05, ImGuiCond_Always);
-        ImPlot_SetupAxes("Pixel Value", "Normalized Count", 
-                        ImPlotAxisFlags_AutoFit, 
-                        ImPlotAxisFlags_AutoFit);
-                        
+        ImPlot_SetupAxes("Pixel Value", "Normalized Count", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+
+        // Dynamic color based on equalization state
+        ImVec4 line_color = manager->enable_histogram_equalization ? (ImVec4){0.0, 1.0, 0.0, 1.0}
+                                                                   : // Green when equalized
+                                (ImVec4){1.0, 1.0, 1.0, 1.0};        // White otherwise
+
         // Plot the histogram as a line
-        ImVec4 line_color = {1, 1, 1, 1}; // White line
         ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, line_color);
-        ImPlot_PlotLine_FloatPtrFloatPtr("Luminance", 
-                                     x_data, 
-                                     manager->histogram_normalized, 
-                                     256, 0, 0, 4);
+        ImPlot_PlotLine_FloatPtrFloatPtr("Luminance", x_data, manager->histogram_normalized, 256, 0, 0, 4);
         ImPlot_PopStyleColor(1);
-        
+
         // Plot the histogram as filled bars
         ImVec4 fill_color = {0.5, 0.5, 0.5, 0.5}; // Semi-transparent gray
         ImPlot_PushStyleColor_Vec4(ImPlotCol_Fill, fill_color);
-        ImPlot_PlotShaded_FloatPtrFloatPtrInt("##Shaded", 
-                                      x_data, 
-                                      manager->histogram_normalized, 
-                                      256, 0, 0, 0, 4);
+        ImPlot_PlotShaded_FloatPtrFloatPtrInt("##Shaded", x_data, manager->histogram_normalized, 256, 0, 0, 0, 4);
         ImPlot_PopStyleColor(1);
-        
+
         ImPlot_EndPlot();
     }
-    
+
+    // Display statistics below the histogram
+    igText("Histogram Statistics:");
+    igText("  Range: [%d, %d]", 0, 255);
+    if (non_zero_bins > 0) {
+        igSameLine(0, 20);
+        igText("Active Range: [%d, %d]", first_non_zero, last_non_zero);
+    }
+    igText("  Non-zero bins: %d / 256 (%.1f%%)", non_zero_bins, (float)non_zero_bins / 256.0f * 100.0f);
+
     igEnd();
 }
 

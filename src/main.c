@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
 
     glGenTextures(1, &manager->render_texture);
     glBindTexture(GL_TEXTURE_2D, manager->render_texture);
-    
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

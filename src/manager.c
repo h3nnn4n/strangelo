@@ -40,6 +40,7 @@ Manager *init_manager() {
     _manager->gamma = 2.2f;
     _manager->brightness = 0.0f;
     _manager->contrast = 1.0f;
+    _manager->enable_histogram_equalization = false;
     _manager->freeze_movement = false;
 
     _manager->border_size_percent = 0.05f;
@@ -116,6 +117,7 @@ void copy_clifford_to_texture(Manager *manager) {
 }
 
 void normalize_texture(Manager *manager) {
+    // Find maximum value in the texture data
     uint32_t max_value = 0;
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
         if (manager->texture_data[i * 4 + 0] > max_value) {
@@ -123,8 +125,9 @@ void normalize_texture(Manager *manager) {
         }
     }
 
-    // Reset histogram data
-    memset(manager->histogram, 0, sizeof(manager->histogram));
+    // Avoid division by zero
+    if (max_value == 0)
+        max_value = 1;
 
     // Copy the high res texture data to the low res texture data
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
@@ -133,14 +136,26 @@ void normalize_texture(Manager *manager) {
         manager->texture_data_gl[i * 4 + 1] = value;
         manager->texture_data_gl[i * 4 + 2] = value;
         manager->texture_data_gl[i * 4 + 3] = 255;
+    }
+}
 
-        // Count pixel values for histogram, ignoring black
+void calculate_histogram(Manager *manager) {
+    // Reset histogram data
+    memset(manager->histogram, 0, sizeof(manager->histogram));
+
+    // Calculate histogram from normalized GL texture data
+    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
+        unsigned char value = manager->texture_data_gl[i * 4 + 0];
+
+        // Only count non-black pixels in the histogram
         if (value > 0) {
             manager->histogram[value]++;
         }
     }
+}
 
-    // Normalize histogram values for display
+void normalize_histogram(Manager *manager) {
+    // Find maximum bin count
     int max_bin_count = 0;
     for (int i = 0; i < 256; i++) {
         if (manager->histogram[i] > max_bin_count) {
@@ -158,13 +173,70 @@ void normalize_texture(Manager *manager) {
     }
 }
 
-// Maybe should be somewhere else since this is a rendering function?
+void apply_histogram_equalization(Manager *manager) {
+    // Calculate cumulative distribution function (CDF)
+    int cdf[256] = {0};
+    cdf[0]       = manager->histogram[0];
+
+    for (int i = 1; i < 256; i++) {
+        cdf[i] = cdf[i - 1] + manager->histogram[i];
+    }
+
+    // Find the first non-zero value in the CDF (min_cdf)
+    int min_cdf = 0;
+    for (int i = 0; i < 256; i++) {
+        if (cdf[i] > 0) {
+            min_cdf = cdf[i];
+            break;
+        }
+    }
+
+    // Calculate total number of pixels (excluding black background)
+    int total_pixels = cdf[255];
+
+    // Avoid division by zero
+    if (total_pixels - min_cdf <= 0) {
+        return; // Nothing to equalize
+    }
+
+    // Create mapping table for histogram equalization
+    unsigned char equalize_map[256] = {0};
+    for (int i = 0; i < 256; i++) {
+        if (cdf[i] > min_cdf) {
+            float normalized = (float)(cdf[i] - min_cdf) / (total_pixels - min_cdf);
+            equalize_map[i]  = (unsigned char)(normalized * 255.0f);
+        } else {
+            equalize_map[i] = 0;
+        }
+    }
+
+    // Apply the mapping to the texture data
+    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
+        unsigned char value = manager->texture_data_gl[i * 4 + 0];
+        if (value > 0) { // Only process non-black pixels
+            manager->texture_data_gl[i * 4 + 0] = equalize_map[value];
+            manager->texture_data_gl[i * 4 + 1] = equalize_map[value];
+            manager->texture_data_gl[i * 4 + 2] = equalize_map[value];
+        }
+    }
+}
+
 void blit_clifford_to_texture(Manager *manager) {
     clean_texture(manager);
 
     copy_clifford_to_texture(manager);
 
     normalize_texture(manager);
+
+    calculate_histogram(manager);
+    normalize_histogram(manager);
+
+    if (manager->enable_histogram_equalization) {
+        apply_histogram_equalization(manager);
+
+        calculate_histogram(manager);
+        normalize_histogram(manager);
+    }
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                  manager->texture_data_gl);

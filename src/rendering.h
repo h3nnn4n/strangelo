@@ -24,8 +24,8 @@
 void set_shader_storage_buffer(uint32_t binding_id, uint32_t size, void *data);
 void clear_texture(uint32_t texture_id);
 
-void     apply_histogram_normalization(uint32_t *texture_data, uint32_t width, uint32_t height);
-void     apply_tone_mapping(uint32_t *texture_data, uint32_t width, uint32_t height);
-float    apply_gamma_correction(float color, float gamma);
+void  apply_histogram_normalization(uint32_t *texture_data, uint32_t width, uint32_t height);
+void  apply_tone_mapping(uint32_t *texture_data, uint32_t width, uint32_t height);
+float apply_gamma_correction(float color, float gamma);
 
 #endif // SRC_RENDERING_H_
