@@ -17,6 +17,7 @@
  */
 
 #include <assert.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,6 +42,7 @@ Manager *init_manager() {
     _manager->brightness                    = 0.0f;
     _manager->contrast                      = 1.0f;
     _manager->enable_histogram_equalization = false;
+    _manager->enable_log_scaling            = true; // Enable logarithmic scaling by default
     _manager->freeze_movement               = false;
 
     _manager->border_size_percent = 0.05f;
@@ -131,7 +133,20 @@ void normalize_texture(Manager *manager) {
 
     // Copy the high res texture data to the low res texture data
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
-        unsigned char value                 = (manager->texture_data[i * 4 + 0] / (float)max_value) * 255.0f;
+        unsigned char value;
+        uint32_t      pixel_value = manager->texture_data[i * 4 + 0];
+
+        if (manager->enable_log_scaling) {
+            // Logarithmic scaling - compresses high values, expands low values
+            // Using log(1+x) to handle x=0 case gracefully
+            float log_value = logf(1.0f + (float)pixel_value);
+            float log_max   = logf(1.0f + (float)max_value);
+            value           = (unsigned char)((log_value / log_max) * 255.0f);
+        } else {
+            // Linear scaling
+            value = (unsigned char)((pixel_value / (float)max_value) * 255.0f);
+        }
+
         manager->texture_data_gl[i * 4 + 0] = value;
         manager->texture_data_gl[i * 4 + 1] = value;
         manager->texture_data_gl[i * 4 + 2] = value;

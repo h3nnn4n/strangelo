@@ -141,6 +141,7 @@ void gui_update_clifford() {
         manager->brightness                    = 0.0f;  // Default brightness
         manager->contrast                      = 1.0f;  // Default contrast
         manager->enable_histogram_equalization = false; // Disable histogram equalization
+        manager->enable_log_scaling            = true;  // Enable logarithmic scaling by default
 
         // Force update to apply the reset settings
         blit_clifford_to_texture(manager);
@@ -166,20 +167,35 @@ void gui_update_histogram() {
 
     // Histogram Controls
     if (igCollapsingHeader_BoolPtr("Histogram Settings", NULL, 0)) {
+        bool update_needed = false;
+        
+        // Add checkbox for logarithmic scaling
+        if (igCheckbox("Enable Logarithmic Scaling", &manager->enable_log_scaling)) {
+            update_needed = true;
+        }
+        igTextWrapped("Logarithmic scaling preserves more detail by compressing high values while expanding lower values. "
+                     "This significantly increases the number of unique values preserved in the final image.");
+        
+        igSeparator();
+        
         // Add checkbox for histogram equalization
-        igCheckbox("Enable Histogram Equalization", &manager->enable_histogram_equalization);
-
+        if (igCheckbox("Enable Histogram Equalization", &manager->enable_histogram_equalization)) {
+            update_needed = true;
+        }
+        
         if (manager->enable_histogram_equalization) {
             igTextWrapped("Histogram equalization enhances image contrast by redistributing intensity values.");
-
-            // Add a button to manually apply equalization right away
-            ImVec2 apply_btn_size = {180, 0};
-            if (igButton("Apply Now", apply_btn_size)) {
-                // Force recalculation of the histogram and application of equalization
-                blit_clifford_to_texture(manager);
-            }
         }
-
+        
+        igSeparator();
+        
+        // Add a button to manually apply changes right away
+        ImVec2 apply_btn_size = {180, 0};
+        if (igButton("Apply Changes Now", apply_btn_size) || update_needed) {
+            // Force recalculation of the histogram and application of transformations
+            blit_clifford_to_texture(manager);
+        }
+        
         igSeparator();
     }
 

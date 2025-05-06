@@ -47,6 +47,7 @@ typedef struct {
 
     // Image processing flags
     bool enable_histogram_equalization;
+    bool enable_log_scaling;
     bool freeze_movement;
 
     uint32_t      *texture_data;
