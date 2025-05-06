@@ -19,7 +19,6 @@
 #include "clifford.h"
 #include "utils.h"
 
-#include <GLFW/glfw3.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -82,18 +81,6 @@ void iterate_clifford(Clifford *c, uint32_t num_iterations, float x, float y) {
     }
 }
 
-void iterate_clifford_until_timeout(Clifford *c, float timeout) {
-    float start_time = glfwGetTime();
-
-    uint32_t num_iterations = 0;
-    while (glfwGetTime() - start_time < timeout) {
-        iterate_clifford(c, 10000, random(), random());
-        num_iterations += 10000;
-    }
-
-    // printf("num_iterations: %7d  time taken: %f\n", num_iterations, glfwGetTime() - start_time);
-}
-
 void randomize_clifford(Clifford *clifford) {
     float a = random() * 4 - 2;
     float b = random() * 4 - 2;
@@ -114,16 +101,4 @@ void reset_clifford(Clifford *c) {
     for (int i = 0; i < c->width * c->height; i++) {
         c->density_map[i] = 0;
     }
-}
-
-float get_occupancy(Clifford *c) {
-    float occupancy = 0;
-
-    for (int i = 0; i < c->width * c->height; i++) {
-        if (c->density_map[i] > 0) {
-            occupancy++;
-        }
-    }
-
-    return occupancy / (c->width * c->height);
 }
