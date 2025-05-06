@@ -231,6 +231,46 @@ void gui_update_histogram() {
     }
     igText("  Non-zero bins: %d / 256 (%.1f%%)", non_zero_bins, (float)non_zero_bins / 256.0f * 100.0f);
 
+    // Add unique value counts section
+    if (igCollapsingHeader_BoolPtr("Unique Value Analysis", NULL, 0)) {
+        igText("Information density at each processing stage:");
+        
+        // Clifford density map
+        igText("Clifford density map: %u unique values", 
+               manager->unique_clifford_values);
+        
+        // texture_data (high resolution)
+        igText("Texture data (high-res): %u unique values", 
+               manager->unique_texture_data_values);
+        
+        // texture_data_gl (8-bit)
+        igText("GL texture (8-bit): %u unique values / 256", 
+               manager->unique_texture_data_gl_values);
+        
+        // Display percentages for better understanding
+        float clifford_percentage = manager->unique_clifford_values > 0 ?
+                                   ((float)manager->unique_texture_data_values / manager->unique_clifford_values) * 100.0f : 0.0f;
+                                    
+        float texture_data_percentage = manager->unique_texture_data_values > 0 ?
+                                       ((float)manager->unique_texture_data_gl_values / manager->unique_texture_data_values) * 100.0f : 0.0f;
+                                       
+        igSeparator();
+        
+        igText("Information preserved:");
+        igText("  Clifford → texture: %.1f%%", clifford_percentage);
+        igText("  Texture → GL: %.1f%%", texture_data_percentage);
+        igText("  Overall: %.1f%%", 
+               manager->unique_clifford_values > 0 ? 
+               ((float)manager->unique_texture_data_gl_values / manager->unique_clifford_values) * 100.0f : 0.0f);
+        
+        igSeparator();
+        
+        // Show analysis explanation
+        igTextWrapped("Higher unique value counts indicate more detailed and precise data representation. "
+                     "The reduction in unique values through the processing pipeline represents "
+                     "quantization (precision loss) during rendering.");
+    }
+
     igEnd();
 }
 

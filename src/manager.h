@@ -55,6 +55,11 @@ typedef struct {
     // Histogram data
     int   histogram[256];
     float histogram_normalized[256];
+    
+    // Unique value counts
+    uint32_t unique_clifford_values;
+    uint32_t unique_texture_data_values;
+    uint32_t unique_texture_data_gl_values;
 
     float border_size_percent;
 
@@ -80,5 +85,8 @@ void blit_clifford_to_texture(Manager *manager);
 void calculate_histogram(Manager *manager);
 void normalize_histogram(Manager *manager);
 void apply_histogram_equalization(Manager *manager);
+
+// Unique value counting functions
+void count_unique_values(Manager *manager);
 
 #endif // SRC_MANAGER_H_
