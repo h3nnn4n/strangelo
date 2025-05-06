@@ -34,6 +34,9 @@
 #include "manager.h"
 #include "settings.h"
 
+// Forward declaration of sigmoid function
+extern float sigmoid_normalize(float x, float midpoint, float steepness);
+
 struct ImGuiContext  *ctx;
 struct ImGuiIO       *io;
 struct ImPlotContext *plot_ctx;
@@ -135,13 +138,21 @@ void gui_update_clifford() {
     // Reset button for post-processing parameters
     ImVec2 reset_button_size = {120, 0}; // Width of 120, auto height
     if (igButton("Reset Post-Proc", reset_button_size)) {
+        // Reset tone mapping and basic adjustments
         manager->tone_mapping_mode             = 6;     // Default: Uchimura
         manager->exposure                      = 0.75f; // Default exposure
         manager->gamma                         = 2.2f;  // Default gamma
         manager->brightness                    = 0.0f;  // Default brightness
         manager->contrast                      = 1.0f;  // Default contrast
+        
+        // Reset scaling and histogram settings
         manager->enable_histogram_equalization = false; // Disable histogram equalization
-        manager->enable_log_scaling            = true;  // Enable logarithmic scaling by default
+        manager->scaling_method                = LOG_SCALING; // Log scaling by default
+        
+        // Reset advanced scaling parameters
+        manager->power_exponent                = 0.5f;  // Square root by default
+        manager->sigmoid_midpoint              = 0.5f;  // Middle of range
+        manager->sigmoid_steepness             = 3.0f;  // Medium steepness
 
         // Force update to apply the reset settings
         blit_clifford_to_texture(manager);
@@ -166,15 +177,141 @@ void gui_update_histogram() {
     }
 
     // Histogram Controls
-    if (igCollapsingHeader_BoolPtr("Histogram Settings", NULL, 0)) {
+    if (igCollapsingHeader_BoolPtr("Scaling & Histogram Settings", NULL, 0)) {
         bool update_needed = false;
         
-        // Add checkbox for logarithmic scaling
-        if (igCheckbox("Enable Logarithmic Scaling", &manager->enable_log_scaling)) {
+        // Scaling method selection combo
+        const char* scaling_methods[] = {
+            "Linear (Raw)",
+            "Logarithmic",
+            "Power/Gamma",
+            "Sigmoid",
+            "Square Root"
+        };
+        
+        int current_method = manager->scaling_method;
+        if (igCombo_Str_arr("Scaling Method", &current_method, 
+                         scaling_methods, 5, 0)) {
+            manager->scaling_method = current_method;
             update_needed = true;
         }
-        igTextWrapped("Logarithmic scaling preserves more detail by compressing high values while expanding lower values. "
-                     "This significantly increases the number of unique values preserved in the final image.");
+        
+        // Show different controls based on scaling method
+        // Generate transformation curve visualization data
+        float curve_x[100];
+        float curve_y[100];
+        
+        for (int i = 0; i < 100; i++) {
+            float x = i / 99.0f;  // 0.0 to 1.0
+            curve_x[i] = x;
+            
+            // Apply the current transformation
+            switch (manager->scaling_method) {
+                case LINEAR_SCALING:
+                    curve_y[i] = x; // Identity function
+                    break;
+                    
+                case LOG_SCALING:
+                    curve_y[i] = logf(1.0f + x * 9.0f) / logf(10.0f);
+                    break;
+                    
+                case POWER_SCALING:
+                    curve_y[i] = powf(x, manager->power_exponent);
+                    break;
+                    
+                case SIGMOID_SCALING:
+                    curve_y[i] = sigmoid_normalize(x, 
+                                                  manager->sigmoid_midpoint,
+                                                  manager->sigmoid_steepness);
+                    break;
+                    
+                case SQRT_SCALING:
+                    curve_y[i] = sqrtf(x);
+                    break;
+                    
+                default:
+                    curve_y[i] = x;
+                    break;
+            }
+        }
+        
+        // Plot the transformation curve
+        ImVec2 curve_size = {200, 150};
+        if (ImPlot_BeginPlot("Scaling Curve", curve_size, ImPlotFlags_NoMouseText)) {
+            ImPlot_SetupAxesLimits(0, 1, 0, 1, ImGuiCond_Always);
+            ImPlot_SetupAxes("Input", "Output", 
+                           ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks, 
+                           ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks);
+            
+            // Draw the identity line (y=x) for reference
+            float identity_x[2] = {0, 1};
+            float identity_y[2] = {0, 1};
+            
+            ImVec4 identity_color = {0.5, 0.5, 0.5, 0.5}; // Gray
+            ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, identity_color);
+            ImPlot_PlotLine_FloatPtrFloatPtr("##Identity", identity_x, identity_y, 2, 0, 0, 4);
+            ImPlot_PopStyleColor(1);
+            
+            // Draw the actual transformation curve
+            ImVec4 curve_color = {1, 1, 0, 1}; // Yellow
+            ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, curve_color);
+            ImPlot_PlotLine_FloatPtrFloatPtr("##Curve", curve_x, curve_y, 100, 0, 0, 4);
+            ImPlot_PopStyleColor(1);
+            
+            ImPlot_EndPlot();
+        }
+        
+        // Controls and description based on scaling method
+        switch (manager->scaling_method) {
+            case LINEAR_SCALING:
+                igTextWrapped("Linear scaling shows values exactly as they are. Good for uniform distributions, "
+                             "but poor for preserving detail in sparse data like fractals.");
+                break;
+                
+            case LOG_SCALING:
+                igTextWrapped("Logarithmic scaling compresses high values while expanding lower values. "
+                             "Excellent for preserving detail across a wide dynamic range.");
+                break;
+                
+            case POWER_SCALING:
+                // Power scaling exponent control
+                if (igSliderFloat("Power Exponent", &manager->power_exponent, 0.1f, 5.0f, "%.2f", 0)) {
+                    update_needed = true;
+                }
+                if (igIsItemHovered(0)) {
+                    igSetTooltip("Values < 1.0 expand low values (like sqrt, log)\nValues > 1.0 compress low values");
+                }
+                
+                igTextWrapped("Power scaling with adjustable exponent. Values below 1.0 expand lower values "
+                             "(like sqrt at 0.5), while values above 1.0 compress them.");
+                break;
+                
+            case SIGMOID_SCALING:
+                // Sigmoid controls
+                bool sigmoid_updated = false;
+                sigmoid_updated |= igSliderFloat("Midpoint", &manager->sigmoid_midpoint, 0.0f, 1.0f, "%.2f", 0);
+                if (igIsItemHovered(0)) {
+                    igSetTooltip("Value in the range where the sigmoid will center (0.5 = middle of range)");
+                }
+                
+                sigmoid_updated |= igSliderFloat("Steepness", &manager->sigmoid_steepness, 0.1f, 10.0f, "%.1f", 0);
+                if (igIsItemHovered(0)) {
+                    igSetTooltip("Controls how sharp the transition is\nHigher = more contrast around midpoint");
+                }
+                
+                if (sigmoid_updated) {
+                    update_needed = true;
+                }
+                
+                igTextWrapped("Sigmoid scaling creates an S-curve, enhancing contrast around the midpoint. "
+                             "Great for bimodal distributions or highlighting a specific value range.");
+                break;
+                
+            case SQRT_SCALING:
+                igTextWrapped("Square root scaling is a good default that preserves more detail in lower values "
+                             "while still maintaining a natural appearance.");
+                break;
+        }
         
         igSeparator();
         
@@ -184,7 +321,8 @@ void gui_update_histogram() {
         }
         
         if (manager->enable_histogram_equalization) {
-            igTextWrapped("Histogram equalization enhances image contrast by redistributing intensity values.");
+            igTextWrapped("Histogram equalization enhances image contrast by redistributing intensity values. "
+                         "Applied before the scaling method.");
         }
         
         igSeparator();

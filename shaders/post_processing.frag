@@ -1,6 +1,6 @@
 #version 460 core
 
-in vec2 TexCoord; 
+in vec2 TexCoord;
 out vec4 FragColor;
 
 uniform sampler2D texture1;
@@ -58,7 +58,7 @@ vec3 Reinhard(vec3 color) {
 vec3 Reinhard2(vec3 color) {
     const float white = 4.0;
     const float wSquared = white * white;
-    
+
     return (color * (1.0 + color/wSquared)) / (1.0 + color);
 }
 
@@ -100,10 +100,10 @@ vec3 Uncharted2(vec3 color) {
     float E = 0.02;
     float F = 0.30;
     float W = 11.2;
-    
+
     color = ((color * (A * color + C * B) + D * E) / (color * (A * color + B) + D * F)) - E / F;
     float white = ((W * (A * W + C * B) + D * E) / (W * (A * W + B) + D * F)) - E / F;
-    
+
     return color / white;
 }
 
@@ -116,22 +116,22 @@ void main()
 {
     // Sample the texture
     vec4 color = texture(texture1, TexCoord);
-    
+
     // Check if this pixel is part of the background (black)
     float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));
-    
+
     if (luminance <= BLACK_THRESHOLD) {
         // This is background - leave it untouched
         FragColor = color;
         return;
     }
-    
+
     // Apply exposure
     vec3 hdrColor = color.rgb * exposure;
-    
+
     // Apply tone mapping based on selected mode
     vec3 tonemapped;
-    
+
     switch (tone_mapping_mode) {
         case 0: // No tone mapping
             tonemapped = hdrColor;
@@ -165,22 +165,18 @@ void main()
             break;
     }
 
-    // FragColor = vec4(tonemapped, color.a);
-    // return;
-    
     // Apply gamma correction
     vec3 corrected = pow(tonemapped, vec3(1.0 / gamma));
-    // vec3 corrected = tonemapped;
-    
+
     // Apply brightness adjustment
     corrected = corrected + brightness;
-    
+
     // Apply contrast adjustment (using midpoint 0.5)
     corrected = (corrected - 0.5) * contrast + 0.5;
-    
+
     // Clamp values to valid range
     corrected = clamp(corrected, 0.0, 1.0);
-    
+
     // Output the final processed color with original alpha
     FragColor = vec4(corrected, color.a);
 

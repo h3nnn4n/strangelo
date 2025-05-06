@@ -45,10 +45,24 @@ typedef struct {
     float    brightness;
     float    contrast;
 
-    // Image processing flags
+    // Scaling method enumeration
+    enum {
+        LINEAR_SCALING = 0,
+        LOG_SCALING = 1,
+        POWER_SCALING = 2,
+        SIGMOID_SCALING = 3,
+        SQRT_SCALING = 4
+    };
+    
+    // Image processing settings
     bool enable_histogram_equalization;
-    bool enable_log_scaling;
+    int scaling_method;  // Uses ScalingMethod enum
     bool freeze_movement;
+    
+    // Scaling parameters
+    float power_exponent;    // For power scaling (0.1 to 5.0)
+    float sigmoid_midpoint;  // For sigmoid scaling (0.0 to 1.0)
+    float sigmoid_steepness; // For sigmoid scaling (0.1 to 10.0)
 
     uint32_t      *texture_data;
     unsigned char *texture_data_gl;
