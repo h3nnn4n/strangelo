@@ -24,6 +24,8 @@
 
 #include "clifford.h"
 
+typedef enum { LINEAR_SCALING, LOG_SCALING, POWER_SCALING, SIGMOID_SCALING, SQRT_SCALING } ScalingMethod;
+
 typedef struct {
     /////////////////
     // Timer Stuff
@@ -45,17 +47,8 @@ typedef struct {
     float    brightness;
     float    contrast;
 
-    // Scaling method enumeration
-    enum {
-        LINEAR_SCALING = 0,
-        LOG_SCALING = 1,
-        POWER_SCALING = 2,
-        SIGMOID_SCALING = 3,
-        SQRT_SCALING = 4
-    };
-    
     // Image processing settings
-    int scaling_method;  // Uses ScalingMethod enum
+    ScalingMethod scaling_method;
     bool freeze_movement;
     
     // Scaling parameters

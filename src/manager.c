@@ -206,87 +206,13 @@ void normalize_texture(Manager *manager) {
     }
 }
 
-
-/**
- * Counts the number of unique values in the Clifford density map, texture_data and texture_data_gl
- * Uses a simple hashset approach for efficient counting of unique values
- */
-void count_unique_values(Manager *manager) {
-    // Count unique values in Clifford density map
-    Clifford *clifford = manager->clifford;
-    int clifford_size = clifford->width * clifford->height;
-    
-    // Simple approach using flags array - efficient enough for this use case
-    // Create a boolean array to mark which values we've seen
-    // We use calloc to ensure it's initialized to 0
-    const uint32_t MAX_DENSITY = 100000; // Reasonable upper bound for Clifford density
-    bool *seen_clifford = calloc(MAX_DENSITY, sizeof(bool));
-    
-    if (seen_clifford) {
-        // Count unique values in Clifford density map
-        manager->unique_clifford_values = 0;
-        for (int i = 0; i < clifford_size; i++) {
-            uint32_t value = clifford->density_map[i];
-            if (value < MAX_DENSITY && !seen_clifford[value]) {
-                seen_clifford[value] = true;
-                manager->unique_clifford_values++;
-            }
-        }
-        free(seen_clifford);
-    } else {
-        manager->unique_clifford_values = 0; // Memory allocation failed
-    }
-    
-    // Count unique values in texture_data (only considering red channel)
-    const uint32_t texture_size = WINDOW_WIDTH * WINDOW_HEIGHT;
-    bool *seen_texture_data = calloc(MAX_DENSITY, sizeof(bool));
-    
-    if (seen_texture_data) {
-        manager->unique_texture_data_values = 0;
-        for (int i = 0; i < texture_size; i++) {
-            uint32_t value = manager->texture_data[i * 4]; // Red channel
-            if (value < MAX_DENSITY && !seen_texture_data[value]) {
-                seen_texture_data[value] = true;
-                manager->unique_texture_data_values++;
-            }
-        }
-        free(seen_texture_data);
-    } else {
-        manager->unique_texture_data_values = 0; // Memory allocation failed
-    }
-    
-    // Count unique values in texture_data_gl (only considering red channel)
-    // We know the maximum possible is 256 for 8-bit values
-    bool seen_texture_data_gl[256] = {false};
-    
-    manager->unique_texture_data_gl_values = 0;
-    for (int i = 0; i < texture_size; i++) {
-        unsigned char value = manager->texture_data_gl[i * 4]; // Red channel
-        if (!seen_texture_data_gl[value]) {
-            seen_texture_data_gl[value] = true;
-            manager->unique_texture_data_gl_values++;
-        }
-    }
-}
-
-/**
- * Main function that orchestrates the process of converting Clifford attractor data
- * to a texture
- */
 void blit_clifford_to_texture(Manager *manager) {
-    // Step 1: Clean the texture data
     clean_texture(manager);
 
-    // Step 2: Copy Clifford data to the texture
     copy_clifford_to_texture(manager);
 
-    // Step 3: Normalize texture for display (scales high-res to GL texture)
     normalize_texture(manager);
-    
-    // Step 4: Count unique values in all data structures
-    count_unique_values(manager);
 
-    // Step 5: Upload the texture to GPU
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                  manager->texture_data_gl);
 }
