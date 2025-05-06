@@ -23,28 +23,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "attractor.h"
+
 // Definition
 // xn + 1 = sin(a yn) + c cos(a xn)
 // yn + 1 = sin(b xn) + d cos(b yn)
 // where a, b, c, d are variables that define each attractor.
 
-typedef struct {
-    float a;
-    float b;
-    float c;
-    float d;
-
-    uint32_t  width;
-    uint32_t  height;
-    uint32_t *density_map;
-} Clifford;
-
-Clifford *make_clifford(uint32_t width, uint32_t height, float a, float b, float c, float d);
-void      destroy_clifford(Clifford *clifford);
-
-void  update_clifford(Clifford *clifford, float a, float b, float c, float d);
-void  iterate_clifford(Clifford *clifford, uint32_t num_iterations, float x, float y);
-void  randomize_clifford(Clifford *clifford);
-void  randomize_until_chaotic(Clifford *clifford);
+void iterate_clifford(Attractor *attractor, uint32_t num_iterations, float x, float y);
+void randomize_clifford(Attractor *attractor);
 
 #endif // SRC_CLIFFORD_H_

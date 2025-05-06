@@ -24,6 +24,7 @@
 
 #include <GLFW/glfw3.h>
 
+#include "attractor.h"
 #include "manager.h"
 #include "rendering.h"
 #include "settings.h"
@@ -98,17 +99,17 @@ void clean_texture(Manager *manager) {
     }
 }
 
-void copy_clifford_to_texture(Manager *manager) {
+void copy_attractor_to_texture(Manager *manager) {
     uint32_t  border_size_x = WINDOW_WIDTH * manager->border_size_percent;
     uint32_t  border_size_y = WINDOW_HEIGHT * manager->border_size_percent;
-    Clifford *clifford      = manager->clifford;
+    Attractor *attractor     = manager->attractor;
 
-    // Copy the clifford buffer to the high res texture data, centered
-    for (int i = 0; i < clifford->width; i++) {
-        for (int j = 0; j < clifford->height; j++) {
-            int      index         = i + j * (clifford->width);
+    // Copy the attractor buffer to the high res texture data, centered
+    for (int i = 0; i < attractor->width; i++) {
+        for (int j = 0; j < attractor->height; j++) {
+            int      index         = i + j * (attractor->width);
             int      texture_index = ((border_size_x + i) + (border_size_y + j) * WINDOW_WIDTH) * 4;
-            uint32_t density       = clifford->density_map[index];
+            uint32_t density       = attractor->density_map[index];
 
             manager->texture_data[texture_index + 0] = density;
             manager->texture_data[texture_index + 1] = density;
@@ -206,10 +207,10 @@ void normalize_texture(Manager *manager) {
     }
 }
 
-void blit_clifford_to_texture(Manager *manager) {
+void blit_attractor_to_texture(Manager *manager) {
     clean_texture(manager);
 
-    copy_clifford_to_texture(manager);
+    copy_attractor_to_texture(manager);
 
     normalize_texture(manager);
 

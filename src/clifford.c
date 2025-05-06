@@ -22,62 +22,36 @@
 #include <math.h>
 #include <stdio.h>
 
-Clifford *make_clifford(uint32_t width, uint32_t height, float a, float b, float c, float d) {
-    Clifford *clifford = malloc(sizeof(Clifford));
+#include <GLFW/glfw3.h>
 
-    clifford->a = a;
-    clifford->b = b;
-    clifford->c = c;
-    clifford->d = d;
-
-    clifford->width       = width;
-    clifford->height      = height;
-    clifford->density_map = malloc(width * height * sizeof(uint32_t));
-
-    printf("Instantitating clifford with params a: %f, b: %f, c: %f, d: %f\n", a, b, c, d);
-    printf("Density map size: %dx%d\n", width, height);
-
-    for (int i = 0; i < width * height; i++) {
-        clifford->density_map[i] = 0;
-    }
-
-    return clifford;
-}
-
-void destroy_clifford(Clifford *clifford) { free(clifford->density_map); }
-
-void update_clifford(Clifford *clifford, float a, float b, float c, float d) {
-    clifford->a = a;
-    clifford->b = b;
-    clifford->c = c;
-    clifford->d = d;
-
-    reset_clifford(clifford);
-}
-
-void iterate_clifford(Clifford *c, uint32_t num_iterations, float x, float y) {
+void iterate_clifford(Attractor *attractor, uint32_t num_iterations, float x, float y) {
     // xn + 1 = sin(a yn) + c cos(a xn)
     // yn + 1 = sin(b xn) + d cos(b yn)
 
+    float a = attractor->parameters[0];
+    float b = attractor->parameters[1];
+    float c = attractor->parameters[2];
+    float d = attractor->parameters[3];
+
     // HACK: The attractor engine shouldn't have to care about rendering
     const float margin = 0.05; // 5% margin
-    const float min_x  = (-1 - fabs(c->c)) * (1 + margin);
-    const float max_x  = (1 + fabs(c->c)) * (1 + margin);
-    const float min_y  = (-1 - fabs(c->d)) * (1 + margin);
-    const float max_y  = (1 + fabs(c->d)) * (1 + margin);
+    const float min_x  = (-1 - fabs(c)) * (1 + margin);
+    const float max_x  = (1 + fabs(c)) * (1 + margin);
+    const float min_y  = (-1 - fabs(d)) * (1 + margin);
+    const float max_y  = (1 + fabs(d)) * (1 + margin);
 
     for (uint32_t i = 0; i < num_iterations; i++) {
-        float x_new = sin(c->a * y) + c->c * cos(c->a * x);
-        float y_new = sin(c->b * x) + c->d * cos(c->b * y);
+        float x_new = sin(a * y) + c * cos(a * x);
+        float y_new = sin(b * x) + d * cos(b * y);
 
         x = x_new;
         y = y_new;
 
         // Normalize to fit the texture from 0,0 to width,height
-        uint32_t scaled_x = (uint32_t)((x + max_x) / (max_x - min_x) * c->width);
-        uint32_t scaled_y = (uint32_t)((y + max_y) / (max_y - min_y) * c->height);
+        uint32_t scaled_x = (uint32_t)((x + max_x) / (max_x - min_x) * attractor->width);
+        uint32_t scaled_y = (uint32_t)((y + max_y) / (max_y - min_y) * attractor->height);
 
-        c->density_map[scaled_x + scaled_y * c->width] += 1;
+        attractor->density_map[scaled_x + scaled_y * width] += 1;
     }
 }
 
@@ -88,17 +62,4 @@ void randomize_clifford(Clifford *clifford) {
     float d = random() * 4 - 2;
 
     update_clifford(clifford, a, b, c, d);
-}
-
-void randomize_until_chaotic(Clifford *clifford) {
-    do {
-        randomize_clifford(clifford);
-        iterate_clifford(clifford, 25000, random(), random());
-    } while (get_occupancy(clifford) < 0.01);
-}
-
-void reset_clifford(Clifford *c) {
-    for (int i = 0; i < c->width * c->height; i++) {
-        c->density_map[i] = 0;
-    }
 }

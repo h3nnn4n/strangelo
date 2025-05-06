@@ -17,6 +17,7 @@
  */
 
 #include "attractor.h"
+#include "clifford.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,15 +25,27 @@
 
 #include <GLFW/glfw3.h>
 
-const AttractorSettings attractors[] = {
-    {
-        .type           = ATTRACTOR_TYPE_CLIFFORD,
-        .name           = "Clifford",
-        .description    = "A chaotic attractor defined by the equations x(n+1) = sin(a y(n)) + c cos(a x(n)), y(n+1) = "
+// Default parameter values for Clifford attractor
+float clifford_default_params[4] = {-1.4f, 1.6f, 1.0f, 0.7f};
+
+const AttractorSettings attractors[] = {{
+    .type               = ATTRACTOR_TYPE_CLIFFORD,
+    .name               = "Clifford",
+    .description        = "A chaotic attractor defined by the equations x(n+1) = sin(a y(n)) + c cos(a x(n)), y(n+1) = "
                           "sin(b x(n)) + d cos(b y(n))",
-        .num_parameters = 4,
-        .default_parameters = {-1.4f, 1.6f, 1.0f, 0.7f},
-    },
+    .num_parameters     = 4,
+    .default_parameters = clifford_default_params,
+    .functions =
+        {
+            .iterate   = iterate_clifford,
+            .randomize = randomize_clifford,
+        },
+};
+
+const AttractorFunctions attractor_functions = {
+    .initialize = initialize_attractor,
+    .destroy    = destroy_attractor,
+    .update     = update_attractor,
 };
 
 Attractor *make_attractor(AttractorType type, uint32_t width, uint32_t height) {
@@ -41,6 +54,8 @@ Attractor *make_attractor(AttractorType type, uint32_t width, uint32_t height) {
     attractor->width          = width;
     attractor->height         = height;
     attractor->num_parameters = attractors[type].num_parameters;
+
+    attractor->functions = attractors[type].functions;
 
     attractor->density_map = malloc(width * height * sizeof(uint32_t));
     attractor->parameters  = malloc(attractor->num_parameters * sizeof(float));
@@ -94,7 +109,12 @@ float get_occupancy(Attractor *attractor) {
 
 void randomize_attractor(Attractor *attractor) { attractor->randomize(attractor); }
 
-void randomize_until_chaotic(Attractor *attractor) { attractor->randomize_until_chaotic(attractor); }
+void randomize_until_chaotic(Attractor *attractor) {
+    do {
+        randomize_attractor(attractor);
+        iterate_attractor(attractor, 25000);
+    } while (get_occupancy(attractor) < 0.01);
+}
 
 void initialize_attractor(Attractor *attractor) {
     if (!attractor->initialize) {

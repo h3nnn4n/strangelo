@@ -28,6 +28,7 @@
 
 #include <pcg_variants.h>
 
+#include "attractor.h"
 #include "fps.h"
 #include "gui.h"
 #include "imgui_custom_c.h"
@@ -89,34 +90,37 @@ void gui_update_clifford() {
     if (!igBegin("Clifford", NULL, 0))
         return igEnd();
 
-    Clifford *clifford = manager->clifford;
+    Attractor *attractor = manager->attractor;
 
-    snprintf(buffer, sizeof(buffer), "%2.6f %2.6f %2.6f %2.6f", clifford->a, clifford->b, clifford->c, clifford->d);
+    // FIXME: Should be dynamic to the number of parameters
+    snprintf(buffer, sizeof(buffer), "%2.6f %2.6f %2.6f %2.6f", attractor->parameters[0], attractor->parameters[1],
+             attractor->parameters[2], attractor->parameters[3]);
     igText(buffer);
 
-    float old_a = clifford->a;
-    float old_b = clifford->b;
-    float old_c = clifford->c;
-    float old_d = clifford->d;
+    float old_a = attractor->parameters[0];
+    float old_b = attractor->parameters[1];
+    float old_c = attractor->parameters[2];
+    float old_d = attractor->parameters[3];
 
-    igSliderFloat("a", &clifford->a, -2, 2, "%2.6f", 0);
-    igSliderFloat("b", &clifford->b, -2, 2, "%2.6f", 0);
-    igSliderFloat("c", &clifford->c, -2, 2, "%2.6f", 0);
-    igSliderFloat("d", &clifford->d, -2, 2, "%2.6f", 0);
+    igSliderFloat("a", &attractor->parameters[0], -2, 2, "%2.6f", 0);
+    igSliderFloat("b", &attractor->parameters[1], -2, 2, "%2.6f", 0);
+    igSliderFloat("c", &attractor->parameters[2], -2, 2, "%2.6f", 0);
+    igSliderFloat("d", &attractor->parameters[3], -2, 2, "%2.6f", 0);
 
-    if (old_a != clifford->a || old_b != clifford->b || old_c != clifford->c || old_d != clifford->d) {
-        reset_clifford(clifford);
+    if (old_a != attractor->parameters[0] || old_b != attractor->parameters[1] || old_c != attractor->parameters[2] ||
+        old_d != attractor->parameters[3]) {
+        reset_attractor(attractor);
     }
 
     ImVec2 size = {100, 0};
     if (igButton("Randomize", size)) {
-        randomize_until_chaotic(clifford);
+        randomize_until_chaotic(attractor);
     }
 
     igSeparator();
 
     // Occupancy
-    snprintf(buffer, sizeof(buffer), "Occupancy: %2.6f", get_occupancy(clifford));
+    snprintf(buffer, sizeof(buffer), "Occupancy: %2.6f", get_occupancy(attractor));
     igText(buffer);
 
     igSeparator();
@@ -156,7 +160,7 @@ void gui_update_clifford() {
         manager->sigmoid_steepness             = 3.0f;  // Medium steepness
 
         // Force update to apply the reset settings
-        blit_clifford_to_texture(manager);
+        blit_attractor_to_texture(manager);
     }
 
     return igEnd();
@@ -306,7 +310,7 @@ void gui_update_scaling() {
     // Apply changes when any parameter is updated
     if (update_needed) {
         // Force recalculation and application of transformations
-        blit_clifford_to_texture(manager);
+        blit_attractor_to_texture(manager);
     }
     
     // Add unique value counts section

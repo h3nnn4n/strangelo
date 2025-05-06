@@ -33,7 +33,7 @@
 
 #include <entropy.h>
 
-#include "clifford.h"
+#include "attractor.h"
 #include "gui.h"
 #include "input_handling.h"
 #include "manager.h"
@@ -93,8 +93,9 @@ int main(int argc, char *argv[]) {
         gui_init();
         manager = init_manager();
 
-        manager->clifford = make_clifford((1.0f - manager->border_size_percent) * WINDOW_WIDTH,
-                                          (1.0f - manager->border_size_percent) * WINDOW_HEIGHT, -1.4, 1.6, 1.0, 0.7);
+        manager->attractor =
+            make_attractor(ATTRACTOR_TYPE_CLIFFORD, (1.0f - manager->border_size_percent) * WINDOW_WIDTH,
+                           (1.0f - manager->border_size_percent) * WINDOW_HEIGHT);
     }
 
     // Shaders
@@ -147,7 +148,7 @@ int main(int argc, char *argv[]) {
             printf("fps: %f\n", 1.0f / manager->delta_time);
         }
 
-        iterate_clifford_until_timeout(manager->clifford, 1 / 60.0f);
+        iterate_until_timeout(manager->attractor, 1 / 60.0f);
 
         // Main pass
         glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -157,7 +158,7 @@ int main(int argc, char *argv[]) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        blit_clifford_to_texture(manager);
+        blit_attractor_to_texture(manager);
 
         Shader_use(shader);
 

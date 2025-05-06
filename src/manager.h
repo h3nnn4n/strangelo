@@ -22,7 +22,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "clifford.h"
+#include "attractor.h"
 
 typedef enum { LINEAR_SCALING, LOG_SCALING, POWER_SCALING, SIGMOID_SCALING, SQRT_SCALING } ScalingMethod;
 
@@ -67,8 +67,9 @@ typedef struct {
     float border_size_percent;
 
     //////////////////
-    // Cliffords
-    Clifford *clifford;
+    // Attractors
+    //
+    Attractor *attractor;
 
     /////////////////
     // GUI
@@ -82,7 +83,7 @@ Manager *init_manager();
 
 void Manager_tick_timer(Manager *manager);
 
-void blit_clifford_to_texture(Manager *manager);
+void blit_attractor_to_texture(Manager *manager);
 
 // Unique value counting functions
 void count_unique_values(Manager *manager);

@@ -26,11 +26,25 @@ typedef enum {
 } AttractorType;
 
 typedef struct {
+    void (*initialize)(Attractor *attractor);
+    void (*destroy)(Attractor *attractor);
+    void (*update)(Attractor *attractor);
+    void (*iterate)(Attractor *attractor, uint32_t num_iterations);
+    void (*iterate_until_timeout)(Attractor *attractor, float timeout);
+    void (*reset)(Attractor *attractor);
+    void (*get_occupancy)(Attractor *attractor);
+    void (*randomize)(Attractor *attractor);
+    void (*randomize_until_chaotic)(Attractor *attractor);
+} AttractorFunctions;
+
+typedef struct {
     AttractorType type;
     char         *name;
     char         *description;
     uint32_t      num_parameters;
     float        *default_parameters;
+
+    AttractorFunctions functions;
 } AttractorSettings;
 
 typedef struct Attractor Attractor;
@@ -44,16 +58,7 @@ struct Attractor {
     uint32_t  height;
     uint32_t *density_map;
 
-    // Function pointers
-    void (*initialize)(Attractor *attractor);
-    void (*destroy)(Attractor *attractor);
-    void (*update)(Attractor *attractor);
-    void (*iterate)(Attractor *attractor, uint32_t num_iterations);
-    void (*iterate_until_timeout)(Attractor *attractor, float timeout);
-    void (*reset)(Attractor *attractor);
-    void (*get_occupancy)(Attractor *attractor);
-    void (*randomize)(Attractor *attractor);
-    void (*randomize_until_chaotic)(Attractor *attractor);
+    AttractorFunctions functions;
 };
 
 Attractor *make_attractor(AttractorType type, uint32_t width, uint32_t height);
@@ -64,6 +69,8 @@ void  destroy_attractor(Attractor *attractor);
 void  update_attractor(Attractor *attractor);
 void  iterate_attractor(Attractor *attractor, uint32_t num_iterations);
 void  iterate_until_timeout(Attractor *attractor, float timeout);
+void  randomize_attractor(Attractor *attractor);
+void  randomize_until_chaotic(Attractor *attractor);
 void  reset_attractor(Attractor *attractor);
 float get_occupancy(Attractor *attractor);
 
