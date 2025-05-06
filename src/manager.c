@@ -143,13 +143,28 @@ void calculate_histogram(Manager *manager) {
     // Reset histogram data
     memset(manager->histogram, 0, sizeof(manager->histogram));
 
-    // Calculate histogram from normalized GL texture data
+    // Find maximum value for scaling
+    uint32_t max_value = 0;
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
-        unsigned char value = manager->texture_data_gl[i * 4 + 0];
+        if (manager->texture_data[i * 4 + 0] > max_value) {
+            max_value = manager->texture_data[i * 4 + 0];
+        }
+    }
+
+    // Avoid division by zero
+    if (max_value == 0) {
+        max_value = 1;
+    }
+
+    // Calculate histogram from high resolution texture data
+    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
+        uint32_t value = manager->texture_data[i * 4 + 0];
 
         // Only count non-black pixels in the histogram
         if (value > 0) {
-            manager->histogram[value]++;
+            // Scale value to 0-255 range for the histogram
+            unsigned char bin = (unsigned char)((value / (float)max_value) * 255.0f);
+            manager->histogram[bin]++;
         }
     }
 }
@@ -199,45 +214,80 @@ void apply_histogram_equalization(Manager *manager) {
         return; // Nothing to equalize
     }
 
-    // Create mapping table for histogram equalization
-    unsigned char equalize_map[256] = {0};
+    // Create mapping function for histogram equalization (0.0 to 1.0 range)
+    float equalize_map[256] = {0.0f};
     for (int i = 0; i < 256; i++) {
         if (cdf[i] > min_cdf) {
-            float normalized = (float)(cdf[i] - min_cdf) / (total_pixels - min_cdf);
-            equalize_map[i]  = (unsigned char)(normalized * 255.0f);
+            equalize_map[i] = (float)(cdf[i] - min_cdf) / (total_pixels - min_cdf);
         } else {
-            equalize_map[i] = 0;
+            equalize_map[i] = 0.0f;
         }
     }
 
-    // Apply the mapping to the texture data
+    // Find maximum value in the texture data for scaling
+    uint32_t max_value = 0;
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
-        unsigned char value = manager->texture_data_gl[i * 4 + 0];
-        if (value > 0) { // Only process non-black pixels
-            manager->texture_data_gl[i * 4 + 0] = equalize_map[value];
-            manager->texture_data_gl[i * 4 + 1] = equalize_map[value];
-            manager->texture_data_gl[i * 4 + 2] = equalize_map[value];
+        if (manager->texture_data[i * 4 + 0] > max_value) {
+            max_value = manager->texture_data[i * 4 + 0];
         }
     }
+
+    // Avoid division by zero
+    if (max_value == 0) {
+        return; // Nothing to equalize
+    }
+
+    // Apply the mapping to the high-resolution texture data
+    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
+        uint32_t value = manager->texture_data[i * 4 + 0];
+
+        if (value > 0) { // Only process non-black pixels
+            // Calculate bin index (0-255) for current value
+            unsigned char bin = (unsigned char)((value / (float)max_value) * 255.0f);
+
+            // Apply equalization mapping and scale back to original range
+            float    normalized = equalize_map[bin];
+            uint32_t new_value  = (uint32_t)(normalized * max_value);
+
+            // Update all color channels
+            manager->texture_data[i * 4 + 0] = new_value;
+            manager->texture_data[i * 4 + 1] = new_value;
+            manager->texture_data[i * 4 + 2] = new_value;
+        }
+    }
+
+    // After modifying the high-resolution data, we need to update the GL texture data
+    normalize_texture(manager);
 }
 
+/**
+ * Main function that orchestrates the process of converting Clifford attractor data
+ * to a texture and preparing histogram data
+ */
 void blit_clifford_to_texture(Manager *manager) {
-    clean_texture(manager);
+    // Step 1: Clean the texture data
+    // clean_texture(manager);
 
+    // Step 2: Copy Clifford data to the texture
     copy_clifford_to_texture(manager);
 
+    // // Step 3: Calculate the histogram from the high-resolution texture
+    // calculate_histogram(manager);
+    // normalize_histogram(manager);
+
+    // // Step 4: Apply histogram equalization if enabled (works on high-res data)
+    // if (manager->enable_histogram_equalization) {
+    //     apply_histogram_equalization(manager);
+
+    //     // Recalculate histogram after equalization for display
+    //     calculate_histogram(manager);
+    //     normalize_histogram(manager);
+    // }
+
+    // Step 5: Normalize texture for display (scales high-res to GL texture)
     normalize_texture(manager);
 
-    calculate_histogram(manager);
-    normalize_histogram(manager);
-
-    if (manager->enable_histogram_equalization) {
-        apply_histogram_equalization(manager);
-
-        calculate_histogram(manager);
-        normalize_histogram(manager);
-    }
-
+    // Step 6: Upload the texture to GPU
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                  manager->texture_data_gl);
 }
