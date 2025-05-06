@@ -24,7 +24,7 @@
 
 #include <GLFW/glfw3.h>
 
-void iterate_clifford(Attractor *attractor, uint32_t num_iterations, float x, float y) {
+void iterate_clifford_impl(Attractor *attractor, uint32_t num_iterations, float x, float y) {
     // xn + 1 = sin(a yn) + c cos(a xn)
     // yn + 1 = sin(b xn) + d cos(b yn)
 
@@ -51,15 +51,18 @@ void iterate_clifford(Attractor *attractor, uint32_t num_iterations, float x, fl
         uint32_t scaled_x = (uint32_t)((x + max_x) / (max_x - min_x) * attractor->width);
         uint32_t scaled_y = (uint32_t)((y + max_y) / (max_y - min_y) * attractor->height);
 
-        attractor->density_map[scaled_x + scaled_y * width] += 1;
+        attractor->density_map[scaled_x + scaled_y * attractor->width] += 1;
     }
 }
 
-void randomize_clifford(Clifford *clifford) {
-    float a = random() * 4 - 2;
-    float b = random() * 4 - 2;
-    float c = random() * 4 - 2;
-    float d = random() * 4 - 2;
+// Wrapper function to match the expected function signature in AttractorFunctions
+void iterate_clifford(Attractor *attractor, uint32_t num_iterations) {
+    iterate_clifford_impl(attractor, num_iterations, random() * 2 - 1, random() * 2 - 1);
+}
 
-    update_clifford(clifford, a, b, c, d);
+void randomize_clifford(Attractor *attractor) {
+    attractor->parameters[0] = random() * 4 - 2;
+    attractor->parameters[1] = random() * 4 - 2;
+    attractor->parameters[2] = random() * 4 - 2;
+    attractor->parameters[3] = random() * 4 - 2;
 }

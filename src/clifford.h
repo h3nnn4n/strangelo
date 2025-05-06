@@ -30,7 +30,8 @@
 // yn + 1 = sin(b xn) + d cos(b yn)
 // where a, b, c, d are variables that define each attractor.
 
-void iterate_clifford(Attractor *attractor, uint32_t num_iterations, float x, float y);
+void iterate_clifford_impl(Attractor *attractor, uint32_t num_iterations, float x, float y);
+void iterate_clifford(Attractor *attractor, uint32_t num_iterations);
 void randomize_clifford(Attractor *attractor);
 
 #endif // SRC_CLIFFORD_H_

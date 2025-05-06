@@ -25,6 +25,9 @@ typedef enum {
     ATTRACTOR_TYPE_CLIFFORD,
 } AttractorType;
 
+// Forward declaration of Attractor struct
+typedef struct Attractor Attractor;
+
 typedef struct {
     void (*initialize)(Attractor *attractor);
     void (*destroy)(Attractor *attractor);
@@ -32,7 +35,7 @@ typedef struct {
     void (*iterate)(Attractor *attractor, uint32_t num_iterations);
     void (*iterate_until_timeout)(Attractor *attractor, float timeout);
     void (*reset)(Attractor *attractor);
-    void (*get_occupancy)(Attractor *attractor);
+    float (*get_occupancy)(Attractor *attractor);
     void (*randomize)(Attractor *attractor);
     void (*randomize_until_chaotic)(Attractor *attractor);
 } AttractorFunctions;

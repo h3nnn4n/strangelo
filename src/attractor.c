@@ -28,19 +28,17 @@
 // Default parameter values for Clifford attractor
 float clifford_default_params[4] = {-1.4f, 1.6f, 1.0f, 0.7f};
 
-const AttractorSettings attractors[] = {{
-    .type               = ATTRACTOR_TYPE_CLIFFORD,
-    .name               = "Clifford",
-    .description        = "A chaotic attractor defined by the equations x(n+1) = sin(a y(n)) + c cos(a x(n)), y(n+1) = "
-                          "sin(b x(n)) + d cos(b y(n))",
-    .num_parameters     = 4,
-    .default_parameters = clifford_default_params,
-    .functions =
-        {
-            .iterate   = iterate_clifford,
-            .randomize = randomize_clifford,
-        },
-};
+const AttractorSettings attractors[] = {
+    {.type           = ATTRACTOR_TYPE_CLIFFORD,
+     .name           = "Clifford",
+     .description    = "A chaotic attractor defined by the equations x(n+1) = sin(a y(n)) + c cos(a x(n)), y(n+1) = "
+                       "sin(b x(n)) + d cos(b y(n))",
+     .num_parameters = 4,
+     .default_parameters = clifford_default_params,
+     .functions          = {
+                  .iterate   = iterate_clifford,
+                  .randomize = randomize_clifford,
+     }}};
 
 const AttractorFunctions attractor_functions = {
     .initialize = initialize_attractor,
@@ -66,8 +64,8 @@ Attractor *make_attractor(AttractorType type, uint32_t width, uint32_t height) {
 }
 
 void destroy_attractor(Attractor *attractor) {
-    if (attractor->destroy) {
-        attractor->destroy(attractor);
+    if (attractor->functions.destroy) {
+        attractor->functions.destroy(attractor);
     }
 
     free(attractor->density_map);
@@ -75,9 +73,17 @@ void destroy_attractor(Attractor *attractor) {
     free(attractor);
 }
 
-void update_attractor(Attractor *attractor) { attractor->update(attractor); }
+void update_attractor(Attractor *attractor) {
+    if (attractor->functions.update) {
+        attractor->functions.update(attractor);
+    }
+}
 
-void iterate_attractor(Attractor *attractor, uint32_t num_iterations) { attractor->iterate(attractor, num_iterations); }
+void iterate_attractor(Attractor *attractor, uint32_t num_iterations) {
+    if (attractor->functions.iterate) {
+        attractor->functions.iterate(attractor, num_iterations);
+    }
+}
 
 void iterate_until_timeout(Attractor *attractor, float timeout) {
     float start_time = glfwGetTime();
@@ -107,9 +113,17 @@ float get_occupancy(Attractor *attractor) {
     return occupancy / (attractor->width * attractor->height);
 }
 
-void randomize_attractor(Attractor *attractor) { attractor->randomize(attractor); }
+void randomize_attractor(Attractor *attractor) {
+    reset_attractor(attractor);
+    attractor->functions.randomize(attractor);
+}
 
 void randomize_until_chaotic(Attractor *attractor) {
+    if (attractor->functions.randomize_until_chaotic) {
+        attractor->functions.randomize_until_chaotic(attractor);
+        return;
+    }
+
     do {
         randomize_attractor(attractor);
         iterate_attractor(attractor, 25000);
@@ -117,9 +131,9 @@ void randomize_until_chaotic(Attractor *attractor) {
 }
 
 void initialize_attractor(Attractor *attractor) {
-    if (!attractor->initialize) {
+    if (!attractor->functions.initialize) {
         return;
     }
 
-    attractor->initialize(attractor);
+    attractor->functions.initialize(attractor);
 }
