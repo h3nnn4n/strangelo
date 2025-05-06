@@ -169,6 +169,12 @@ int main(int argc, char *argv[]) {
         // Keep these for compatibility with potential future shaders
         Shader_set_int(shader, "tone_mapping_mode", manager->tone_mapping_mode);
         Shader_set_float(shader, "exposure", manager->exposure);
+        
+        // Set scaling method parameters
+        Shader_set_int(shader, "scaling_method", manager->scaling_method);
+        Shader_set_float(shader, "power_exponent", manager->power_exponent);
+        Shader_set_float(shader, "sigmoid_midpoint", manager->sigmoid_midpoint);
+        Shader_set_float(shader, "sigmoid_steepness", manager->sigmoid_steepness);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, manager->render_texture);

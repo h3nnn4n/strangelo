@@ -55,7 +55,6 @@ typedef struct {
     };
     
     // Image processing settings
-    bool enable_histogram_equalization;
     int scaling_method;  // Uses ScalingMethod enum
     bool freeze_movement;
     
@@ -66,10 +65,6 @@ typedef struct {
 
     uint32_t      *texture_data;
     unsigned char *texture_data_gl;
-
-    // Histogram data
-    int   histogram[256];
-    float histogram_normalized[256];
     
     // Unique value counts
     uint32_t unique_clifford_values;
@@ -95,11 +90,6 @@ Manager *init_manager();
 void Manager_tick_timer(Manager *manager);
 
 void blit_clifford_to_texture(Manager *manager);
-
-// New histogram-related functions
-void calculate_histogram(Manager *manager);
-void normalize_histogram(Manager *manager);
-void apply_histogram_equalization(Manager *manager);
 
 // Unique value counting functions
 void count_unique_values(Manager *manager);
