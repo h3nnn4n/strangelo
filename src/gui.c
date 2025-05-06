@@ -303,9 +303,8 @@ void gui_update_scaling() {
     
     igSeparator();
     
-    // Add a button to manually apply changes right away
-    ImVec2 apply_btn_size = {180, 0};
-    if (igButton("Apply Changes Now", apply_btn_size) || update_needed) {
+    // Apply changes when any parameter is updated
+    if (update_needed) {
         // Force recalculation and application of transformations
         blit_clifford_to_texture(manager);
     }
