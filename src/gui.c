@@ -145,15 +145,15 @@ void gui_update_clifford() {
     ImVec2 reset_button_size = {120, 0}; // Width of 120, auto height
     if (igButton("Reset Post-Proc", reset_button_size)) {
         // Reset tone mapping and basic adjustments
-        manager->tone_mapping_mode             = UCHIMURA_TONE_MAPPING; // Default: Uchimura
+        manager->tone_mapping_mode             = ACES_TONE_MAPPING;
         manager->exposure                      = 0.75f; // Default exposure
         manager->gamma                         = 2.2f;  // Default gamma
         manager->brightness                    = 0.0f;  // Default brightness
         manager->contrast                      = 1.0f;  // Default contrast
         
         // Reset scaling
-        manager->scaling_method                = LOG_SCALING; // Log scaling by default
-        
+        manager->scaling_method = POWER_SCALING;
+
         // Reset advanced scaling parameters
         manager->power_exponent                = 0.5f;  // Square root by default
         manager->sigmoid_midpoint              = 0.5f;  // Middle of range
