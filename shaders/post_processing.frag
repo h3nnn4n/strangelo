@@ -12,6 +12,17 @@ uniform float contrast;
 uniform float exposure;
 uniform int tone_mapping_mode;
 
+// Tone mapping modes (must match enum in C code)
+const int NONE_TONE_MAPPING = 0;
+const int ACES_TONE_MAPPING = 1;
+const int FILMIC_TONE_MAPPING = 2;
+const int LOTTES_TONE_MAPPING = 3;
+const int REINHARD_TONE_MAPPING = 4;
+const int REINHARD2_TONE_MAPPING = 5;
+const int UCHIMURA_TONE_MAPPING = 6;
+const int UNCHARTED2_TONE_MAPPING = 7;
+const int UNREAL_TONE_MAPPING = 8;
+
 // Threshold for determining what's considered "black" background
 const float BLACK_THRESHOLD = 0.005;
 
@@ -133,31 +144,31 @@ void main()
     vec3 tonemapped;
 
     switch (tone_mapping_mode) {
-        case 0: // No tone mapping
+        case NONE_TONE_MAPPING:
             tonemapped = hdrColor;
             break;
-        case 1: // ACES
+        case ACES_TONE_MAPPING:
             tonemapped = ACES(hdrColor);
             break;
-        case 2: // Filmic
+        case FILMIC_TONE_MAPPING:
             tonemapped = Filmic(hdrColor);
             break;
-        case 3: // Lottes
+        case LOTTES_TONE_MAPPING:
             tonemapped = Lottes(hdrColor);
             break;
-        case 4: // Reinhard
+        case REINHARD_TONE_MAPPING:
             tonemapped = Reinhard(hdrColor);
             break;
-        case 5: // Reinhard II
+        case REINHARD2_TONE_MAPPING:
             tonemapped = Reinhard2(hdrColor);
             break;
-        case 6: // Uchimura
+        case UCHIMURA_TONE_MAPPING:
             tonemapped = Uchimura(hdrColor);
             break;
-        case 7: // Uncharted 2
+        case UNCHARTED2_TONE_MAPPING:
             tonemapped = Uncharted2(hdrColor);
             break;
-        case 8: // Unreal
+        case UNREAL_TONE_MAPPING:
             tonemapped = Unreal(hdrColor);
             break;
         default:

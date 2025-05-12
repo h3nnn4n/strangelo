@@ -134,7 +134,7 @@ void gui_update_clifford() {
     int         tone_mapping_count   = 9; // Number of elements in the array above
     int         current_mode         = (int)manager->tone_mapping_mode;
     igCombo_Str_arr("Tone Mapping", &current_mode, tone_mapping_modes, tone_mapping_count, 0);
-    manager->tone_mapping_mode = (uint32_t)current_mode;
+    manager->tone_mapping_mode = (ToneMappingMode)current_mode;
 
     igSliderFloat("Exposure", &manager->exposure, 0.1f, 5.0f, "%2.2f", 0);
     igSliderFloat("Gamma", &manager->gamma, 0.1f, 5.0f, "%2.2f", 0);
@@ -145,7 +145,7 @@ void gui_update_clifford() {
     ImVec2 reset_button_size = {120, 0}; // Width of 120, auto height
     if (igButton("Reset Post-Proc", reset_button_size)) {
         // Reset tone mapping and basic adjustments
-        manager->tone_mapping_mode             = 6;     // Default: Uchimura
+        manager->tone_mapping_mode             = UCHIMURA_TONE_MAPPING; // Default: Uchimura
         manager->exposure                      = 0.75f; // Default exposure
         manager->gamma                         = 2.2f;  // Default gamma
         manager->brightness                    = 0.0f;  // Default brightness

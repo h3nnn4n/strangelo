@@ -26,6 +26,18 @@
 
 typedef enum { LINEAR_SCALING, LOG_SCALING, POWER_SCALING, SIGMOID_SCALING, SQRT_SCALING } ScalingMethod;
 
+typedef enum {
+    NONE_TONE_MAPPING,
+    ACES_TONE_MAPPING,
+    FILMIC_TONE_MAPPING,
+    LOTTES_TONE_MAPPING,
+    REINHARD_TONE_MAPPING,
+    REINHARD2_TONE_MAPPING,
+    UCHIMURA_TONE_MAPPING,
+    UNCHARTED2_TONE_MAPPING,
+    UNREAL_TONE_MAPPING
+} ToneMappingMode;
+
 typedef struct {
     /////////////////
     // Timer Stuff
@@ -39,13 +51,13 @@ typedef struct {
     /////////////////
     // Rendering
     //
-    bool     incremental_rendering;
-    uint32_t tone_mapping_mode;
-    float    exposure;
-    uint32_t render_texture;
-    float    gamma;
-    float    brightness;
-    float    contrast;
+    bool           incremental_rendering;
+    ToneMappingMode tone_mapping_mode;
+    float          exposure;
+    uint32_t       render_texture;
+    float          gamma;
+    float          brightness;
+    float          contrast;
 
     // Image processing settings
     ScalingMethod scaling_method;

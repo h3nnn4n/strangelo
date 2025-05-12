@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
         Shader_set_float(shader, "brightness", manager->brightness);
         Shader_set_float(shader, "contrast", manager->contrast);
         // Keep these for compatibility with potential future shaders
-        Shader_set_int(shader, "tone_mapping_mode", manager->tone_mapping_mode);
+        Shader_set_int(shader, "tone_mapping_mode", (int)manager->tone_mapping_mode);
         Shader_set_float(shader, "exposure", manager->exposure);
         
         // Set scaling method parameters
