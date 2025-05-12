@@ -37,14 +37,14 @@ Manager *init_manager() {
     memset(_manager, 0, sizeof(Manager));
 
     _manager->incremental_rendering         = true;
-    _manager->tone_mapping_mode             = 6; // Uchimura
+    _manager->tone_mapping_mode             = 1; // ACES
     _manager->exposure                      = 0.75f;
     _manager->gamma                         = 2.2f;
     _manager->brightness                    = 0.0f;
     _manager->contrast                      = 1.0f;
-    _manager->scaling_method                = LOG_SCALING; // Logarithmic scaling by default
+    _manager->scaling_method                = POWER_SCALING;
     _manager->freeze_movement               = false;
-    
+
     // Initialize scaling parameters with sensible defaults
     _manager->power_exponent     = 0.5f;    // Square root by default
     _manager->sigmoid_midpoint   = 0.5f;    // Midpoint at 50% of max value
