@@ -36,19 +36,19 @@ Manager *init_manager() {
 
     memset(_manager, 0, sizeof(Manager));
 
-    _manager->incremental_rendering         = true;
-    _manager->tone_mapping_mode             = 1; // ACES
-    _manager->exposure                      = 0.75f;
-    _manager->gamma                         = 2.2f;
-    _manager->brightness                    = 0.0f;
-    _manager->contrast                      = 1.0f;
-    _manager->scaling_method                = POWER_SCALING;
-    _manager->freeze_movement               = false;
+    _manager->incremental_rendering = true;
+    _manager->tone_mapping_mode     = 1; // ACES
+    _manager->exposure              = 0.75f;
+    _manager->gamma                 = 2.2f;
+    _manager->brightness            = 0.0f;
+    _manager->contrast              = 1.0f;
+    _manager->scaling_method        = POWER_SCALING;
+    _manager->freeze_movement       = false;
 
     // Initialize scaling parameters with sensible defaults
-    _manager->power_exponent     = 0.5f;    // Square root by default
-    _manager->sigmoid_midpoint   = 0.5f;    // Midpoint at 50% of max value
-    _manager->sigmoid_steepness  = 3.0f;    // Medium steepness
+    _manager->power_exponent    = 0.5f; // Square root by default
+    _manager->sigmoid_midpoint  = 0.5f; // Midpoint at 50% of max value
+    _manager->sigmoid_steepness = 3.0f; // Medium steepness
 
     _manager->border_size_percent = 0.05f;
 
@@ -100,8 +100,8 @@ void clean_texture(Manager *manager) {
 }
 
 void copy_attractor_to_texture(Manager *manager) {
-    uint32_t  border_size_x = WINDOW_WIDTH * manager->border_size_percent;
-    uint32_t  border_size_y = WINDOW_HEIGHT * manager->border_size_percent;
+    uint32_t   border_size_x = WINDOW_WIDTH * manager->border_size_percent;
+    uint32_t   border_size_y = WINDOW_HEIGHT * manager->border_size_percent;
     Attractor *attractor     = manager->attractor;
 
     // Copy the attractor buffer to the high res texture data, centered
@@ -121,7 +121,7 @@ void copy_attractor_to_texture(Manager *manager) {
 
 /**
  * Apply a sigmoid function to normalize value
- * 
+ *
  * @param x Input value in range [0, 1]
  * @param midpoint Value where sigmoid is 0.5 (range 0 to 1)
  * @param steepness Controls the steepness of the curve (higher = steeper)
@@ -154,48 +154,46 @@ void normalize_texture(Manager *manager) {
     // Copy the high res texture data to the low res texture data
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
         unsigned char value;
-        uint32_t pixel_value = manager->texture_data[i * 4 + 0];
-        
+        uint32_t      pixel_value = manager->texture_data[i * 4 + 0];
+
         // Normalize to [0, 1] range for processing
         float normalized = (float)pixel_value / max_value;
-        
+
         // Apply selected scaling method
         switch (manager->scaling_method) {
             case LINEAR_SCALING:
                 // Linear scaling (no change)
                 // normalized = normalized;
                 break;
-                
+
             case LOG_SCALING:
                 // Logarithmic scaling - compresses high values, expands low values
                 // Using log(1+x) to handle x=0 case gracefully
                 normalized = logf(1.0f + normalized * 9.0f) / logf(10.0f); // Maps [0,1] to [0,1]
                 break;
-                
+
             case POWER_SCALING:
                 // Power scaling - adjustable exponent
                 // Smaller exponent expands lower values, larger compresses them
                 normalized = powf(normalized, manager->power_exponent);
                 break;
-                
+
             case SIGMOID_SCALING:
                 // Sigmoid scaling - adjustable center point and steepness
                 // Good for enhancing contrast around a specific intensity
-                normalized = sigmoid_normalize(normalized, 
-                                              manager->sigmoid_midpoint,
-                                              manager->sigmoid_steepness);
+                normalized = sigmoid_normalize(normalized, manager->sigmoid_midpoint, manager->sigmoid_steepness);
                 break;
-                
+
             case SQRT_SCALING:
                 // Square root scaling - good balance of detail preservation
                 normalized = sqrtf(normalized);
                 break;
-                
+
             default:
                 // Default to linear if unknown method
                 break;
         }
-        
+
         // Convert to byte value
         value = (unsigned char)(normalized * 255.0f);
 

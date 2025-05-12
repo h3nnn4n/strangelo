@@ -145,19 +145,19 @@ void gui_update_clifford() {
     ImVec2 reset_button_size = {120, 0}; // Width of 120, auto height
     if (igButton("Reset Post-Proc", reset_button_size)) {
         // Reset tone mapping and basic adjustments
-        manager->tone_mapping_mode             = ACES_TONE_MAPPING;
-        manager->exposure                      = 0.75f; // Default exposure
-        manager->gamma                         = 2.2f;  // Default gamma
-        manager->brightness                    = 0.0f;  // Default brightness
-        manager->contrast                      = 1.0f;  // Default contrast
-        
+        manager->tone_mapping_mode = ACES_TONE_MAPPING;
+        manager->exposure          = 0.75f; // Default exposure
+        manager->gamma             = 2.2f;  // Default gamma
+        manager->brightness        = 0.0f;  // Default brightness
+        manager->contrast          = 1.0f;  // Default contrast
+
         // Reset scaling
         manager->scaling_method = POWER_SCALING;
 
         // Reset advanced scaling parameters
-        manager->power_exponent                = 0.5f;  // Square root by default
-        manager->sigmoid_midpoint              = 0.5f;  // Middle of range
-        manager->sigmoid_steepness             = 3.0f;  // Medium steepness
+        manager->power_exponent    = 0.5f; // Square root by default
+        manager->sigmoid_midpoint  = 0.5f; // Middle of range
+        manager->sigmoid_steepness = 3.0f; // Medium steepness
 
         // Force update to apply the reset settings
         blit_attractor_to_texture(manager);
@@ -169,102 +169,84 @@ void gui_update_clifford() {
 void gui_update_scaling() {
     if (!igBegin("Scaling Settings", NULL, 0))
         return igEnd();
-    
+
     bool update_needed = false;
-    
+
     // Scaling method selection combo
-    const char* scaling_methods[] = {
-        "Linear (Raw)",
-        "Logarithmic",
-        "Power/Gamma",
-        "Sigmoid",
-        "Square Root"
-    };
-    
+    const char *scaling_methods[] = {"Linear (Raw)", "Logarithmic", "Power/Gamma", "Sigmoid", "Square Root"};
+
     int current_method = manager->scaling_method;
-    if (igCombo_Str_arr("Scaling Method", &current_method, 
-                     scaling_methods, 5, 0)) {
+    if (igCombo_Str_arr("Scaling Method", &current_method, scaling_methods, 5, 0)) {
         manager->scaling_method = current_method;
-        update_needed = true;
+        update_needed           = true;
     }
-    
+
     // Show different controls based on scaling method
     // Generate transformation curve visualization data
     float curve_x[100];
     float curve_y[100];
-    
+
     for (int i = 0; i < 100; i++) {
-        float x = i / 99.0f;  // 0.0 to 1.0
+        float x    = i / 99.0f; // 0.0 to 1.0
         curve_x[i] = x;
-        
+
         // Apply the current transformation
         switch (manager->scaling_method) {
             case LINEAR_SCALING:
                 curve_y[i] = x; // Identity function
                 break;
-                
-            case LOG_SCALING:
-                curve_y[i] = logf(1.0f + x * 9.0f) / logf(10.0f);
-                break;
-                
-            case POWER_SCALING:
-                curve_y[i] = powf(x, manager->power_exponent);
-                break;
-                
+
+            case LOG_SCALING: curve_y[i] = logf(1.0f + x * 9.0f) / logf(10.0f); break;
+
+            case POWER_SCALING: curve_y[i] = powf(x, manager->power_exponent); break;
+
             case SIGMOID_SCALING:
-                curve_y[i] = sigmoid_normalize(x, 
-                                              manager->sigmoid_midpoint,
-                                              manager->sigmoid_steepness);
+                curve_y[i] = sigmoid_normalize(x, manager->sigmoid_midpoint, manager->sigmoid_steepness);
                 break;
-                
-            case SQRT_SCALING:
-                curve_y[i] = sqrtf(x);
-                break;
-                
-            default:
-                curve_y[i] = x;
-                break;
+
+            case SQRT_SCALING: curve_y[i] = sqrtf(x); break;
+
+            default: curve_y[i] = x; break;
         }
     }
-    
+
     // Plot the transformation curve
     ImVec2 curve_size = {200, 150};
     if (ImPlot_BeginPlot("Scaling Curve", curve_size, ImPlotFlags_NoMouseText)) {
         ImPlot_SetupAxesLimits(0, 1, 0, 1, ImGuiCond_Always);
-        ImPlot_SetupAxes("Input", "Output", 
-                       ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks, 
-                       ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks);
-        
+        ImPlot_SetupAxes("Input", "Output", ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks,
+                         ImPlotAxisFlags_NoGridLines | ImPlotAxisFlags_NoTickMarks);
+
         // Draw the identity line (y=x) for reference
         float identity_x[2] = {0, 1};
         float identity_y[2] = {0, 1};
-        
+
         ImVec4 identity_color = {0.5, 0.5, 0.5, 0.5}; // Gray
         ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, identity_color);
         ImPlot_PlotLine_FloatPtrFloatPtr("##Identity", identity_x, identity_y, 2, 0, 0, 4);
         ImPlot_PopStyleColor(1);
-        
+
         // Draw the actual transformation curve
         ImVec4 curve_color = {1, 1, 0, 1}; // Yellow
         ImPlot_PushStyleColor_Vec4(ImPlotCol_Line, curve_color);
         ImPlot_PlotLine_FloatPtrFloatPtr("##Curve", curve_x, curve_y, 100, 0, 0, 4);
         ImPlot_PopStyleColor(1);
-        
+
         ImPlot_EndPlot();
     }
-    
+
     // Controls and description based on scaling method
     switch (manager->scaling_method) {
         case LINEAR_SCALING:
             igTextWrapped("Linear scaling shows values exactly as they are. Good for uniform distributions, "
-                         "but poor for preserving detail in sparse data like fractals.");
+                          "but poor for preserving detail in sparse data like fractals.");
             break;
-            
+
         case LOG_SCALING:
             igTextWrapped("Logarithmic scaling compresses high values while expanding lower values. "
-                         "Excellent for preserving detail across a wide dynamic range.");
+                          "Excellent for preserving detail across a wide dynamic range.");
             break;
-            
+
         case POWER_SCALING:
             // Power scaling exponent control
             if (igSliderFloat("Power Exponent", &manager->power_exponent, 0.1f, 5.0f, "%.2f", 0)) {
@@ -273,11 +255,11 @@ void gui_update_scaling() {
             if (igIsItemHovered(0)) {
                 igSetTooltip("Values < 1.0 expand low values (like sqrt, log)\nValues > 1.0 compress low values");
             }
-            
+
             igTextWrapped("Power scaling with adjustable exponent. Values below 1.0 expand lower values "
-                         "(like sqrt at 0.5), while values above 1.0 compress them.");
+                          "(like sqrt at 0.5), while values above 1.0 compress them.");
             break;
-            
+
         case SIGMOID_SCALING:
             // Sigmoid controls
             bool sigmoid_updated = false;
@@ -285,74 +267,76 @@ void gui_update_scaling() {
             if (igIsItemHovered(0)) {
                 igSetTooltip("Value in the range where the sigmoid will center (0.5 = middle of range)");
             }
-            
+
             sigmoid_updated |= igSliderFloat("Steepness", &manager->sigmoid_steepness, 0.1f, 10.0f, "%.1f", 0);
             if (igIsItemHovered(0)) {
                 igSetTooltip("Controls how sharp the transition is\nHigher = more contrast around midpoint");
             }
-            
+
             if (sigmoid_updated) {
                 update_needed = true;
             }
-            
+
             igTextWrapped("Sigmoid scaling creates an S-curve, enhancing contrast around the midpoint. "
-                         "Great for bimodal distributions or highlighting a specific value range.");
+                          "Great for bimodal distributions or highlighting a specific value range.");
             break;
-            
+
         case SQRT_SCALING:
             igTextWrapped("Square root scaling is a good default that preserves more detail in lower values "
-                         "while still maintaining a natural appearance.");
+                          "while still maintaining a natural appearance.");
             break;
     }
-    
+
     igSeparator();
-    
+
     // Apply changes when any parameter is updated
     if (update_needed) {
         // Force recalculation and application of transformations
         blit_attractor_to_texture(manager);
     }
-    
+
     // Add unique value counts section
     if (igCollapsingHeader_BoolPtr("Unique Value Analysis", NULL, 0)) {
         igText("Information density at each processing stage:");
-        
+
         // Clifford density map
-        igText("Clifford density map: %u unique values", 
-               manager->unique_clifford_values);
-        
+        igText("Clifford density map: %u unique values", manager->unique_clifford_values);
+
         // texture_data (high resolution)
-        igText("Texture data (high-res): %u unique values", 
-               manager->unique_texture_data_values);
-        
+        igText("Texture data (high-res): %u unique values", manager->unique_texture_data_values);
+
         // texture_data_gl (8-bit)
-        igText("GL texture (8-bit): %u unique values / 256", 
-               manager->unique_texture_data_gl_values);
-        
+        igText("GL texture (8-bit): %u unique values / 256", manager->unique_texture_data_gl_values);
+
         // Display percentages for better understanding
-        float clifford_percentage = manager->unique_clifford_values > 0 ?
-                                   ((float)manager->unique_texture_data_values / manager->unique_clifford_values) * 100.0f : 0.0f;
-                                    
-        float texture_data_percentage = manager->unique_texture_data_values > 0 ?
-                                       ((float)manager->unique_texture_data_gl_values / manager->unique_texture_data_values) * 100.0f : 0.0f;
-                                       
+        float clifford_percentage =
+            manager->unique_clifford_values > 0
+                ? ((float)manager->unique_texture_data_values / manager->unique_clifford_values) * 100.0f
+                : 0.0f;
+
+        float texture_data_percentage =
+            manager->unique_texture_data_values > 0
+                ? ((float)manager->unique_texture_data_gl_values / manager->unique_texture_data_values) * 100.0f
+                : 0.0f;
+
         igSeparator();
-        
+
         igText("Information preserved:");
         igText("  Clifford → texture: %.1f%%", clifford_percentage);
         igText("  Texture → GL: %.1f%%", texture_data_percentage);
-        igText("  Overall: %.1f%%", 
-               manager->unique_clifford_values > 0 ? 
-               ((float)manager->unique_texture_data_gl_values / manager->unique_clifford_values) * 100.0f : 0.0f);
-        
+        igText("  Overall: %.1f%%",
+               manager->unique_clifford_values > 0
+                   ? ((float)manager->unique_texture_data_gl_values / manager->unique_clifford_values) * 100.0f
+                   : 0.0f);
+
         igSeparator();
-        
+
         // Show analysis explanation
         igTextWrapped("Higher unique value counts indicate more detailed and precise data representation. "
-                     "The reduction in unique values through the processing pipeline represents "
-                     "quantization (precision loss) during rendering.");
+                      "The reduction in unique values through the processing pipeline represents "
+                      "quantization (precision loss) during rendering.");
     }
-    
+
     igEnd();
 }
 

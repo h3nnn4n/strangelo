@@ -51,18 +51,18 @@ typedef struct {
     /////////////////
     // Rendering
     //
-    bool           incremental_rendering;
+    bool            incremental_rendering;
     ToneMappingMode tone_mapping_mode;
-    float          exposure;
-    uint32_t       render_texture;
-    float          gamma;
-    float          brightness;
-    float          contrast;
+    float           exposure;
+    uint32_t        render_texture;
+    float           gamma;
+    float           brightness;
+    float           contrast;
 
     // Image processing settings
     ScalingMethod scaling_method;
-    bool freeze_movement;
-    
+    bool          freeze_movement;
+
     // Scaling parameters
     float power_exponent;    // For power scaling (0.1 to 5.0)
     float sigmoid_midpoint;  // For sigmoid scaling (0.0 to 1.0)
@@ -70,7 +70,7 @@ typedef struct {
 
     uint32_t      *texture_data;
     unsigned char *texture_data_gl;
-    
+
     // Unique value counts
     uint32_t unique_clifford_values;
     uint32_t unique_texture_data_values;

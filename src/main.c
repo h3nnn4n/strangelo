@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
         // Keep these for compatibility with potential future shaders
         Shader_set_int(shader, "tone_mapping_mode", (int)manager->tone_mapping_mode);
         Shader_set_float(shader, "exposure", manager->exposure);
-        
+
         // Set scaling method parameters
         Shader_set_int(shader, "scaling_method", manager->scaling_method);
         Shader_set_float(shader, "power_exponent", manager->power_exponent);
