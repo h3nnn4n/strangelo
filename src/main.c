@@ -134,6 +134,8 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+    manager_init_compute(manager);
+
     printf("starting render loop\n");
 
     while (!glfwWindowShouldClose(window)) {
@@ -191,6 +193,7 @@ int main(int argc, char *argv[]) {
         glfwSwapBuffers(window);
     }
 
+    manager_destroy_compute(manager);
     gui_terminate();
     glfwTerminate();
 

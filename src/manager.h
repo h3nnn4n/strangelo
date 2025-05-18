@@ -23,6 +23,7 @@
 #include <stdint.h>
 
 #include "attractor.h"
+#include "compute.h"
 
 typedef enum { LINEAR_SCALING, LOG_SCALING, POWER_SCALING, SIGMOID_SCALING, SQRT_SCALING } ScalingMethod;
 
@@ -87,6 +88,12 @@ typedef struct {
     // GUI
     //
     bool hide_ui;
+
+    /////////////////
+    // Compute
+    //
+    uint32_t  compute_count;
+    Compute **computes;
 } Manager;
 
 extern Manager *manager;
@@ -99,5 +106,8 @@ void blit_attractor_to_texture(Manager *manager);
 
 // Unique value counting functions
 void count_unique_values(Manager *manager);
+
+void manager_init_compute(Manager *manager);
+void manager_destroy_compute(Manager *manager);
 
 #endif // SRC_MANAGER_H_

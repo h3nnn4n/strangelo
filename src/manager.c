@@ -36,6 +36,8 @@ Manager *init_manager() {
 
     memset(_manager, 0, sizeof(Manager));
 
+    _manager->compute_count = 8;
+
     _manager->incremental_rendering = true;
     _manager->tone_mapping_mode     = 1; // ACES
     _manager->exposure              = 0.75f;
@@ -210,4 +212,21 @@ void blit_attractor_to_texture(Manager *manager) {
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_FLOAT,
                  manager->texture_data_gl);
+}
+
+void manager_init_compute(Manager *manager) {
+    manager->computes = malloc(manager->compute_count * sizeof(Compute *));
+
+    for (int i = 0; i < manager->compute_count; i++) {
+        Attractor *attractor =
+            make_attractor(ATTRACTOR_TYPE_CLIFFORD, (1.0f - manager->border_size_percent) * WINDOW_WIDTH,
+                           (1.0f - manager->border_size_percent) * WINDOW_HEIGHT);
+        manager->computes[i] = compute_init(attractor);
+    }
+}
+
+void manager_destroy_compute(Manager *manager) {
+    for (int i = 0; i < manager->compute_count; i++) {
+        compute_destroy(manager->computes[i]);
+    }
 }
