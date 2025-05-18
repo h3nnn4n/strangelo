@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
             printf("fps: %f\n", 1.0f / manager->delta_time);
         }
 
-        iterate_until_timeout(manager->attractor, 1 / 60.0f);
+        manager_compute_iterate_until_timeout(manager, 1 / 60.0f);
 
         // Main pass
         glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);

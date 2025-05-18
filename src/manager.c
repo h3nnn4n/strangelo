@@ -21,6 +21,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include <GLFW/glfw3.h>
 
@@ -229,4 +230,30 @@ void manager_destroy_compute(Manager *manager) {
     for (int i = 0; i < manager->compute_count; i++) {
         compute_destroy(manager->computes[i]);
     }
+}
+
+void manager_pause_compute(Manager *manager) {
+    for (int i = 0; i < manager->compute_count; i++) {
+        compute_pause(manager->computes[i]);
+    }
+}
+
+void manager_resume_compute(Manager *manager) {
+    for (int i = 0; i < manager->compute_count; i++) {
+        compute_resume(manager->computes[i]);
+    }
+}
+
+void manager_compute_iterate_until_timeout(Manager *manager, float timeout) {
+    float start_time = glfwGetTime();
+
+    manager_resume_compute(manager);
+
+    while (glfwGetTime() - start_time < timeout) {
+        // Sleep for 1ms
+        struct timespec ts = {0, 1000000};
+        nanosleep(&ts, NULL);
+    }
+
+    manager_pause_compute(manager);
 }

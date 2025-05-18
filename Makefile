@@ -3,7 +3,8 @@ BUILDDIR = $(abspath $(CURDIR)/build)
 
 OPTIONS = -DIMGUI_IMPL_API="extern \"C\"" \
 	  -DIMGUI_IMPL_OPENGL_LOADER_GLAD \
-	  -DIMGUI_IMPL_OPENGL_LOADER_GLFW
+	  -DIMGUI_IMPL_OPENGL_LOADER_GLFW \
+	  -D_POSIX_C_SOURCE=199309L
 
 INCLUDES = -Isrc                         \
 	   -Ideps/glad/include/          \
@@ -31,7 +32,7 @@ OPTIMIZATION=-O0 -g
 
 LDFLAGS = $(OPTIMIZATION) -Wl,-Ldeps/glfw/build/src/ -Ldeps/cJSON/build/ -Ldeps/pcg-c/src/
 
-LIBS = -lm -lglfw -lpthread -ldl -lstdc++ -lcjson -lpcg_random
+LIBS = -lm -lglfw -lpthread -ldl -lstdc++ -lcjson -lpcg_random -lc
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)

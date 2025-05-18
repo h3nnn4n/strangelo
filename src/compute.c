@@ -19,6 +19,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 
+#include "attractor.h"
 #include "compute.h"
 
 Compute *compute_init(Attractor *attractor) {
@@ -38,9 +39,7 @@ void compute_destroy(Compute *compute) {
     free(compute);
 }
 
-void compute_tick(Compute *compute) {
-    //
-}
+void compute_tick(Compute *compute) { iterate_attractor(compute->attractor, 10000); }
 
 void compute_resume(Compute *compute) { compute->state = COMPUTE_STATE_RUNNING; }
 

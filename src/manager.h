@@ -109,5 +109,9 @@ void count_unique_values(Manager *manager);
 
 void manager_init_compute(Manager *manager);
 void manager_destroy_compute(Manager *manager);
+void manager_pause_compute(Manager *manager);
+void manager_resume_compute(Manager *manager);
+
+void manager_compute_iterate_until_timeout(Manager *manager, float timeout);
 
 #endif // SRC_MANAGER_H_
