@@ -96,9 +96,14 @@ void iterate_until_timeout(Attractor *attractor, float timeout) {
 }
 
 void reset_attractor(Attractor *attractor) {
-    memset(attractor->density_map, 0, attractor->width * attractor->height * sizeof(uint32_t));
+    clean_attractor(attractor);
+
     memcpy(attractor->parameters, attractors[attractor->type].default_parameters,
            attractors[attractor->type].num_parameters * sizeof(float));
+}
+
+void clean_attractor(Attractor *attractor) {
+    memset(attractor->density_map, 0, attractor->width * attractor->height * sizeof(uint32_t));
 }
 
 float get_occupancy(Attractor *attractor) {

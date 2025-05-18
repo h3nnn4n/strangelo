@@ -109,7 +109,7 @@ void gui_update_clifford() {
 
     if (old_a != attractor->parameters[0] || old_b != attractor->parameters[1] || old_c != attractor->parameters[2] ||
         old_d != attractor->parameters[3]) {
-        reset_attractor(attractor);
+        clean_attractor(attractor);
     }
 
     ImVec2 size = {100, 0};

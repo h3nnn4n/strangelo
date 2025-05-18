@@ -75,6 +75,7 @@ void  iterate_until_timeout(Attractor *attractor, float timeout);
 void  randomize_attractor(Attractor *attractor);
 void  randomize_until_chaotic(Attractor *attractor);
 void  reset_attractor(Attractor *attractor);
+void  clean_attractor(Attractor *attractor);
 float get_occupancy(Attractor *attractor);
 
 #endif // SRC_ATTRACTOR_H_
