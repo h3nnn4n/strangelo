@@ -62,13 +62,13 @@ Manager *init_manager() {
         }
     }
 
-    _manager->texture_data_gl = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4 * sizeof(unsigned char));
+    _manager->texture_data_gl = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4 * sizeof(float));
     for (int i = 0; i < WINDOW_WIDTH; i++) {
         for (int j = 0; j < WINDOW_HEIGHT; j++) {
-            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0;
-            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0;
-            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0;
-            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 255;
+            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0.0f;
+            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0.0f;
+            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0.0f;
+            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 1.0f;
         }
     }
 
@@ -92,10 +92,10 @@ void clean_texture(Manager *manager) {
         manager->texture_data[i * 4 + 2] = 0;
         manager->texture_data[i * 4 + 3] = 255;
 
-        manager->texture_data_gl[i * 4 + 0] = 0;
-        manager->texture_data_gl[i * 4 + 1] = 0;
-        manager->texture_data_gl[i * 4 + 2] = 0;
-        manager->texture_data_gl[i * 4 + 3] = 255;
+        manager->texture_data_gl[i * 4 + 0] = 0.0f;
+        manager->texture_data_gl[i * 4 + 1] = 0.0f;
+        manager->texture_data_gl[i * 4 + 2] = 0.0f;
+        manager->texture_data_gl[i * 4 + 3] = 1.0f;
     }
 }
 
@@ -151,10 +151,9 @@ void normalize_texture(Manager *manager) {
     if (max_value == 0)
         max_value = 1;
 
-    // Copy the high res texture data to the low res texture data
+    // Copy the high res texture data to the float texture data
     for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
-        unsigned char value;
-        uint32_t      pixel_value = manager->texture_data[i * 4 + 0];
+        uint32_t pixel_value = manager->texture_data[i * 4 + 0];
 
         // Normalize to [0, 1] range for processing
         float normalized = (float)pixel_value / max_value;
@@ -194,14 +193,11 @@ void normalize_texture(Manager *manager) {
                 break;
         }
 
-        // Convert to byte value
-        value = (unsigned char)(normalized * 255.0f);
-
-        // Store in GL texture
-        manager->texture_data_gl[i * 4 + 0] = value;
-        manager->texture_data_gl[i * 4 + 1] = value;
-        manager->texture_data_gl[i * 4 + 2] = value;
-        manager->texture_data_gl[i * 4 + 3] = 255;
+        // Store normalized value directly in float texture
+        manager->texture_data_gl[i * 4 + 0] = normalized;
+        manager->texture_data_gl[i * 4 + 1] = normalized;
+        manager->texture_data_gl[i * 4 + 2] = normalized;
+        manager->texture_data_gl[i * 4 + 3] = 1.0f;
     }
 }
 
@@ -212,6 +208,6 @@ void blit_attractor_to_texture(Manager *manager) {
 
     normalize_texture(manager);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_FLOAT,
                  manager->texture_data_gl);
 }
