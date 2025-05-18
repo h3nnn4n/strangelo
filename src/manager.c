@@ -204,8 +204,20 @@ void normalize_texture(Manager *manager) {
     }
 }
 
+void merge_attractors_data(Manager *manager) {
+    for (int i = 0; i < manager->compute_count; i++) {
+        Attractor *attractor = manager->computes[i]->attractor;
+
+        for (int j = 0; j < attractor->width * attractor->height; j++) {
+            manager->attractor->density_map[j] += attractor->density_map[j];
+        }
+    }
+}
+
 void blit_attractor_to_texture(Manager *manager) {
     clean_texture(manager);
+
+    merge_attractors_data(manager);
 
     copy_attractor_to_texture(manager);
 
