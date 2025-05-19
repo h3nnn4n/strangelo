@@ -50,3 +50,7 @@ void compute_loop(Compute *compute) {
         compute_tick(compute);
     }
 }
+
+void compute_clean_attractor(Compute *compute) { clean_attractor(compute->attractor); }
+
+void compute_reset_attractor(Compute *compute) { reset_attractor(compute->attractor); }

@@ -18,6 +18,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -92,25 +93,41 @@ void gui_update_clifford() {
 
     Attractor *attractor = manager->attractor;
 
-    // FIXME: Should be dynamic to the number of parameters
-    snprintf(buffer, sizeof(buffer), "%2.6f %2.6f %2.6f %2.6f", attractor->parameters[0], attractor->parameters[1],
-             attractor->parameters[2], attractor->parameters[3]);
+    memset(buffer, 0, sizeof(buffer));
+    for (uint32_t i = 0; i < attractor->num_parameters; i++) {
+        char param_str[32];
+        snprintf(param_str, sizeof(param_str), "%2.6f ", attractor->parameters[i]);
+        strcat(buffer, param_str);
+    }
     igText(buffer);
 
-    float old_a = attractor->parameters[0];
-    float old_b = attractor->parameters[1];
-    float old_c = attractor->parameters[2];
-    float old_d = attractor->parameters[3];
-
-    igSliderFloat("a", &attractor->parameters[0], -2, 2, "%2.6f", 0);
-    igSliderFloat("b", &attractor->parameters[1], -2, 2, "%2.6f", 0);
-    igSliderFloat("c", &attractor->parameters[2], -2, 2, "%2.6f", 0);
-    igSliderFloat("d", &attractor->parameters[3], -2, 2, "%2.6f", 0);
-
-    if (old_a != attractor->parameters[0] || old_b != attractor->parameters[1] || old_c != attractor->parameters[2] ||
-        old_d != attractor->parameters[3]) {
-        clean_attractor(attractor);
+    float *old_params = malloc(attractor->num_parameters * sizeof(float));
+    for (uint32_t i = 0; i < attractor->num_parameters; i++) {
+        old_params[i] = attractor->parameters[i];
     }
+
+    char param_name[16];
+    bool param_changed = false;
+    for (uint32_t i = 0; i < attractor->num_parameters; i++) {
+        if (i < 26) {
+            snprintf(param_name, sizeof(param_name), "%c", 'a' + i);
+        } else {
+            snprintf(param_name, sizeof(param_name), "param%u", i);
+        }
+
+        igSliderFloat(param_name, &attractor->parameters[i], -2, 2, "%2.6f", 0);
+
+        if (old_params[i] != attractor->parameters[i]) {
+            param_changed = true;
+        }
+    }
+
+    if (param_changed) {
+        manager_clean_attractor(manager);
+        manager_propagate_attractor(manager);
+    }
+
+    free(old_params);
 
     ImVec2 size = {100, 0};
     if (igButton("Randomize", size)) {

@@ -98,6 +98,7 @@ void iterate_until_timeout(Attractor *attractor, float timeout) {
 void reset_attractor(Attractor *attractor) {
     clean_attractor(attractor);
 
+    printf("reset_attractor\n");
     memcpy(attractor->parameters, attractors[attractor->type].default_parameters,
            attractors[attractor->type].num_parameters * sizeof(float));
 }

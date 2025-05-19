@@ -19,6 +19,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -268,4 +269,28 @@ void manager_compute_iterate_until_timeout(Manager *manager, float timeout) {
     }
 
     manager_pause_compute(manager);
+}
+
+void manager_clean_attractor(Manager *manager) {
+    clean_attractor(manager->attractor);
+
+    for (int i = 0; i < manager->compute_count; i++) {
+        compute_clean_attractor(manager->computes[i]);
+    }
+}
+
+void manager_reset_attractor(Manager *manager) {
+    reset_attractor(manager->attractor);
+
+    for (int i = 0; i < manager->compute_count; i++) {
+        compute_reset_attractor(manager->computes[i]);
+    }
+}
+
+void manager_propagate_attractor(Manager *manager) {
+    for (int i = 0; i < manager->compute_count; i++) {
+        for (int j = 0; j < manager->attractor->num_parameters; j++) {
+            manager->computes[i]->attractor->parameters[j] = manager->attractor->parameters[j];
+        }
+    }
 }

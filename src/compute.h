@@ -43,4 +43,7 @@ void     compute_resume(Compute *compute);
 void     compute_tick(Compute *compute);
 void     compute_loop(Compute *compute);
 
+void compute_clean_attractor(Compute *compute);
+void compute_reset_attractor(Compute *compute);
+
 #endif // SRC_COMPUTE_H_

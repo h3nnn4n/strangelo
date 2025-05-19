@@ -111,7 +111,11 @@ void manager_init_compute(Manager *manager);
 void manager_destroy_compute(Manager *manager);
 void manager_pause_compute(Manager *manager);
 void manager_resume_compute(Manager *manager);
+void manager_clean_attractor(Manager *manager);
+void manager_reset_attractor(Manager *manager);
 
 void manager_compute_iterate_until_timeout(Manager *manager, float timeout);
+
+void manager_propagate_attractor(Manager *manager);
 
 #endif // SRC_MANAGER_H_
