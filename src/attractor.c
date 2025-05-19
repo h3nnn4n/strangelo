@@ -20,10 +20,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <GLFW/glfw3.h>
+
 #include "attractor.h"
 #include "clifford.h"
-
-#include <GLFW/glfw3.h>
 
 // Default parameter values for Clifford attractor
 float clifford_default_params[4] = {-1.4f, 1.6f, 1.0f, 0.7f};

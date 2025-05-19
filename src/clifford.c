@@ -19,10 +19,10 @@
 #include <math.h>
 #include <stdio.h>
 
+#include <GLFW/glfw3.h>
+
 #include "clifford.h"
 #include "utils.h"
-
-#include <GLFW/glfw3.h>
 
 void iterate_clifford_impl(Attractor *attractor, uint32_t num_iterations, float x, float y) {
     // xn + 1 = sin(a yn) + c cos(a xn)
