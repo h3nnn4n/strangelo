@@ -132,6 +132,8 @@ void gui_update_clifford() {
     ImVec2 size = {100, 0};
     if (igButton("Randomize", size)) {
         randomize_until_chaotic(attractor);
+        manager_propagate_attractor(manager);
+        manager_clean_attractor(manager);
     }
 
     igSeparator();
