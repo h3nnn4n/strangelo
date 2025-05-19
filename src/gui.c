@@ -97,7 +97,7 @@ void gui_update_clifford() {
     for (uint32_t i = 0; i < attractor->num_parameters; i++) {
         char param_str[32];
         snprintf(param_str, sizeof(param_str), "%2.6f ", attractor->parameters[i]);
-        strcat(buffer, param_str);
+        snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%s", param_str);
     }
     igText(buffer);
 
