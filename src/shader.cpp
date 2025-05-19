@@ -21,7 +21,9 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include <cstring>
 #include <iostream>
+#include <string>
 
 #include "glsl_shader_includes.hpp"
 #include "shader.hpp"
