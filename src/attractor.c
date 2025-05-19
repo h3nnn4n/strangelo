@@ -88,10 +88,8 @@ void iterate_attractor(Attractor *attractor, uint32_t num_iterations) {
 void iterate_until_timeout(Attractor *attractor, float timeout) {
     float start_time = glfwGetTime();
 
-    uint32_t num_iterations = 0;
     while (glfwGetTime() - start_time < timeout) {
         iterate_attractor(attractor, 10000);
-        num_iterations += 10000;
     }
 }
 
