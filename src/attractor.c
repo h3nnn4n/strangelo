@@ -16,14 +16,14 @@
  *
  */
 
-#include "attractor.h"
-#include "clifford.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <GLFW/glfw3.h>
+
+#include "attractor.h"
+#include "clifford.h"
 
 // Default parameter values for Clifford attractor
 float clifford_default_params[4] = {-1.4f, 1.6f, 1.0f, 0.7f};
@@ -88,10 +88,8 @@ void iterate_attractor(Attractor *attractor, uint32_t num_iterations) {
 void iterate_until_timeout(Attractor *attractor, float timeout) {
     float start_time = glfwGetTime();
 
-    uint32_t num_iterations = 0;
     while (glfwGetTime() - start_time < timeout) {
         iterate_attractor(attractor, 10000);
-        num_iterations += 10000;
     }
 }
 

@@ -20,6 +20,7 @@
 #include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -93,47 +94,51 @@ void gui_update_clifford() {
 
     Attractor *attractor = manager->attractor;
 
-    memset(buffer, 0, sizeof(buffer));
-    for (uint32_t i = 0; i < attractor->num_parameters; i++) {
-        char param_str[32];
-        snprintf(param_str, sizeof(param_str), "%2.6f ", attractor->parameters[i]);
-        strcat(buffer, param_str);
-    }
-    igText(buffer);
+    if (attractor->num_parameters > 0) {
+        memset(buffer, 0, sizeof(buffer));
+        for (uint32_t i = 0; i < attractor->num_parameters; i++) {
+            char param_str[32];
+            snprintf(param_str, sizeof(param_str), "%2.6f ", attractor->parameters[i]);
+            snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%s", param_str);
+        }
+        igText(buffer);
 
-    float *old_params = malloc(attractor->num_parameters * sizeof(float));
-    for (uint32_t i = 0; i < attractor->num_parameters; i++) {
-        old_params[i] = attractor->parameters[i];
-    }
-
-    char param_name[16];
-    bool param_changed = false;
-    for (uint32_t i = 0; i < attractor->num_parameters; i++) {
-        if (i < 26) {
-            snprintf(param_name, sizeof(param_name), "%c", 'a' + i);
-        } else {
-            snprintf(param_name, sizeof(param_name), "param%u", i);
+        float *old_params = malloc(attractor->num_parameters * sizeof(float));
+        for (uint32_t i = 0; i < attractor->num_parameters; i++) {
+            old_params[i] = attractor->parameters[i];
         }
 
-        igSliderFloat(param_name, &attractor->parameters[i], -2, 2, "%2.6f", 0);
+        char param_name[16];
+        bool param_changed = false;
+        for (uint32_t i = 0; i < attractor->num_parameters; i++) {
+            if (i < 26) {
+                snprintf(param_name, sizeof(param_name), "%c", 'a' + i);
+            } else {
+                snprintf(param_name, sizeof(param_name), "param%u", i);
+            }
 
-        if (old_params[i] != attractor->parameters[i]) {
-            param_changed = true;
+            igSliderFloat(param_name, &attractor->parameters[i], -2, 2, "%2.6f", 0);
+
+            if (old_params[i] != attractor->parameters[i]) {
+                param_changed = true;
+            }
         }
-    }
 
-    if (param_changed) {
-        manager_clean_attractor(manager);
-        manager_propagate_attractor(manager);
-    }
+        if (param_changed) {
+            manager_clean_attractor(manager);
+            manager_propagate_attractor(manager);
+        }
 
-    free(old_params);
+        free(old_params);
 
-    ImVec2 size = {100, 0};
-    if (igButton("Randomize", size)) {
-        randomize_until_chaotic(attractor);
-        manager_propagate_attractor(manager);
-        manager_clean_attractor(manager);
+        ImVec2 size = {100, 0};
+        if (igButton("Randomize", size)) {
+            randomize_until_chaotic(attractor);
+            manager_propagate_attractor(manager);
+            manager_clean_attractor(manager);
+        }
+    } else {
+        igText("Attractor has no parameters.");
     }
 
     igSeparator();
@@ -281,19 +286,21 @@ void gui_update_scaling() {
 
         case SIGMOID_SCALING:
             // Sigmoid controls
-            bool sigmoid_updated = false;
-            sigmoid_updated |= igSliderFloat("Midpoint", &manager->sigmoid_midpoint, 0.0f, 1.0f, "%.2f", 0);
-            if (igIsItemHovered(0)) {
-                igSetTooltip("Value in the range where the sigmoid will center (0.5 = middle of range)");
-            }
+            {
+                bool sigmoid_updated = false;
+                sigmoid_updated |= igSliderFloat("Midpoint", &manager->sigmoid_midpoint, 0.0f, 1.0f, "%.2f", 0);
+                if (igIsItemHovered(0)) {
+                    igSetTooltip("Value in the range where the sigmoid will center (0.5 = middle of range)");
+                }
 
-            sigmoid_updated |= igSliderFloat("Steepness", &manager->sigmoid_steepness, 0.1f, 10.0f, "%.1f", 0);
-            if (igIsItemHovered(0)) {
-                igSetTooltip("Controls how sharp the transition is\nHigher = more contrast around midpoint");
-            }
+                sigmoid_updated |= igSliderFloat("Steepness", &manager->sigmoid_steepness, 0.1f, 10.0f, "%.1f", 0);
+                if (igIsItemHovered(0)) {
+                    igSetTooltip("Controls how sharp the transition is\nHigher = more contrast around midpoint");
+                }
 
-            if (sigmoid_updated) {
-                update_needed = true;
+                if (sigmoid_updated) {
+                    update_needed = true;
+                }
             }
 
             igTextWrapped("Sigmoid scaling creates an S-curve, enhancing contrast around the midpoint. "
