@@ -93,47 +93,51 @@ void gui_update_clifford() {
 
     Attractor *attractor = manager->attractor;
 
-    memset(buffer, 0, sizeof(buffer));
-    for (uint32_t i = 0; i < attractor->num_parameters; i++) {
-        char param_str[32];
-        snprintf(param_str, sizeof(param_str), "%2.6f ", attractor->parameters[i]);
-        snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%s", param_str);
-    }
-    igText(buffer);
+    if (attractor->num_parameters > 0) {
+        memset(buffer, 0, sizeof(buffer));
+        for (uint32_t i = 0; i < attractor->num_parameters; i++) {
+            char param_str[32];
+            snprintf(param_str, sizeof(param_str), "%2.6f ", attractor->parameters[i]);
+            snprintf(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), "%s", param_str);
+        }
+        igText(buffer);
 
-    float *old_params = malloc(attractor->num_parameters * sizeof(float));
-    for (uint32_t i = 0; i < attractor->num_parameters; i++) {
-        old_params[i] = attractor->parameters[i];
-    }
-
-    char param_name[16];
-    bool param_changed = false;
-    for (uint32_t i = 0; i < attractor->num_parameters; i++) {
-        if (i < 26) {
-            snprintf(param_name, sizeof(param_name), "%c", 'a' + i);
-        } else {
-            snprintf(param_name, sizeof(param_name), "param%u", i);
+        float *old_params = malloc(attractor->num_parameters * sizeof(float));
+        for (uint32_t i = 0; i < attractor->num_parameters; i++) {
+            old_params[i] = attractor->parameters[i];
         }
 
-        igSliderFloat(param_name, &attractor->parameters[i], -2, 2, "%2.6f", 0);
+        char param_name[16];
+        bool param_changed = false;
+        for (uint32_t i = 0; i < attractor->num_parameters; i++) {
+            if (i < 26) {
+                snprintf(param_name, sizeof(param_name), "%c", 'a' + i);
+            } else {
+                snprintf(param_name, sizeof(param_name), "param%u", i);
+            }
 
-        if (old_params[i] != attractor->parameters[i]) {
-            param_changed = true;
+            igSliderFloat(param_name, &attractor->parameters[i], -2, 2, "%2.6f", 0);
+
+            if (old_params[i] != attractor->parameters[i]) {
+                param_changed = true;
+            }
         }
-    }
 
-    if (param_changed) {
-        manager_clean_attractor(manager);
-        manager_propagate_attractor(manager);
-    }
+        if (param_changed) {
+            manager_clean_attractor(manager);
+            manager_propagate_attractor(manager);
+        }
 
-    free(old_params);
+        free(old_params);
 
-    ImVec2 size = {100, 0};
-    if (igButton("Randomize", size)) {
-        randomize_until_chaotic(attractor);
-        manager_propagate_attractor(manager);
-        manager_clean_attractor(manager);
+        ImVec2 size = {100, 0};
+        if (igButton("Randomize", size)) {
+            randomize_until_chaotic(attractor);
+            manager_propagate_attractor(manager);
+            manager_clean_attractor(manager);
+        }
+    } else {
+        igText("Attractor has no parameters.");
     }
 
     igSeparator();
