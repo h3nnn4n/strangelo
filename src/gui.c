@@ -20,12 +20,12 @@
 #include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <glad/glad.h>
-
 #include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 #include <pcg_variants.h>
 
