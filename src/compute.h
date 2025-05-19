@@ -19,9 +19,9 @@
 #ifndef SRC_COMPUTE_H_
 #define SRC_COMPUTE_H_
 
-#include "attractor.h"
-
 #include <pthread.h>
+
+#include "attractor.h"
 
 typedef enum {
     COMPUTE_STATE_PAUSED,

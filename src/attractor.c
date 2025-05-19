@@ -16,12 +16,12 @@
  *
  */
 
-#include "attractor.h"
-#include "clifford.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "attractor.h"
+#include "clifford.h"
 
 #include <GLFW/glfw3.h>
 

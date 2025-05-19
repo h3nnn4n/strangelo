@@ -16,11 +16,11 @@
  *
  */
 
-#include "clifford.h"
-#include "utils.h"
-
 #include <math.h>
 #include <stdio.h>
+
+#include "clifford.h"
+#include "utils.h"
 
 #include <GLFW/glfw3.h>
 
