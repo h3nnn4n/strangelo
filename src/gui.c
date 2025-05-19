@@ -281,19 +281,21 @@ void gui_update_scaling() {
 
         case SIGMOID_SCALING:
             // Sigmoid controls
-            bool sigmoid_updated = false;
-            sigmoid_updated |= igSliderFloat("Midpoint", &manager->sigmoid_midpoint, 0.0f, 1.0f, "%.2f", 0);
-            if (igIsItemHovered(0)) {
-                igSetTooltip("Value in the range where the sigmoid will center (0.5 = middle of range)");
-            }
+            {
+                bool sigmoid_updated = false;
+                sigmoid_updated |= igSliderFloat("Midpoint", &manager->sigmoid_midpoint, 0.0f, 1.0f, "%.2f", 0);
+                if (igIsItemHovered(0)) {
+                    igSetTooltip("Value in the range where the sigmoid will center (0.5 = middle of range)");
+                }
 
-            sigmoid_updated |= igSliderFloat("Steepness", &manager->sigmoid_steepness, 0.1f, 10.0f, "%.1f", 0);
-            if (igIsItemHovered(0)) {
-                igSetTooltip("Controls how sharp the transition is\nHigher = more contrast around midpoint");
-            }
+                sigmoid_updated |= igSliderFloat("Steepness", &manager->sigmoid_steepness, 0.1f, 10.0f, "%.1f", 0);
+                if (igIsItemHovered(0)) {
+                    igSetTooltip("Controls how sharp the transition is\nHigher = more contrast around midpoint");
+                }
 
-            if (sigmoid_updated) {
-                update_needed = true;
+                if (sigmoid_updated) {
+                    update_needed = true;
+                }
             }
 
             igTextWrapped("Sigmoid scaling creates an S-curve, enhancing contrast around the midpoint. "
