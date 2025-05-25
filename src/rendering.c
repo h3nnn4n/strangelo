@@ -148,7 +148,7 @@ void normalize_texture_data(uint32_t *texture_data, float *texture_data_gl, uint
 
 void clean_texture_data(uint32_t *texture_data, float *texture_data_gl, uint32_t width, uint32_t height) {
     for (uint32_t i = 0; i < width * height * 4; i++) {
-        texture_data[i] = 0;
+        texture_data[i]    = 0;
         texture_data_gl[i] = 0.0f;
     }
 }
