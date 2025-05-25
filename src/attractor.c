@@ -59,8 +59,8 @@ Attractor *make_attractor(AttractorType type, uint32_t width, uint32_t height) {
     attractor->parameters  = malloc(attractor->num_parameters * sizeof(float));
 
     attractor->coloring_info.starting.r = 0.0f;
-    attractor->coloring_info.starting.g = 1.0f;
-    attractor->coloring_info.starting.b = 0.0f;
+    attractor->coloring_info.starting.g = 0.4f;
+    attractor->coloring_info.starting.b = 1.0f;
 
     attractor->coloring_info.ending.r = 1.0f;
     attractor->coloring_info.ending.g = 0.0f;
