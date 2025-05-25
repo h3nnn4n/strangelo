@@ -75,44 +75,6 @@ void apply_histogram_normalization(uint32_t *texture_data, uint32_t width, uint3
     }
 }
 
-void apply_tone_mapping(uint32_t *texture_data, uint32_t width, uint32_t height) {
-    // Tone mapping is now handled in the shader
-    // This function is kept for backward compatibility
-    // FIXME: Should skip the alpha channel
-    float max_value = 0;
-    for (int i = 0; i < width * height * 4; i++) {
-        if (texture_data[i] > max_value) {
-            max_value = texture_data[i];
-        }
-    }
-
-    if (max_value == 0)
-        return;
-
-    // No longer applying gamma correction here
-    // Just normalizing values
-    for (int i = 0; i < width * height * 4; i++) {
-        texture_data[i] = texture_data[i]; // No change needed
-    }
-}
-
-// Kept for backward compatibility, now implemented in shader
-float apply_gamma_correction(float color, float gamma) { return pow(color, 1.0f / gamma); }
-
-void clean_texture_data(uint32_t *texture_data, float *texture_data_gl, uint32_t width, uint32_t height) {
-    for (int i = 0; i < width * height; i++) {
-        texture_data[i * 4 + 0] = 0;
-        texture_data[i * 4 + 1] = 0;
-        texture_data[i * 4 + 2] = 0;
-        texture_data[i * 4 + 3] = 255;
-
-        texture_data_gl[i * 4 + 0] = 0.0f;
-        texture_data_gl[i * 4 + 1] = 0.0f;
-        texture_data_gl[i * 4 + 2] = 0.0f;
-        texture_data_gl[i * 4 + 3] = 1.0f;
-    }
-}
-
 void copy_attractor_to_texture_data(Attractor *attractor, uint32_t *texture_data, uint32_t width, uint32_t height,
                                     float border_size_percent) {
     uint32_t border_size_x = width * border_size_percent;
