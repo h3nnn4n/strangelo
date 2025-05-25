@@ -105,7 +105,6 @@ float sigmoid_normalize(float x, float midpoint, float steepness) {
 void normalize_texture_data(const uint32_t *texture_data, float *texture_data_gl, uint32_t width, uint32_t height,
                             ScalingMethod scaling_method, float power_exponent, float sigmoid_midpoint,
                             float sigmoid_steepness) {
-
     uint32_t max_value = 0;
     for (int i = 0; i < width * height; i++) {
         if (texture_data[i * 4 + 0] > max_value) {
