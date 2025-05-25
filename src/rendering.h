@@ -19,8 +19,40 @@
 #ifndef SRC_RENDERING_H_
 #define SRC_RENDERING_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
+#include "attractor.h"
+
+typedef enum {
+    LINEAR_SCALING,
+    LOG_SCALING,
+    POWER_SCALING,
+    SIGMOID_SCALING,
+    SQRT_SCALING,
+} ScalingMethod;
+
+typedef enum {
+    NONE_TONE_MAPPING,
+    ACES_TONE_MAPPING,
+    FILMIC_TONE_MAPPING,
+    LOTTES_TONE_MAPPING,
+    REINHARD_TONE_MAPPING,
+    REINHARD2_TONE_MAPPING,
+    UCHIMURA_TONE_MAPPING,
+    UNCHARTED2_TONE_MAPPING,
+    UNREAL_TONE_MAPPING,
+} ToneMappingMode;
+
 void set_shader_storage_buffer(uint32_t binding_id, uint32_t size, void *data);
+
+void  clean_texture_data(uint32_t *texture_data, float *texture_data_gl, uint32_t width, uint32_t height);
+void  copy_attractor_to_texture_data(struct Attractor *attractor, uint32_t *texture_data, uint32_t width,
+                                     uint32_t height, float border_size_percent);
+float sigmoid_normalize(float x, float midpoint, float steepness);
+void  normalize_texture_data(const uint32_t *texture_data, float *texture_data_gl, uint32_t width, uint32_t height,
+                             ScalingMethod scaling_method, float power_exponent, float sigmoid_midpoint,
+                             float sigmoid_steepness);
+void  render_texture_to_gl(float *texture_data_gl, uint32_t width, uint32_t height);
 
 #endif // SRC_RENDERING_H_

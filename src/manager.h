@@ -24,20 +24,7 @@
 
 #include "attractor.h"
 #include "compute.h"
-
-typedef enum { LINEAR_SCALING, LOG_SCALING, POWER_SCALING, SIGMOID_SCALING, SQRT_SCALING } ScalingMethod;
-
-typedef enum {
-    NONE_TONE_MAPPING,
-    ACES_TONE_MAPPING,
-    FILMIC_TONE_MAPPING,
-    LOTTES_TONE_MAPPING,
-    REINHARD_TONE_MAPPING,
-    REINHARD2_TONE_MAPPING,
-    UCHIMURA_TONE_MAPPING,
-    UNCHARTED2_TONE_MAPPING,
-    UNREAL_TONE_MAPPING
-} ToneMappingMode;
+#include "rendering.h" // For ScalingMethod enum
 
 typedef struct {
     /////////////////
@@ -103,9 +90,6 @@ Manager *init_manager();
 void Manager_tick_timer(Manager *manager);
 
 void blit_attractor_to_texture(Manager *manager);
-
-// Unique value counting functions
-void count_unique_values(Manager *manager);
 
 void manager_init_compute(Manager *manager);
 void manager_destroy_compute(Manager *manager);
