@@ -56,23 +56,13 @@ Manager *init_manager() {
 
     _manager->border_size_percent = 0.05f;
 
-    _manager->texture_data = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4 * sizeof(uint32_t));
-    for (int i = 0; i < WINDOW_WIDTH; i++) {
-        for (int j = 0; j < WINDOW_HEIGHT; j++) {
-            _manager->texture_data[i * WINDOW_HEIGHT + j] = 0;
-            _manager->texture_data[i * WINDOW_HEIGHT + j] = 0;
-            _manager->texture_data[i * WINDOW_HEIGHT + j] = 0;
-            _manager->texture_data[i * WINDOW_HEIGHT + j] = 255;
-        }
-    }
-
     _manager->texture_data_gl = malloc(WINDOW_WIDTH * WINDOW_HEIGHT * 4 * sizeof(float));
     for (int i = 0; i < WINDOW_WIDTH; i++) {
         for (int j = 0; j < WINDOW_HEIGHT; j++) {
             _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0.0f;
             _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0.0f;
             _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0.0f;
-            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 1.0f;
+            _manager->texture_data_gl[i * WINDOW_HEIGHT + j] = 0.0f;
         }
     }
 
@@ -100,16 +90,11 @@ void merge_attractors_data(Manager *manager) {
 }
 
 void blit_attractor_to_texture(Manager *manager) {
-    clean_texture_data(manager->texture_data, manager->texture_data_gl, WINDOW_WIDTH, WINDOW_HEIGHT);
-
     merge_attractors_data(manager);
 
-    copy_attractor_to_texture_data(manager->attractor, manager->texture_data, WINDOW_WIDTH, WINDOW_HEIGHT,
-                                   manager->border_size_percent);
-
-    normalize_texture_data(manager->texture_data, manager->texture_data_gl, WINDOW_WIDTH, WINDOW_HEIGHT,
-                           manager->scaling_method, manager->power_exponent, manager->sigmoid_midpoint,
-                           manager->sigmoid_steepness);
+    normalize_attractor_to_texture_gl(manager->attractor, manager->texture_data_gl, WINDOW_WIDTH, WINDOW_HEIGHT,
+                                      manager->border_size_percent, manager->scaling_method, manager->power_exponent,
+                                      manager->sigmoid_midpoint, manager->sigmoid_steepness);
 
     apply_coloring(manager->texture_data_gl, WINDOW_WIDTH, WINDOW_HEIGHT, manager->attractor->coloring_info);
 
