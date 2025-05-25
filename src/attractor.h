@@ -21,6 +21,8 @@
 
 #include <stdint.h>
 
+#include "colors.h"
+
 typedef enum {
     ATTRACTOR_TYPE_CLIFFORD,
 } AttractorType;
@@ -60,6 +62,8 @@ struct Attractor {
     uint32_t  width;
     uint32_t  height;
     uint32_t *density_map;
+
+    ColoringInfo coloring_info;
 
     AttractorFunctions functions;
 };

@@ -111,6 +111,8 @@ void blit_attractor_to_texture(Manager *manager) {
                            manager->scaling_method, manager->power_exponent, manager->sigmoid_midpoint,
                            manager->sigmoid_steepness);
 
+    apply_coloring(manager->texture_data_gl, WINDOW_WIDTH, WINDOW_HEIGHT, manager->attractor->coloring_info);
+
     render_texture_to_gl(manager->texture_data_gl, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 

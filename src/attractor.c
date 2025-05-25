@@ -58,6 +58,14 @@ Attractor *make_attractor(AttractorType type, uint32_t width, uint32_t height) {
     attractor->density_map = malloc(width * height * sizeof(uint32_t));
     attractor->parameters  = malloc(attractor->num_parameters * sizeof(float));
 
+    attractor->coloring_info.starting.r = 0.0f;
+    attractor->coloring_info.starting.g = 0.0f;
+    attractor->coloring_info.starting.b = 1.0f;
+
+    attractor->coloring_info.ending.r = 1.0f;
+    attractor->coloring_info.ending.g = 0.0f;
+    attractor->coloring_info.ending.b = 0.0f;
+
     reset_attractor(attractor);
 
     return attractor;

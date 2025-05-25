@@ -155,3 +155,39 @@ void clean_texture_data(uint32_t *texture_data, float *texture_data_gl, uint32_t
 void render_texture_to_gl(float *texture_data_gl, uint32_t width, uint32_t height) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, texture_data_gl);
 }
+
+void apply_coloring(float *texture_data_gl, uint32_t width, uint32_t height, ColoringInfo coloring_info) {
+    float min_value = INFINITY;
+    float max_value = -INFINITY;
+
+    for (int i = 0; i < width * height; i++) {
+        float value = texture_data_gl[i * 4 + 0];
+        if (value > max_value) {
+            max_value = value;
+        }
+
+        if (value < min_value) {
+            min_value = value;
+        }
+    }
+
+    for (int i = 0; i < width * height; i++) {
+        float value = texture_data_gl[i * 4 + 0];
+
+        // Never colorize the background
+        if (value == 0.0f) {
+            continue;
+        }
+
+        float normalized = (value - min_value) / (max_value - min_value);
+
+        float r = coloring_info.starting.r + (coloring_info.ending.r - coloring_info.starting.r) * normalized;
+        float g = coloring_info.starting.g + (coloring_info.ending.g - coloring_info.starting.g) * normalized;
+        float b = coloring_info.starting.b + (coloring_info.ending.b - coloring_info.starting.b) * normalized;
+
+        texture_data_gl[i * 4 + 0] = r;
+        texture_data_gl[i * 4 + 1] = g;
+        texture_data_gl[i * 4 + 2] = b;
+        texture_data_gl[i * 4 + 3] = normalized;
+    }
+}

@@ -25,6 +25,11 @@ typedef struct {
     float r;
     float g;
     float b;
-} RGB;
+} Color;
+
+typedef struct {
+    Color starting;
+    Color ending;
+} ColoringInfo;
 
 #endif // SRC_COLORS_H_

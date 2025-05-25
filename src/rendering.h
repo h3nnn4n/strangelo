@@ -55,4 +55,6 @@ void  normalize_texture_data(const uint32_t *texture_data, float *texture_data_g
                              float sigmoid_steepness);
 void  render_texture_to_gl(float *texture_data_gl, uint32_t width, uint32_t height);
 
+void apply_coloring(float *texture_data_gl, uint32_t width, uint32_t height, ColoringInfo coloring_info);
+
 #endif // SRC_RENDERING_H_
