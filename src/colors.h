@@ -22,9 +22,9 @@
 #include <stdint.h>
 
 typedef struct {
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
+    float r;
+    float g;
+    float b;
 } RGB;
 
 #endif // SRC_COLORS_H_
