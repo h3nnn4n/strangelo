@@ -187,6 +187,47 @@ void gui_update_clifford() {
         blit_attractor_to_texture(manager);
     }
 
+    igSeparator();
+
+    igText("Color Settings:");
+
+    bool color_changed = false;
+
+    float starting_color[3] = {attractor->coloring_info.starting.r, attractor->coloring_info.starting.g,
+                               attractor->coloring_info.starting.b};
+    if (igColorEdit3("Starting Color", starting_color, 0)) {
+        attractor->coloring_info.starting.r = starting_color[0];
+        attractor->coloring_info.starting.g = starting_color[1];
+        attractor->coloring_info.starting.b = starting_color[2];
+        color_changed                       = true;
+    }
+
+    float ending_color[3] = {attractor->coloring_info.ending.r, attractor->coloring_info.ending.g,
+                             attractor->coloring_info.ending.b};
+    if (igColorEdit3("Ending Color", ending_color, 0)) {
+        attractor->coloring_info.ending.r = ending_color[0];
+        attractor->coloring_info.ending.g = ending_color[1];
+        attractor->coloring_info.ending.b = ending_color[2];
+        color_changed                     = true;
+    }
+
+    ImVec2 reset_colors_size = {120, 0};
+    if (igButton("Reset Colors", reset_colors_size)) {
+        attractor->coloring_info.starting.r = 0.0f;
+        attractor->coloring_info.starting.g = 0.4f;
+        attractor->coloring_info.starting.b = 1.0f;
+
+        attractor->coloring_info.ending.r = 1.0f;
+        attractor->coloring_info.ending.g = 0.0f;
+        attractor->coloring_info.ending.b = 0.0f;
+
+        color_changed = true;
+    }
+
+    if (color_changed) {
+        blit_attractor_to_texture(manager);
+    }
+
     return igEnd();
 }
 
@@ -328,39 +369,26 @@ void gui_update_scaling() {
         // Clifford density map
         igText("Clifford density map: %u unique values", manager->unique_clifford_values);
 
-        // texture_data (high resolution)
-        igText("Texture data (high-res): %u unique values", manager->unique_texture_data_values);
+        // texture_data_gl (final)
+        igText("GL texture (final): %u unique values", manager->unique_texture_data_gl_values);
 
-        // texture_data_gl (8-bit)
-        igText("GL texture (8-bit): %u unique values / 256", manager->unique_texture_data_gl_values);
-
-        // Display percentages for better understanding
-        float clifford_percentage =
+        // Display percentage for better understanding
+        float overall_percentage =
             manager->unique_clifford_values > 0
-                ? ((float)manager->unique_texture_data_values / manager->unique_clifford_values) * 100.0f
-                : 0.0f;
-
-        float texture_data_percentage =
-            manager->unique_texture_data_values > 0
-                ? ((float)manager->unique_texture_data_gl_values / manager->unique_texture_data_values) * 100.0f
+                ? ((float)manager->unique_texture_data_gl_values / manager->unique_clifford_values) * 100.0f
                 : 0.0f;
 
         igSeparator();
 
         igText("Information preserved:");
-        igText("  Clifford → texture: %.1f%%", clifford_percentage);
-        igText("  Texture → GL: %.1f%%", texture_data_percentage);
-        igText("  Overall: %.1f%%",
-               manager->unique_clifford_values > 0
-                   ? ((float)manager->unique_texture_data_gl_values / manager->unique_clifford_values) * 100.0f
-                   : 0.0f);
+        igText("  Clifford → GL: %.1f%%", overall_percentage);
 
         igSeparator();
 
         // Show analysis explanation
         igTextWrapped("Higher unique value counts indicate more detailed and precise data representation. "
-                      "The reduction in unique values through the processing pipeline represents "
-                      "quantization (precision loss) during rendering.");
+                      "The optimized pipeline now processes data directly from the attractor to the final "
+                      "GL texture, eliminating intermediate precision loss.");
     }
 
     igEnd();

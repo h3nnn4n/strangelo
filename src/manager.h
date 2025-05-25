@@ -56,12 +56,10 @@ typedef struct {
     float sigmoid_midpoint;  // For sigmoid scaling (0.0 to 1.0)
     float sigmoid_steepness; // For sigmoid scaling (0.1 to 10.0)
 
-    uint32_t *texture_data;
     float    *texture_data_gl;
 
     // Unique value counts
     uint32_t unique_clifford_values;
-    uint32_t unique_texture_data_values;
     uint32_t unique_texture_data_gl_values;
 
     float border_size_percent;
