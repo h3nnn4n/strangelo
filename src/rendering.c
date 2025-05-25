@@ -102,7 +102,7 @@ float sigmoid_normalize(float x, float midpoint, float steepness) {
     return result;
 }
 
-void normalize_texture_data(uint32_t *texture_data, float *texture_data_gl, uint32_t width, uint32_t height,
+void normalize_texture_data(const uint32_t *texture_data, float *texture_data_gl, uint32_t width, uint32_t height,
                             ScalingMethod scaling_method, float power_exponent, float sigmoid_midpoint,
                             float sigmoid_steepness) {
 

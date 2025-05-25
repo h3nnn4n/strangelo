@@ -50,7 +50,7 @@ void  clean_texture_data(uint32_t *texture_data, float *texture_data_gl, uint32_
 void  copy_attractor_to_texture_data(struct Attractor *attractor, uint32_t *texture_data, uint32_t width,
                                      uint32_t height, float border_size_percent);
 float sigmoid_normalize(float x, float midpoint, float steepness);
-void  normalize_texture_data(uint32_t *texture_data, float *texture_data_gl, uint32_t width, uint32_t height,
+void  normalize_texture_data(const uint32_t *texture_data, float *texture_data_gl, uint32_t width, uint32_t height,
                              ScalingMethod scaling_method, float power_exponent, float sigmoid_midpoint,
                              float sigmoid_steepness);
 void  render_texture_to_gl(float *texture_data_gl, uint32_t width, uint32_t height);
