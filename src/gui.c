@@ -187,6 +187,47 @@ void gui_update_clifford() {
         blit_attractor_to_texture(manager);
     }
 
+    igSeparator();
+
+    igText("Color Settings:");
+
+    bool color_changed = false;
+
+    float starting_color[3] = {attractor->coloring_info.starting.r, attractor->coloring_info.starting.g,
+                               attractor->coloring_info.starting.b};
+    if (igColorEdit3("Starting Color", starting_color, 0)) {
+        attractor->coloring_info.starting.r = starting_color[0];
+        attractor->coloring_info.starting.g = starting_color[1];
+        attractor->coloring_info.starting.b = starting_color[2];
+        color_changed                       = true;
+    }
+
+    float ending_color[3] = {attractor->coloring_info.ending.r, attractor->coloring_info.ending.g,
+                             attractor->coloring_info.ending.b};
+    if (igColorEdit3("Ending Color", ending_color, 0)) {
+        attractor->coloring_info.ending.r = ending_color[0];
+        attractor->coloring_info.ending.g = ending_color[1];
+        attractor->coloring_info.ending.b = ending_color[2];
+        color_changed                     = true;
+    }
+
+    ImVec2 reset_colors_size = {120, 0};
+    if (igButton("Reset Colors", reset_colors_size)) {
+        attractor->coloring_info.starting.r = 0.0f;
+        attractor->coloring_info.starting.g = 0.4f;
+        attractor->coloring_info.starting.b = 1.0f;
+
+        attractor->coloring_info.ending.r = 1.0f;
+        attractor->coloring_info.ending.g = 0.0f;
+        attractor->coloring_info.ending.b = 0.0f;
+
+        color_changed = true;
+    }
+
+    if (color_changed) {
+        blit_attractor_to_texture(manager);
+    }
+
     return igEnd();
 }
 
