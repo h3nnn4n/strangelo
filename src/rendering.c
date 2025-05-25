@@ -159,15 +159,11 @@ void apply_coloring(float *texture_data_gl, uint32_t width, uint32_t height, Col
         float r = coloring_info.starting.r + (coloring_info.ending.r - coloring_info.starting.r) * normalized;
         float g = coloring_info.starting.g + (coloring_info.ending.g - coloring_info.starting.g) * normalized;
         float b = coloring_info.starting.b + (coloring_info.ending.b - coloring_info.starting.b) * normalized;
-
-        // Create a smooth transparency curve
-        // Values at min are nearly transparent, values at max are fully opaque
-        float alpha = powf(normalized, 2.5f);
+        float alpha = 1.0f - expf(-5.0f * normalized);
 
         texture_data_gl[i * 4 + 0] = r;
         texture_data_gl[i * 4 + 1] = g;
         texture_data_gl[i * 4 + 2] = b;
         texture_data_gl[i * 4 + 3] = alpha;
-        texture_data_gl[i * 4 + 3] = 0.0f;
     }
 }

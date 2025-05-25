@@ -128,12 +128,10 @@ void main()
     // Sample the texture
     vec4 color = texture(texture1, TexCoord);
 
-    // Check if this pixel is part of the background (black)
-    float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));
-
-    if (luminance <= BLACK_THRESHOLD) {
-        // This is background - leave it untouched
-        FragColor = color;
+    // Check if this pixel is part of the background (transparent or very dark)
+    if (color.a < 0.01 || dot(color.rgb, vec3(0.299, 0.587, 0.114)) <= BLACK_THRESHOLD) {
+        // This is background - leave it completely transparent
+        FragColor = vec4(0.0, 0.0, 0.0, 0.0);
         return;
     }
 
